@@ -660,6 +660,27 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    const btnRegisterUser = document.getElementById("btnRegisterUser");
+    if (btnRegisterUser) {
+        btnRegisterUser.addEventListener("click", () => {
+            showRegisterModal("user");
+        });
+    }
+
+    const btnRegisterOwner = document.getElementById("btnRegisterOwner");
+    if (btnRegisterOwner) {
+        btnRegisterOwner.addEventListener("click", () => {
+            showRegisterModal("owner");
+        });
+    }
+
+    const btnLogin = document.getElementById("btnLogin");
+    if (btnLogin) {
+        btnLogin.addEventListener("click", () => {
+            showLoginModal();
+        });
+    }
+
     const registerForm = document.getElementById("registerForm");
     if (registerForm) {
         registerForm.addEventListener("submit", async (e) => {
