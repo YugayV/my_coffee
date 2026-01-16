@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kafe Booking - 한국 카페 예약 플랫폼</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="left-sidebar">
+            <div class="logo">
+                <h1>Kafe Booking</h1>
+            </div>
+            <div class="lang-switcher">
+                <button class="lang-btn active" data-lang="ko">한국어</button>
+                <button class="lang-btn" data-lang="en">EN</button>
+                <button class="lang-btn" data-lang="ru">RU</button>
+            </div>
+            <div class="auth-buttons">
+                <button id="btnRegisterUser" class="btn btn-primary" onclick="showRegisterModal('user')">일반 회원가입</button>
+                <button id="btnRegisterOwner" class="btn btn-secondary" onclick="showRegisterModal('owner')">카페 사장님 회원가입</button>
+                <button id="btnLogin" class="btn btn-outline" onclick="showLoginModal()">로그인</button>
+            </div>
+            <div id="profileSection" class="profile-section">
+                <h3 id="profileTitle">프로필</h3>
+                <div id="profileContent" class="profile-content">
+                    <p id="profileStatus">로그인하지 않았습니다.</p>
+                </div>
+                <div class="profile-actions">
+                    <button id="btnBecomeOwner" class="btn btn-secondary hidden">카페 오너가 되기</button>
+                    <button id="btnClientPremium" class="btn btn-outline hidden">클라이언트 프리미엄 2000₩</button>
+                    <button id="btnCoffeePremium" class="btn btn-outline hidden">커피 프리미엄 25000₩</button>
+                    <button id="btnInvestPremium" class="btn btn-outline hidden">인베스트 프리미엄</button>
+                </div>
+            </div>
+            <div class="quick-info">
+                <h3 id="quickTitle">빠른 예약</h3>
+                <p id="quickText">회원가입 후 바로 예약 가능!</p>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="hero-slider">
+                <div class="slider-container">
+                    <div class="slide active">
+                        <img src="https://via.placeholder.com/800x400/ff6b6b/ffffff?text=New+Cafe+Seoul" alt="New Cafe in Seoul">
+                        <div class="slide-content">
+                            <h2>서울 최신 카페</h2>
+                            <p>최근 오픈한 프리미엄 카페</p>
+                        </div>
+                    </div>
+                    <div class="slide">
+                        <img src="https://via.placeholder.com/800x400/4ecdc4/ffffff?text=Busan+Cafe" alt="Busan Cafe">
+                        <div class="slide-content">
+                            <h2>부산 바다뷰 카페</h2>
+                            <p>바다를 보며 즐기는 커피</p>
+                        </div>
+                    </div>
+                    <div class="slide">
+                        <img src="https://via.placeholder.com/800x400/45b7d1/ffffff?text=Traditional+Korean" alt="Traditional Korean Cafe">
+                        <div class="slide-content">
+                            <h2>전통 한국식 카페</h2>
+                            <p>한국의 전통 차 문화를 경험하세요</p>
+                        </div>
+                    </div>
+                </div>
+                <button class="slider-btn prev" onclick="prevSlide()">‹</button>
+                <button class="slider-btn next" onclick="nextSlide()">›</button>
+            </div>
+
+            <div class="ad-banner">
+                <div class="ad-content">
+                    <h3 id="adTitle">특별 할인 이벤트!</h3>
+                    <p id="adText">첫 예약 시 20% 할인</p>
+                    <button id="adButton" class="btn btn-ad">자세히 보기</button>
+                </div>
+            </div>
+
+            <div id="map" class="map-container"></div>
+        </div>
+
+        <div class="right-sidebar">
+            <div id="ownerPanel" class="owner-panel hidden">
+                <h3>Мои кафе</h3>
+                <form id="ownerCafeForm" class="owner-cafe-form">
+                    <input id="ownerCafeName" type="text" placeholder="Название кафе" required>
+                    <select id="ownerCafeCity" required>
+                        <option value="seoul">Сеул</option>
+                        <option value="busan">Пусан</option>
+                        <option value="incheon">Инчхон</option>
+                        <option value="daegu">Тэгу</option>
+                        <option value="daejeon">Тэджон</option>
+                        <option value="gwangju">Гванчжу</option>
+                        <option value="ulsan">Ульсан</option>
+                        <option value="jeju">Чеджу</option>
+                        <option value="suwon">Сувон</option>
+                        <option value="seongnam">Соннам</option>
+                        <option value="goyang">Коян</option>
+                        <option value="yongin">Ёнин</option>
+                        <option value="changwon">Чханвон</option>
+                        <option value="cheongju">Чхонджу</option>
+                        <option value="jeonju">Чонджу</option>
+                        <option value="pohang">Пхохан</option>
+                        <option value="gumi">Куми</option>
+                    </select>
+                    <input id="ownerCafeAddress" type="text" placeholder="Адрес">
+                    <input id="ownerCafePhone" type="tel" placeholder="Телефон">
+                    <textarea id="ownerCafeDescription" placeholder="Описание" rows="2"></textarea>
+                    <button type="submit" class="btn btn-primary">Добавить кафе</button>
+                </form>
+                <div id="ownerCafesList" class="owner-cafes-list"></div>
+            </div>
+            <div class="city-selector">
+                <h3 id="citySelectTitle">도시 선택</h3>
+                <div class="city-list">
+                    <button class="city-btn active" data-city="seoul">서울</button>
+                    <button class="city-btn" data-city="busan">부산</button>
+                    <button class="city-btn" data-city="incheon">인천</button>
+                    <button class="city-btn" data-city="daegu">대구</button>
+                    <button class="city-btn" data-city="daejeon">대전</button>
+                    <button class="city-btn" data-city="gwangju">광주</button>
+                    <button class="city-btn" data-city="ulsan">울산</button>
+                    <button class="city-btn" data-city="jeju">제주</button>
+                    <button class="city-btn" data-city="suwon">수원</button>
+                    <button class="city-btn" data-city="seongnam">성남</button>
+                    <button class="city-btn" data-city="goyang">고양</button>
+                    <button class="city-btn" data-city="yongin">용인</button>
+                    <button class="city-btn" data-city="changwon">창원</button>
+                    <button class="city-btn" data-city="cheongju">청주</button>
+                    <button class="city-btn" data-city="jeonju">전주</button>
+                    <button class="city-btn" data-city="pohang">포항</button>
+                    <button class="city-btn" data-city="gumi">구미</button>
+                </div>
+            </div>
+
+            <div class="cafe-list">
+                <h4 id="selectedCityTitle">선택된 도시: 서울</h4>
+                <div class="cafe-items">
+                    <div class="cafe-item" onclick="showCafeDetail(1)">
+                        <img src="https://via.placeholder.com/60x60/ff6b6b/ffffff?text=C1" alt="Cafe 1">
+                        <div class="cafe-info">
+                            <h5>커피빈 강남점</h5>
+                            <p>⭐ 4.5 (123 reviews)</p>
+                        </div>
+                    </div>
+                    <div class="cafe-item" onclick="showCafeDetail(2)">
+                        <img src="https://via.placeholder.com/60x60/4ecdc4/ffffff?text=C2" alt="Cafe 2">
+                            <div class="cafe-info">
+                            <h5>스타벅스 명동점</h5>
+                            <p>⭐ 4.3 (89 reviews)</p>
+                        </div>
+                    </div>
+                    <div class="cafe-item" onclick="showCafeDetail(3)">
+                        <img src="https://via.placeholder.com/60x60/45b7d1/ffffff?text=C3" alt="Cafe 3">
+                        <div class="cafe-info">
+                            <h5>이디야 홍대점</h5>
+                            <p>⭐ 4.7 (156 reviews)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="city-recommendations">
+                <h4 id="recommendTitle">추천 지역</h4>
+                <p id="recommendText">서울에서는 강남, 홍대, 이태원 주변 카페를 추천합니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('registerModal')">&times;</span>
+            <h2 id="modalTitle">회원가입</h2>
+            <form id="registerForm">
+                <input type="hidden" id="userType" value="user">
+                <input id="registerName" type="text" placeholder="이름" required>
+                <input id="registerPhone" type="tel" placeholder="전화번호" required>
+                <input id="registerPassword" type="password" placeholder="비밀번호" required>
+                <input id="registerPasswordConfirm" type="password" placeholder="비밀번호 확인" required>
+                <button type="submit" class="btn btn-primary">가입하기</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('loginModal')">&times;</span>
+            <h2>로그인</h2>
+            <form id="loginForm">
+                <input id="loginPhone" type="tel" placeholder="전화번호" required>
+                <input id="loginPassword" type="password" placeholder="비밀번호" required>
+                <button type="submit" class="btn btn-primary">로그인</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_JAVASCRIPT_KEY&libraries=services"></script>
+    <script src="script.js"></script>
+</body>
+</html>
