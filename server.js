@@ -520,6 +520,10 @@ app.get("/", async (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
+app.get("/cafe/:id", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
 app.get("/payments/toss/success", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
@@ -1893,7 +1897,16 @@ app.put("/api/cafes/:id", authMiddleware, ownerOnly, async (req, res) => {
 
 app.get("/api/cafes", async (req, res) => {
   try {
-    const { city } = req.query;
+    const { city, id } = req.query;
+    if (id) {
+      const cafe = await Cafe.findOne({ _id: id, isActive: true })
+        .select("name cityCode address description phone openingHours averageCheck photos menu")
+        .lean();
+      if (!cafe) {
+        return res.status(404).json({ error: "cafe not found" });
+      }
+      return res.json({ cafe });
+    }
     const query = { isActive: true };
     if (city) {
       query.cityCode = city;

@@ -531,12 +531,15 @@ async function loadFeedCafes() {
         return;
     }
     try {
-        const res = await fetch("/api/cafes");
+        const res = await fetch(
+            "/api/cafes" +
+                (currentCityCode ? "?city=" + encodeURIComponent(currentCityCode) : "")
+        );
         if (!res.ok) {
             return;
         }
         const data = await res.json();
-        const cafes = data && data.cafes ? data.cafes : [];
+        const cafes = data && Array.isArray(data.cafes) ? data.cafes : [];
         listEl.innerHTML = "";
         const config = translations[currentLang] || translations.ko;
         cafes.slice(0, 5).forEach((cafe) => {
@@ -607,7 +610,11 @@ async function loadFeedCafes() {
             item.appendChild(info);
 
             item.addEventListener("click", () => {
-                openCafePage(cafe);
+                if (cafe && cafe._id) {
+                    window.location.href = "/cafe/" + encodeURIComponent(cafe._id);
+                } else {
+                    openCafePage(cafe);
+                }
             });
 
             listEl.appendChild(item);
@@ -2242,6 +2249,46 @@ document.addEventListener("DOMContentLoaded", () => {
     loadAuthFromStorage();
 
     const pathName = window.location.pathname;
+    if (pathName.startsWith("/cafe/")) {
+        const id = pathName.split("/").filter(Boolean)[1];
+        if (id) {
+            fetch("/api/cafes?id=" + encodeURIComponent(id))
+                .then((res) => {
+                    if (!res.ok) {
+                        throw new Error("not found");
+                    }
+                    return res.json();
+                })
+                .then((data) => {
+                    if (data && data.cafe) {
+                        const cafe = data.cafe;
+                        if (cafe.cityCode) {
+                            currentCityCode = cafe.cityCode;
+                            const topCitySelect = document.getElementById("topCitySelect");
+                            if (topCitySelect) {
+                                topCitySelect.value = currentCityCode;
+                            }
+                            const cityButtonsSync = document.querySelectorAll(".city-btn");
+                            cityButtonsSync.forEach((btn) => {
+                                const btnCode = btn.getAttribute("data-city");
+                                if (btnCode === currentCityCode) {
+                                    btn.classList.add("active");
+                                } else {
+                                    btn.classList.remove("active");
+                                }
+                            });
+                            applyLanguage(currentLang);
+                            initKakaoMap(currentCityCode);
+                            loadFeedCafes();
+                        }
+                        openCafePage(cafe);
+                    }
+                })
+                .catch(() => {
+                    // ignore
+                });
+        }
+    }
     if (pathName === "/payments/toss/success") {
         handleTossSuccess();
         return;
@@ -2258,6 +2305,10 @@ document.addEventListener("DOMContentLoaded", () => {
             btn.classList.add("active");
             const code = btn.getAttribute("data-city");
             currentCityCode = code || "seoul";
+            const topCitySelect = document.getElementById("topCitySelect");
+            if (topCitySelect) {
+                topCitySelect.value = currentCityCode;
+            }
             applyLanguage(currentLang);
             initKakaoMap(currentCityCode);
             loadFeedCafes();
@@ -2302,6 +2353,27 @@ document.addEventListener("DOMContentLoaded", () => {
     if (activeProvince) {
         const province = activeProvince.getAttribute("data-province");
         filterCitiesByProvince(province);
+    }
+
+    const topCitySelect = document.getElementById("topCitySelect");
+    if (topCitySelect) {
+        topCitySelect.value = currentCityCode;
+        topCitySelect.addEventListener("change", () => {
+            const code = topCitySelect.value || "seoul";
+            currentCityCode = code;
+            const cityButtonsSync = document.querySelectorAll(".city-btn");
+            cityButtonsSync.forEach((btn) => {
+                const btnCode = btn.getAttribute("data-city");
+                if (btnCode === code) {
+                    btn.classList.add("active");
+                } else {
+                    btn.classList.remove("active");
+                }
+            });
+            applyLanguage(currentLang);
+            initKakaoMap(currentCityCode);
+            loadFeedCafes();
+        });
     }
 
     const searchInput = document.getElementById("searchInput");
