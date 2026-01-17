@@ -1,8 +1,8 @@
 body {
     margin: 0;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: #0f172a;
-    color: #e5e7eb;
+    background: #f3f4f6;
+    color: #111827;
 }
 
 .container {
@@ -15,8 +15,8 @@ body {
 .right-sidebar {
     padding: 20px;
     box-sizing: border-box;
-    background: rgba(15, 23, 42, 0.95);
-    border-right: 1px solid rgba(148, 163, 184, 0.2);
+    background: #ffffff;
+    border-right: 1px solid rgba(148, 163, 184, 0.25);
 }
 
 .right-sidebar {
@@ -36,6 +36,12 @@ body {
     margin-bottom: 16px;
 }
 
+.lang-switcher-left {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
 .lang-btn {
     padding: 4px 8px;
     border-radius: 999px;
@@ -52,6 +58,12 @@ body {
     border-color: #f97316;
 }
 
+.auth-inline-btn {
+    margin-left: auto;
+    padding: 6px 10px;
+    font-size: 12px;
+}
+
 .auth-buttons {
     display: flex;
     flex-direction: column;
@@ -62,8 +74,8 @@ body {
     margin-top: 16px;
     padding: 12px 14px;
     border-radius: 10px;
-    background: rgba(15, 23, 42, 0.8);
-    border: 1px solid rgba(148, 163, 184, 0.4);
+    background: #ffffff;
+    border: 1px solid rgba(148, 163, 184, 0.35);
 }
 
 .profile-section h3 {
@@ -74,7 +86,19 @@ body {
 .profile-content {
     font-size: 13px;
     margin-bottom: 8px;
-    color: #cbd5f5;
+    color: #4b5563;
+}
+
+.profile-subscriptions-list {
+    margin-top: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.profile-subscription-item {
+    font-size: 12px;
+    color: #6b7280;
 }
 
 .profile-actions {
@@ -129,8 +153,8 @@ body {
     margin-top: 32px;
     padding: 12px 14px;
     border-radius: 10px;
-    background: rgba(15, 23, 42, 0.8);
-    border: 1px solid rgba(148, 163, 184, 0.4);
+    background: #ffffff;
+    border: 1px solid rgba(148, 163, 184, 0.35);
 }
 
 .quick-info h3 {
@@ -141,13 +165,14 @@ body {
 .quick-info p {
     margin: 0;
     font-size: 13px;
-    color: #9ca3af;
+    color: #6b7280;
 }
 
 .main-content {
     position: relative;
     padding: 20px;
     box-sizing: border-box;
+    background: #ffffff;
 }
 
 .hero-slider {
@@ -155,7 +180,7 @@ body {
     height: calc(100vh - 160px);
     border-radius: 18px;
     overflow: hidden;
-    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.7);
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.25);
 }
 
 .slider-container {
@@ -215,7 +240,7 @@ body {
     border-radius: 999px;
     border: none;
     cursor: pointer;
-    background: rgba(15, 23, 42, 0.8);
+    background: rgba(15, 23, 42, 0.75);
     color: #e5e7eb;
     font-size: 20px;
     display: flex;
@@ -235,8 +260,8 @@ body {
     margin-top: 16px;
     padding: 10px 12px;
     border-radius: 12px;
-    background: rgba(15, 23, 42, 0.9);
-    border: 1px solid rgba(148, 163, 184, 0.45);
+    background: #fff7ed;
+    border: 1px solid rgba(251, 146, 60, 0.5);
 }
 
 .ad-content h3 {
@@ -268,8 +293,8 @@ body {
 .ad-local-item {
     padding: 8px 10px;
     border-radius: 10px;
-    background: rgba(15, 23, 42, 0.85);
-    border: 1px solid rgba(249, 115, 22, 0.5);
+    background: #ffffff;
+    border: 1px solid rgba(249, 115, 22, 0.4);
     cursor: default;
 }
 
@@ -282,7 +307,7 @@ body {
 }
 
 .ad-local-clickable:hover {
-    background: rgba(15, 23, 42, 0.95);
+    background: #fffbeb;
 }
 
 .ad-local-title {
@@ -302,8 +327,8 @@ body {
     height: 260px;
     border-radius: 14px;
     overflow: hidden;
-    background: #020617;
-    border: 1px solid rgba(15, 23, 42, 0.8);
+    background: #e5e7eb;
+    border: 1px solid rgba(148, 163, 184, 0.6);
 }
 
 .city-selector h3 {
@@ -339,8 +364,8 @@ body {
     margin-bottom: 18px;
     padding: 10px 12px;
     border-radius: 10px;
-    background: rgba(15, 23, 42, 0.8);
-    border: 1px solid rgba(148, 163, 184, 0.4);
+    background: #ffffff;
+    border: 1px solid rgba(148, 163, 184, 0.35);
 }
 
 .search-bar {
@@ -352,8 +377,8 @@ body {
     padding: 6px 8px;
     border-radius: 8px;
     border: 1px solid rgba(148, 163, 184, 0.6);
-    background: #020617;
-    color: #e5e7eb;
+    background: #ffffff;
+    color: #111827;
     font-size: 12px;
 }
 
@@ -389,8 +414,8 @@ body {
 .feed-section {
     padding: 10px 12px;
     border-radius: 10px;
-    background: rgba(15, 23, 42, 0.8);
-    border: 1px solid rgba(148, 163, 184, 0.3);
+    background: #ffffff;
+    border: 1px solid rgba(148, 163, 184, 0.35);
     font-size: 13px;
 }
 
@@ -399,8 +424,8 @@ body {
 }
 
 .feed-section-stats {
-    border-color: rgba(248, 250, 252, 0.4);
-    background: radial-gradient(circle at top left, rgba(249, 115, 22, 0.18), rgba(15, 23, 42, 0.9));
+    border-color: rgba(249, 115, 22, 0.4);
+    background: radial-gradient(circle at top left, rgba(249, 115, 22, 0.12), #ffffff);
 }
 
 .feed-stats-row {
@@ -429,10 +454,61 @@ body {
 }
 
 .feed-cafe-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     padding: 6px 8px;
     border-radius: 8px;
-    background: rgba(15, 23, 42, 0.7);
+    background: #f9fafb;
     border: 1px solid rgba(148, 163, 184, 0.4);
+    cursor: pointer;
+    transition: border 0.15s, background 0.15s;
+}
+
+.feed-cafe-item:hover {
+    border-color: #f97316;
+    background: #e5e7eb;
+}
+
+.feed-cafe-thumb {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #e5e7eb;
+    flex-shrink: 0;
+}
+
+.feed-cafe-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.feed-cafe-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 12px;
+}
+
+.feed-cafe-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.feed-cafe-city {
+    color: #6b7280;
+}
+
+.feed-cafe-address {
+    color: #9ca3af;
+}
+
+.feed-cafe-meta {
+    font-size: 11px;
+    color: #6b7280;
 }
 
 .feed-ads-container {
@@ -444,7 +520,7 @@ body {
 .feed-ad-item {
     padding: 6px 8px;
     border-radius: 8px;
-    background: rgba(15, 23, 42, 0.7);
+    background: #fff7ed;
     border: 1px solid rgba(249, 115, 22, 0.4);
     font-size: 12px;
 }
@@ -453,7 +529,7 @@ body {
     margin-top: 16px;
     padding: 12px 20px;
     border-top: 1px solid rgba(148, 163, 184, 0.2);
-    background: rgba(15, 23, 42, 0.98);
+    background: #0f172a;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -502,8 +578,8 @@ body {
     padding: 6px 8px;
     border-radius: 8px;
     border: 1px solid rgba(148, 163, 184, 0.6);
-    background: #020617;
-    color: #e5e7eb;
+    background: #ffffff;
+    color: #111827;
     font-size: 12px;
 }
 
@@ -518,17 +594,43 @@ body {
 .owner-cafe-item {
     padding: 6px 8px;
     border-radius: 8px;
-    background: rgba(15, 23, 42, 0.7);
+    background: #f9fafb;
     border: 1px solid rgba(148, 163, 184, 0.4);
     font-size: 12px;
+}
+
+.owner-cafe-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.owner-cafe-photos {
+    margin-bottom: 6px;
+}
+
+.owner-cafe-photos img {
+    width: 100%;
+    max-height: 120px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.owner-cafe-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.owner-cafe-controls input[type="file"] {
+    font-size: 11px;
 }
 
 .admin-panel {
     margin-bottom: 18px;
     padding: 10px 12px;
     border-radius: 10px;
-    background: rgba(15, 23, 42, 0.8);
-    border: 1px solid rgba(248, 250, 252, 0.12);
+    background: #ffffff;
+    border: 1px solid rgba(148, 163, 184, 0.4);
 }
 
 .admin-panel h3 {
@@ -579,7 +681,7 @@ body {
 .admin-list-item {
     padding: 6px 8px;
     border-radius: 8px;
-    background: rgba(15, 23, 42, 0.7);
+    background: #f9fafb;
     border: 1px solid rgba(148, 163, 184, 0.4);
     font-size: 12px;
 }
@@ -621,7 +723,7 @@ body {
 
 .admin-list-item-inactive {
     border-color: rgba(248, 113, 113, 0.7);
-    background: rgba(15, 23, 42, 0.9);
+    background: #fef2f2;
 }
 
 .admin-user-plan-buttons {
@@ -651,8 +753,8 @@ body {
     padding: 6px 8px;
     border-radius: 8px;
     border: 1px solid rgba(148, 163, 184, 0.6);
-    background: #020617;
-    color: #e5e7eb;
+    background: #ffffff;
+    color: #111827;
     font-size: 12px;
 }
 
@@ -673,8 +775,8 @@ body {
     padding: 6px 8px;
     border-radius: 8px;
     border: 1px solid rgba(148, 163, 184, 0.6);
-    background: #020617;
-    color: #e5e7eb;
+    background: #ffffff;
+    color: #111827;
     font-size: 12px;
 }
 
@@ -724,7 +826,7 @@ body {
     gap: 10px;
     padding: 8px;
     border-radius: 10px;
-    background: rgba(15, 23, 42, 0.7);
+    background: #f9fafb;
     border: 1px solid transparent;
     cursor: pointer;
     transition: border 0.15s, background 0.15s;
@@ -732,7 +834,7 @@ body {
 
 .cafe-item:hover {
     border-color: #f97316;
-    background: rgba(15, 23, 42, 0.9);
+    background: #e5e7eb;
 }
 
 .cafe-item img {
@@ -754,20 +856,20 @@ body {
     margin-top: 16px;
     padding: 10px 12px;
     border-radius: 10px;
-    background: rgba(15, 23, 42, 0.8);
-    border: 1px solid rgba(148, 163, 184, 0.4);
+    background: #ffffff;
+    border: 1px solid rgba(148, 163, 184, 0.35);
 }
 
 .city-recommendations h4 {
     margin: 0 0 6px;
     font-size: 14px;
-    color: #e5e7eb;
+    color: #111827;
 }
 
 .city-recommendations p {
     margin: 0;
     font-size: 12px;
-    color: #9ca3af;
+    color: #6b7280;
 }
 
 .modal {
@@ -782,7 +884,7 @@ body {
 }
 
 .modal-content {
-    background-color: #020617;
+    background-color: #ffffff;
     margin: 8% auto;
     padding: 20px;
     border-radius: 16px;
@@ -806,8 +908,8 @@ body {
     padding: 8px 10px;
     border-radius: 8px;
     border: 1px solid rgba(148, 163, 184, 0.6);
-    background: #020617;
-    color: #e5e7eb;
+    background: #ffffff;
+    color: #111827;
 }
 
 .close {

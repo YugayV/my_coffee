@@ -461,25 +461,106 @@ async function loadFeedCafes() {
         return;
     }
     try {
-        const res = await fetch("/api/cafes?city=" + encodeURIComponent(currentCityCode || ""));
+        const res = await fetch("/api/cafes");
         if (!res.ok) {
             return;
         }
         const data = await res.json();
         const cafes = data && data.cafes ? data.cafes : [];
         listEl.innerHTML = "";
+        const config = translations[currentLang] || translations.ko;
         cafes.slice(0, 5).forEach((cafe) => {
-            const div = document.createElement("div");
-            div.className = "feed-cafe-item";
-            const name = document.createElement("div");
-            name.textContent = cafe.name || "";
-            const address = document.createElement("div");
-            address.textContent = cafe.address || "";
-            div.appendChild(name);
-            if (cafe.address) {
-                div.appendChild(address);
+            const item = document.createElement("div");
+            item.className = "feed-cafe-item";
+
+            const thumbWrap = document.createElement("div");
+            thumbWrap.className = "feed-cafe-thumb";
+
+            const photos = Array.isArray(cafe.photos) ? cafe.photos : [];
+            if (photos.length) {
+                const lastPhoto = photos[photos.length - 1];
+                if (lastPhoto && lastPhoto.url) {
+                    const img = document.createElement("img");
+                    img.src = lastPhoto.url;
+                    img.alt = cafe.name || "";
+                    thumbWrap.appendChild(img);
+                }
             }
-            listEl.appendChild(div);
+
+            const info = document.createElement("div");
+            info.className = "feed-cafe-info";
+
+            const nameEl = document.createElement("div");
+            nameEl.className = "feed-cafe-name";
+            nameEl.textContent = cafe.name || "";
+
+            const cityCode = cafe.cityCode || "";
+            const cityName =
+                (config &&
+                    config.cities &&
+                    cityCode &&
+                    config.cities[cityCode]) ||
+                cityCode ||
+                "";
+            const cityEl = document.createElement("div");
+            cityEl.className = "feed-cafe-city";
+            cityEl.textContent = cityName;
+
+            const addressEl = document.createElement("div");
+            addressEl.className = "feed-cafe-address";
+            addressEl.textContent = cafe.address || "";
+
+            const metaEl = document.createElement("div");
+            metaEl.className = "feed-cafe-meta";
+            if (typeof cafe.subscribersCount === "number") {
+                if (currentLang === "ru") {
+                    metaEl.textContent = "Подписчики: " + cafe.subscribersCount;
+                } else if (currentLang === "en") {
+                    metaEl.textContent = "Subscribers: " + cafe.subscribersCount;
+                } else {
+                    metaEl.textContent = "구독자: " + cafe.subscribersCount;
+                }
+            }
+
+            info.appendChild(nameEl);
+            if (cityName) {
+                info.appendChild(cityEl);
+            }
+            if (cafe.address) {
+                info.appendChild(addressEl);
+            }
+            if (metaEl.textContent) {
+                info.appendChild(metaEl);
+            }
+
+            item.appendChild(thumbWrap);
+            item.appendChild(info);
+
+            item.addEventListener("click", () => {
+                const lines = [];
+                if (cafe.name) {
+                    lines.push(cafe.name);
+                }
+                if (cityName) {
+                    lines.push(cityName);
+                }
+                if (cafe.address) {
+                    lines.push(cafe.address);
+                }
+                const details = lines.join("\n");
+                if (!details) {
+                    return;
+                }
+                if (currentLang === "ru") {
+                    alert("Кафе:\n" + details);
+                } else if (currentLang === "en") {
+                    alert("Cafe:\n" + details);
+                } else {
+                    alert("카페 정보:\n" + details);
+                }
+            });
+
+            listEl.appendChild(item);
         });
     } catch (e) {
     }
@@ -577,11 +658,9 @@ function handleTossFail() {
 function renderProfile() {
     const statusEl = document.getElementById("profileStatus");
     const btnBecomeOwner = document.getElementById("btnBecomeOwner");
-    const btnClientPremium = document.getElementById("btnClientPremium");
-    const btnCoffeePremium = document.getElementById("btnCoffeePremium");
-    const btnInvestPremium = document.getElementById("btnInvestPremium");
     const ownerPanel = document.getElementById("ownerPanel");
     const adminPanel = document.getElementById("adminPanel");
+    const subscriptionsList = document.getElementById("profileSubscriptionsList");
     if (!statusEl) {
         return;
     }
@@ -589,63 +668,25 @@ function renderProfile() {
         statusEl.textContent = currentLang === "ru" ? "Вы не авторизованы." :
             currentLang === "en" ? "You are not logged in." : "로그인하지 않았습니다.";
         if (btnBecomeOwner) btnBecomeOwner.classList.add("hidden");
-        if (btnClientPremium) btnClientPremium.classList.add("hidden");
-        if (btnCoffeePremium) btnCoffeePremium.classList.add("hidden");
-        if (btnInvestPremium) btnInvestPremium.classList.add("hidden");
         if (ownerPanel) ownerPanel.classList.add("hidden");
         if (adminPanel) adminPanel.classList.add("hidden");
+        if (subscriptionsList) subscriptionsList.innerHTML = "";
         return;
     }
-    const plan = currentUser.subscriptionPlan || "none";
     const role = currentUser.role || "user";
-    let planText = "";
-    if (plan === "client") {
-        planText = currentLang === "ru" ? "Клиентский премиум (2000₩)" :
-            currentLang === "en" ? "Client premium (2000₩)" : "클라이언트 프리미엄 (2000₩)";
-    } else if (plan === "coffee") {
-        planText = currentLang === "ru" ? "Coffee Premium (25000₩)" :
-            currentLang === "en" ? "Coffee Premium (25000₩)" : "커피 프리미엄 (25000₩)";
-    } else if (plan === "invest") {
-        planText = currentLang === "ru" ? "Invest Premium" :
-            currentLang === "en" ? "Invest Premium" : "인베스트 프리미엄";
-    } else {
-        planText = currentLang === "ru" ? "Без премиума" :
-            currentLang === "en" ? "No premium" : "프리미엄 없음";
-    }
     const name = currentUser.name || "";
     if (currentLang === "ru") {
-        statusEl.textContent = "Привет, " + name + ". Роль: " + role + ". Тариф: " + planText + ".";
+        statusEl.textContent = "Привет, " + name + ". Роль: " + role + ".";
     } else if (currentLang === "en") {
-        statusEl.textContent = "Hello, " + name + ". Role: " + role + ". Plan: " + planText + ".";
+        statusEl.textContent = "Hello, " + name + ". Role: " + role + ".";
     } else {
-        statusEl.textContent = "안녕하세요, " + name + "님. 역할: " + role + ", 요금제: " + planText + ".";
+        statusEl.textContent = "안녕하세요, " + name + "님. 역할: " + role + ".";
     }
     if (btnBecomeOwner) {
         if (role === "owner") {
             btnBecomeOwner.classList.add("hidden");
         } else {
             btnBecomeOwner.classList.remove("hidden");
-        }
-    }
-    if (btnClientPremium) {
-        if (plan === "client" || plan === "coffee" || plan === "invest") {
-            btnClientPremium.classList.add("hidden");
-        } else {
-            btnClientPremium.classList.remove("hidden");
-        }
-    }
-    if (btnCoffeePremium) {
-        if (plan === "coffee" || plan === "invest") {
-            btnCoffeePremium.classList.add("hidden");
-        } else {
-            btnCoffeePremium.classList.remove("hidden");
-        }
-    }
-    if (btnInvestPremium) {
-        if (currentUser.isInvestor) {
-            btnInvestPremium.classList.add("hidden");
-        } else {
-            btnInvestPremium.classList.remove("hidden");
         }
     }
     if (ownerPanel) {
@@ -661,6 +702,50 @@ function renderProfile() {
         } else {
             adminPanel.classList.add("hidden");
         }
+    }
+    if (subscriptionsList) {
+        loadMySubscriptions();
+    }
+}
+
+async function loadMySubscriptions() {
+    const listEl = document.getElementById("profileSubscriptionsList");
+    if (!listEl || !authToken) {
+        return;
+    }
+    try {
+        const res = await fetch("/api/my/subscriptions", {
+            headers: {
+                Authorization: "Bearer " + authToken
+            }
+        });
+        if (!res.ok) {
+            return;
+        }
+        const data = await res.json();
+        const items = data && data.subscriptions ? data.subscriptions : [];
+        listEl.innerHTML = "";
+        items.forEach((sub) => {
+            const cafe = sub.cafe || {};
+            const div = document.createElement("div");
+            div.className = "profile-subscription-item";
+            const name = cafe.name || "";
+            const cityCode = cafe.cityCode || "";
+            const address = cafe.address || "";
+            const parts = [];
+            if (name) {
+                parts.push(name);
+            }
+            if (cityCode) {
+                parts.push("(" + cityCode + ")");
+            }
+            if (address) {
+                parts.push(address);
+            }
+            div.textContent = parts.join(" ");
+            listEl.appendChild(div);
+        });
+    } catch (e) {
     }
 }
 
@@ -710,7 +795,11 @@ function showRegisterModal(type) {
     const userTypeInput = document.getElementById("userType");
     const title = document.getElementById("modalTitle");
     if (!modal || !userTypeInput || !title) return;
-    userTypeInput.value = type;
+    if (type === "owner" || type === "user") {
+        userTypeInput.value = type;
+    } else {
+        userTypeInput.value = "user";
+    }
     if (currentLang === "ko") {
         title.textContent = type === "owner" ? "카페 사장님 회원가입" : "일반 회원가입";
     } else if (currentLang === "en") {
@@ -753,9 +842,7 @@ function applyLanguage(lang) {
     if (!config) return;
     currentLang = lang;
 
-    const btnUser = document.getElementById("btnRegisterUser");
-    const btnOwner = document.getElementById("btnRegisterOwner");
-    const btnLogin = document.getElementById("btnLogin");
+    const btnOpenAuth = document.getElementById("btnOpenAuth");
     const quickTitle = document.getElementById("quickTitle");
     const quickText = document.getElementById("quickText");
     const citySelectTitle = document.getElementById("citySelectTitle");
@@ -771,9 +858,7 @@ function applyLanguage(lang) {
     const verificationChannelLabelEl = document.getElementById("verificationChannelLabel");
     const verificationChannelHintEl = document.getElementById("verificationChannelHint");
 
-    if (btnUser) btnUser.textContent = config.ui.registerUser;
-    if (btnOwner) btnOwner.textContent = config.ui.registerOwner;
-    if (btnLogin) btnLogin.textContent = config.ui.login;
+    if (btnOpenAuth) btnOpenAuth.textContent = config.ui.login;
     if (quickTitle) quickTitle.textContent = config.ui.quickTitle;
     if (quickText) quickText.textContent = config.ui.quickText;
     if (citySelectTitle) citySelectTitle.textContent = config.ui.citySelectTitle;
@@ -915,10 +1000,77 @@ async function loadOwnerCafes() {
         const cafes = data && data.cafes ? data.cafes : [];
         listEl.innerHTML = "";
         cafes.forEach((cafe) => {
-            const div = document.createElement("div");
-            div.className = "owner-cafe-item";
-            div.textContent = cafe.name + " (" + cafe.cityCode + ")";
-            listEl.appendChild(div);
+            const item = document.createElement("div");
+            item.className = "owner-cafe-item";
+
+            const title = document.createElement("div");
+            title.className = "owner-cafe-title";
+            title.textContent = cafe.name + (cafe.cityCode ? " (" + cafe.cityCode + ")" : "");
+
+            const photosWrap = document.createElement("div");
+            photosWrap.className = "owner-cafe-photos";
+            const photos = Array.isArray(cafe.photos) ? cafe.photos : [];
+            if (photos.length) {
+                const lastPhoto = photos[photos.length - 1];
+                if (lastPhoto && lastPhoto.url) {
+                    const img = document.createElement("img");
+                    img.src = lastPhoto.url;
+                    img.alt = cafe.name || "";
+                    photosWrap.appendChild(img);
+                }
+            }
+
+            const controls = document.createElement("div");
+            controls.className = "owner-cafe-controls";
+
+            const fileInput = document.createElement("input");
+            fileInput.type = "file";
+            fileInput.accept = "image/*";
+
+            const uploadBtn = document.createElement("button");
+            uploadBtn.type = "button";
+            uploadBtn.className = "btn btn-secondary btn-small";
+            if (currentLang === "ru") {
+                uploadBtn.textContent = "Загрузить фото";
+            } else if (currentLang === "en") {
+                uploadBtn.textContent = "Upload photo";
+            } else {
+                uploadBtn.textContent = "사진 업로드";
+            }
+
+            uploadBtn.addEventListener("click", async () => {
+                if (!fileInput.files || !fileInput.files[0]) {
+                    return;
+                }
+                const formData = new FormData();
+                formData.append("photo", fileInput.files[0]);
+                try {
+                    const uploadRes = await fetch(
+                        "/api/cafes/" + encodeURIComponent(cafe._id) + "/photos",
+                        {
+                            method: "POST",
+                            headers: {
+                                Authorization: "Bearer " + authToken
+                            },
+                            body: formData
+                        }
+                    );
+                    if (!uploadRes.ok) {
+                        return;
+                    }
+                    await loadOwnerCafes();
+                } catch (e) {
+                }
+            });
+
+            controls.appendChild(fileInput);
+            controls.appendChild(uploadBtn);
+
+            item.appendChild(title);
+            item.appendChild(photosWrap);
+            item.appendChild(controls);
+
+            listEl.appendChild(item);
         });
     } catch (e) {
     }
@@ -1531,24 +1683,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    const btnRegisterUser = document.getElementById("btnRegisterUser");
-    if (btnRegisterUser) {
-        btnRegisterUser.addEventListener("click", () => {
-            showRegisterModal("user");
-        });
-    }
-
-    const btnRegisterOwner = document.getElementById("btnRegisterOwner");
-    if (btnRegisterOwner) {
-        btnRegisterOwner.addEventListener("click", () => {
-            showRegisterModal("owner");
-        });
-    }
-
-    const btnLogin = document.getElementById("btnLogin");
+    const btnOpenAuth = document.getElementById("btnOpenAuth");
     const btnKakaoLogin = document.getElementById("btnKakaoLogin");
-    if (btnLogin) {
-        btnLogin.addEventListener("click", () => {
+    if (btnOpenAuth) {
+        btnOpenAuth.addEventListener("click", () => {
             showLoginModal();
         });
     }
@@ -1668,6 +1806,17 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    const btnOpenRegisterFromLogin = document.getElementById("btnOpenRegisterFromLogin");
+    if (btnOpenRegisterFromLogin) {
+        btnOpenRegisterFromLogin.addEventListener("click", () => {
+            closeModal("loginModal");
+            const registerModal = document.getElementById("registerModal");
+            if (registerModal) {
+                registerModal.style.display = "block";
+            }
+        });
+    }
+
     const closeButtons = document.querySelectorAll(".modal .close");
     closeButtons.forEach((btn) => {
         btn.addEventListener("click", () => {
@@ -1770,11 +1919,28 @@ document.addEventListener("DOMContentLoaded", () => {
                     )
                 });
                 if (!res.ok) {
-                    alert(currentLang === "ru" ? "Не удалось отправить код" :
-                        currentLang === "en" ? "Failed to send code" : "코드 전송 실패");
+                    alert(
+                        currentLang === "ru"
+                            ? "Не удалось отправить код"
+                            : currentLang === "en"
+                            ? "Failed to send code"
+                            : "코드 전송 실패"
+                    );
                     return;
                 }
-                const successMessage =
+                let devCode = null;
+                try {
+                    const data = await res.json();
+                    if (data && data.devCode) {
+                        devCode = String(data.devCode);
+                        const codeInput = document.getElementById("registerPhoneCode");
+                        if (codeInput) {
+                            codeInput.value = devCode;
+                        }
+                    }
+                } catch (e) {
+                }
+                let successMessage =
                     currentLang === "ru"
                         ? channel === "email"
                             ? "Код отправлен. Проверьте email."
@@ -1786,6 +1952,15 @@ document.addEventListener("DOMContentLoaded", () => {
                         : channel === "email"
                         ? "코드가 전송되었습니다. 이메일을 확인하세요."
                         : "코드가 전송되었습니다. 문자를 확인하세요.";
+                if (devCode) {
+                    if (currentLang === "ru") {
+                        successMessage += " Тестовый код также автоматически подставлен в поле.";
+                    } else if (currentLang === "en") {
+                        successMessage += " Test code has also been filled into the field.";
+                    } else {
+                        successMessage += " 테스트 코드가 입력란에 자동으로 채워졌습니다.";
+                    }
+                }
                 alert(successMessage);
             } catch (e) {
                 alert(currentLang === "ru" ? "Сетевая ошибка" :

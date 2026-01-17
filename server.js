@@ -152,6 +152,44 @@ const paymentSchema = new mongoose.Schema(
 
 const Payment = mongoose.model("Payment", paymentSchema);
 
+const cafeSubscriptionSchema = new mongoose.Schema(
+  {
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    cafe: { type: mongoose.Schema.Types.ObjectId, ref: "Cafe", required: true }
+  },
+  { timestamps: true }
+);
+
+const CafeSubscription = mongoose.model(
+  "CafeSubscription",
+  cafeSubscriptionSchema
+);
+
+const cafePostSchema = new mongoose.Schema(
+  {
+    cafe: { type: mongoose.Schema.Types.ObjectId, ref: "Cafe", required: true },
+    author: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    text: { type: String, required: true },
+    likes: [
+      {
+        user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }
+      }
+    ],
+    ratingSum: { type: Number, default: 0 },
+    ratingCount: { type: Number, default: 0 },
+    comments: [
+      {
+        user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+        text: { type: String, required: true },
+        createdAt: { type: Date, default: Date.now }
+      }
+    ]
+  },
+  { timestamps: true }
+);
+
+const CafePost = mongoose.model("CafePost", cafePostSchema);
+
 const phoneVerificationSchema = new mongoose.Schema(
   {
     phone: { type: String },
@@ -487,6 +525,7 @@ app.post("/api/auth/request-phone-code", authLimiter, async (req, res) => {
       typeof channel === "string" && channel.trim()
         ? channel.trim().toLowerCase()
         : "sms";
+    const isProd = process.env.NODE_ENV === "production";
     if (requestedChannel === "email") {
       if (!email || typeof email !== "string") {
         return res.status(400).json({ error: "email required" });
@@ -499,12 +538,18 @@ app.post("/api/auth/request-phone-code", authLimiter, async (req, res) => {
         { code, expiresAt, attempts: 0 },
         { upsert: true, new: true, setDefaultsOnInsert: true }
       );
+      const hasSmtp =
+        SMTP_HOST && SMTP_PORT && SMTP_USER && SMTP_PASS && SMTP_FROM_EMAIL;
       await sendEmail(
         trimmedEmail,
         "Kafe Booking verification code",
         "Ваш код для Kafe Booking: " + code
       );
-      return res.json({ ok: true });
+      const payload = { ok: true };
+      if (!hasSmtp && !isProd) {
+        payload.devCode = code;
+      }
+      return res.json(payload);
     }
     if (!phone) {
       return res.status(400).json({ error: "phone required" });
@@ -524,12 +569,18 @@ app.post("/api/auth/request-phone-code", authLimiter, async (req, res) => {
       { code, expiresAt, attempts: 0 },
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
+    const hasTwilio =
+      TWILIO_ACCOUNT_SID && TWILIO_AUTH_TOKEN && TWILIO_FROM_NUMBER;
     if (channelValue === "facebook") {
       await sendFacebook(normalizedPhone, "Ваш код для Kafe Booking: " + code);
     } else {
       await sendSms(normalizedPhone, "Ваш код для Kafe Booking: " + code);
     }
-    res.json({ ok: true });
+    const payload = { ok: true };
+    if (!hasTwilio && !isProd) {
+      payload.devCode = code;
+    }
+    res.json(payload);
   } catch (err) {
     console.error("request-phone-code error", err);
     res.status(500).json({ error: "server error" });
@@ -874,6 +925,218 @@ app.get("/api/profile/me", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "server error" });
   }
 });
+
+app.post("/api/cafes/:id/subscribe", authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const cafe = await Cafe.findById(id).select("_id isActive").lean();
+    if (!cafe || !cafe.isActive) {
+      return res.status(404).json({ error: "cafe not found" });
+    }
+    const existing = await CafeSubscription.findOne({
+      user: req.user.id,
+      cafe: cafe._id
+    }).lean();
+    if (existing) {
+      await CafeSubscription.deleteOne({ _id: existing._id });
+      return res.json({ subscribed: false });
+    }
+    await CafeSubscription.create({
+      user: req.user.id,
+      cafe: cafe._id
+    });
+    res.json({ subscribed: true });
+  } catch (err) {
+    console.error("cafe subscribe error", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+app.get("/api/cafes/:id/subscribers", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const cafe = await Cafe.findById(id).select("_id isActive").lean();
+    if (!cafe || !cafe.isActive) {
+      return res.status(404).json({ error: "cafe not found" });
+    }
+    const count = await CafeSubscription.countDocuments({ cafe: cafe._id });
+    res.json({ count });
+  } catch (err) {
+    console.error("cafe subscribers error", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+app.get("/api/my/subscriptions", authMiddleware, async (req, res) => {
+  try {
+    const subscriptions = await CafeSubscription.find({
+      user: req.user.id
+    })
+      .select("cafe createdAt")
+      .populate("cafe", "name cityCode address")
+      .lean();
+    res.json({ subscriptions });
+  } catch (err) {
+    console.error("my subscriptions error", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+app.post("/api/cafes/:id/posts", authMiddleware, ownerOnly, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { text } = req.body;
+    if (!text || typeof text !== "string") {
+      return res.status(400).json({ error: "text required" });
+    }
+    const cafe = await Cafe.findOne({ _id: id, owner: req.user.id })
+      .select("_id isActive")
+      .lean();
+    if (!cafe || !cafe.isActive) {
+      return res.status(404).json({ error: "cafe not found" });
+    }
+    const post = await CafePost.create({
+      cafe: cafe._id,
+      author: req.user.id,
+      text: text.trim()
+    });
+    res.status(201).json({ post });
+  } catch (err) {
+    console.error("create cafe post error", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+app.get("/api/cafes/:id/posts", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const cafe = await Cafe.findById(id).select("_id isActive").lean();
+    if (!cafe || !cafe.isActive) {
+      return res.status(404).json({ error: "cafe not found" });
+    }
+    const posts = await CafePost.find({ cafe: cafe._id })
+      .sort({ createdAt: -1 })
+      .lean();
+    const normalized = posts.map((p) => {
+      const likesCount = Array.isArray(p.likes) ? p.likes.length : 0;
+      const ratingCount =
+        typeof p.ratingCount === "number" && p.ratingCount > 0
+          ? p.ratingCount
+          : 0;
+      const ratingSum =
+        typeof p.ratingSum === "number" && p.ratingSum > 0 ? p.ratingSum : 0;
+      const rating =
+        ratingCount > 0 ? Number((ratingSum / ratingCount).toFixed(2)) : 0;
+      return {
+        _id: p._id,
+        cafe: p.cafe,
+        author: p.author,
+        text: p.text,
+        createdAt: p.createdAt,
+        likesCount,
+        rating,
+        comments: Array.isArray(p.comments) ? p.comments : []
+      };
+    });
+    res.json({ posts: normalized });
+  } catch (err) {
+    console.error("list cafe posts error", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+app.post(
+  "/api/cafes/:cafeId/posts/:postId/like",
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const { cafeId, postId } = req.params;
+      const post = await CafePost.findOne({
+        _id: postId,
+        cafe: cafeId
+      });
+      if (!post) {
+        return res.status(404).json({ error: "post not found" });
+      }
+      const userId = String(req.user.id);
+      const likes = Array.isArray(post.likes) ? post.likes : [];
+      const exists = likes.some((l) => String(l.user) === userId);
+      if (exists) {
+        post.likes = likes.filter((l) => String(l.user) !== userId);
+      } else {
+        post.likes.push({ user: req.user.id });
+      }
+      await post.save();
+      res.json({ ok: true });
+    } catch (err) {
+      console.error("post like error", err);
+      res.status(500).json({ error: "server error" });
+    }
+  }
+);
+
+app.post(
+  "/api/cafes/:cafeId/posts/:postId/comment",
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const { cafeId, postId } = req.params;
+      const { text } = req.body;
+      if (!text || typeof text !== "string") {
+        return res.status(400).json({ error: "text required" });
+      }
+      const post = await CafePost.findOne({
+        _id: postId,
+        cafe: cafeId
+      });
+      if (!post) {
+        return res.status(404).json({ error: "post not found" });
+      }
+      post.comments = Array.isArray(post.comments) ? post.comments : [];
+      post.comments.push({
+        user: req.user.id,
+        text: text.trim(),
+        createdAt: new Date()
+      });
+      await post.save();
+      res.json({ ok: true });
+    } catch (err) {
+      console.error("post comment error", err);
+      res.status(500).json({ error: "server error" });
+    }
+  }
+);
+
+app.post(
+  "/api/cafes/:cafeId/posts/:postId/rate",
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const { cafeId, postId } = req.params;
+      const { rating } = req.body;
+      const value = Number(rating);
+      if (!Number.isFinite(value) || value < 1 || value > 5) {
+        return res.status(400).json({ error: "rating must be 1-5" });
+      }
+      const post = await CafePost.findOne({
+        _id: postId,
+        cafe: cafeId
+      });
+      if (!post) {
+        return res.status(404).json({ error: "post not found" });
+      }
+      post.ratingSum =
+        (typeof post.ratingSum === "number" ? post.ratingSum : 0) + value;
+      post.ratingCount =
+        (typeof post.ratingCount === "number" ? post.ratingCount : 0) + 1;
+      await post.save();
+      res.json({ ok: true });
+    } catch (err) {
+      console.error("post rate error", err);
+      res.status(500).json({ error: "server error" });
+    }
+  }
+);
 
 app.post("/api/profile/become-owner", authMiddleware, async (req, res) => {
   try {
@@ -1598,7 +1861,32 @@ app.get("/api/cafes", async (req, res) => {
       .select("name cityCode address description phone photos")
       .sort({ createdAt: -1 })
       .lean();
-    res.json({ cafes });
+    const cafeIds = cafes.map((c) => c._id);
+    let countsByCafe = {};
+    if (cafeIds.length) {
+      const counts = await CafeSubscription.aggregate([
+        { $match: { cafe: { $in: cafeIds } } },
+        {
+          $group: {
+            _id: "$cafe",
+            count: { $sum: 1 }
+          }
+        }
+      ]);
+      countsByCafe = counts.reduce((acc, item) => {
+        acc[String(item._id)] = item.count;
+        return acc;
+      }, {});
+    }
+    const cafesWithCounts = cafes.map((cafe) => {
+      const id = String(cafe._id);
+      return {
+        ...cafe,
+        subscribersCount:
+          typeof countsByCafe[id] === "number" ? countsByCafe[id] : 0
+      };
+    });
+    res.json({ cafes: cafesWithCounts });
   } catch (err) {
     console.error("list cafes error", err);
     res.status(500).json({ error: "server error" });

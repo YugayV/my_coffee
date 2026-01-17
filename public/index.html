@@ -14,25 +14,24 @@
                 <h1>CoffeBooking</h1>
             </div>
             <div class="lang-switcher">
-                <button class="lang-btn active" data-lang="ko">한국어</button>
-                <button class="lang-btn" data-lang="en">EN</button>
-                <button class="lang-btn" data-lang="ru">RU</button>
-            </div>
-            <div class="auth-buttons">
-                <button id="btnRegisterUser" class="btn btn-primary">일반 회원가입</button>
-                <button id="btnRegisterOwner" class="btn btn-secondary">카페 사장님 회원가입</button>
-                <button id="btnLogin" class="btn btn-outline">로그인</button>
+                <div class="lang-switcher-left">
+                    <button class="lang-btn active" data-lang="ko">한국어</button>
+                    <button class="lang-btn" data-lang="en">EN</button>
+                    <button class="lang-btn" data-lang="ru">RU</button>
+                </div>
+                <button id="btnOpenAuth" class="btn btn-outline auth-inline-btn">Войти</button>
             </div>
             <div id="profileSection" class="profile-section">
                 <h3 id="profileTitle">프로필</h3>
                 <div id="profileContent" class="profile-content">
                     <p id="profileStatus">로그인하지 않았습니다.</p>
+                    <div id="profileSubscriptions">
+                        <div>Подписки на кафе:</div>
+                        <div id="profileSubscriptionsList" class="profile-subscriptions-list"></div>
+                    </div>
                 </div>
                 <div class="profile-actions">
                     <button id="btnBecomeOwner" class="btn btn-secondary hidden">카페 오너가 되기</button>
-                    <button id="btnClientPremium" class="btn btn-outline hidden">클라이언트 프리미엄 2000₩</button>
-                    <button id="btnCoffeePremium" class="btn btn-outline hidden">커피 프리미엄 25000₩</button>
-                    <button id="btnInvestPremium" class="btn btn-outline hidden">인베스트 프리미엄</button>
                 </div>
             </div>
             <div class="quick-info">
@@ -87,7 +86,7 @@
                     <ul id="newsList" class="feed-news-list"></ul>
                 </div>
                 <div class="feed-section">
-                    <h3>Кафе в выбранном городе</h3>
+                    <h3>Последние добавленные кафе</h3>
                     <div id="feedCafesList" class="feed-cafes-list"></div>
                 </div>
                 <div class="feed-section">
@@ -265,7 +264,10 @@
             <span class="close" data-modal-id="registerModal">&times;</span>
             <h2 id="modalTitle">회원가입</h2>
             <form id="registerForm">
-                <input type="hidden" id="userType" value="user">
+                <select id="userType">
+                    <option value="user">Гость</option>
+                    <option value="owner">Владелец кафе</option>
+                </select>
                 <input id="registerName" type="text" placeholder="이름" required>
                 <input id="registerEmail" type="email" placeholder="Email" required>
                 <label id="verificationChannelLabel" for="registerCodeChannel">Куда отправить код подтверждения</label>
@@ -298,6 +300,7 @@
                 <button type="submit" class="btn btn-primary">로그인</button>
             </form>
             <button id="btnKakaoLogin" type="button" class="btn btn-kakao">Kakao로 로그인</button>
+            <button id="btnOpenRegisterFromLogin" type="button" class="btn btn-outline btn-small">Регистрация</button>
         </div>
     </div>
 
