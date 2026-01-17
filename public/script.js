@@ -8,6 +8,9 @@ let currentUser = null;
 let currentEditingNewsId = null;
 let currentCafeId = null;
 let currentCafeContact = null;
+let currentCafePostsOffset = 0;
+let currentCafePostsHasMore = false;
+const CAFE_POSTS_PAGE_SIZE = 5;
 const KAKAO_JS_KEY = "YOUR_KAKAO_JAVASCRIPT_KEY";
 
 const translations = {
@@ -35,6 +38,15 @@ const translations = {
             verifyChannelEmailHint: "입력한 이메일 주소로 인증 코드를 받습니다.",
             verifyChannelKakaoHint: "Kakao 계정과 연결된 번호로 인증 코드를 받습니다.",
             verifyChannelFacebookHint: "Facebook 계정과 연결된 연락처로 인증 코드를 받습니다."
+        },
+        days: {
+            mon: "월",
+            tue: "화",
+            wed: "수",
+            thu: "목",
+            fri: "금",
+            sat: "토",
+            sun: "일"
         },
         cities: {
             seoul: "서울",
@@ -107,6 +119,15 @@ const translations = {
             verifyChannelKakaoHint: "Code will be sent via your Kakao account.",
             verifyChannelFacebookHint: "Code will be sent via your Facebook account."
         },
+        days: {
+            mon: "Mon",
+            tue: "Tue",
+            wed: "Wed",
+            thu: "Thu",
+            fri: "Fri",
+            sat: "Sat",
+            sun: "Sun"
+        },
         cities: {
             seoul: "Seoul",
             busan: "Busan",
@@ -177,6 +198,15 @@ const translations = {
             verifyChannelEmailHint: "Код придёт на указанный адрес электронной почты.",
             verifyChannelKakaoHint: "Код будет отправлен через ваш профиль Kakao.",
             verifyChannelFacebookHint: "Код будет отправлен через ваш профиль Facebook."
+        },
+        days: {
+            mon: "Пн",
+            tue: "Вт",
+            wed: "Ср",
+            thu: "Чт",
+            fri: "Пт",
+            sat: "Сб",
+            sun: "Вс"
         },
         cities: {
             seoul: "Сеул",
@@ -843,6 +873,8 @@ async function openCafeModal(cafe) {
         phone: cafe.phone || "",
         address: cafe.address || ""
     };
+    currentCafePostsOffset = 0;
+    currentCafePostsHasMore = false;
     const parts = [];
     if (cafe.name) {
         titleEl.textContent = cafe.name;
@@ -877,7 +909,7 @@ async function openCafeModal(cafe) {
         subscribeBtn.disabled = false;
     }
     await updateCafeSubscribersCount();
-    await loadCafePosts();
+    await loadCafePosts(true);
     modal.style.display = "block";
 }
 
@@ -901,6 +933,8 @@ async function openCafePage(cafe) {
         phone: cafe.phone || "",
         address: cafe.address || ""
     };
+    currentCafePostsOffset = 0;
+    currentCafePostsHasMore = false;
     nameEl.textContent = cafe.name || "Cafe";
     const config = translations[currentLang] || translations.ko;
     const parts = [];
@@ -920,28 +954,30 @@ async function openCafePage(cafe) {
     }
     metaEl.textContent = parts.join(" · ");
     descEl.textContent = cafe.description || "";
-    const extraParts = [];
-    if (cafe.openingHours) {
+    const hoursText = formatCafeOpeningHours(cafe.openingHours);
+    if (hoursText) {
         if (currentLang === "ru") {
-            extraParts.push("Часы работы: " + cafe.openingHours);
+            openingEl.textContent = "Часы работы: " + hoursText;
         } else if (currentLang === "en") {
-            extraParts.push("Opening hours: " + cafe.openingHours);
+            openingEl.textContent = "Opening hours: " + hoursText;
         } else {
-            extraParts.push("영업 시간: " + cafe.openingHours);
+            openingEl.textContent = "영업 시간: " + hoursText;
         }
+    } else {
+        openingEl.textContent = "";
     }
     if (typeof cafe.averageCheck === "number" && cafe.averageCheck > 0) {
         const value = cafe.averageCheck;
         if (currentLang === "ru") {
-            extraParts.push("Средний чек: " + value + "₩");
+            avgEl.textContent = "Средний чек: " + value + "₩";
         } else if (currentLang === "en") {
-            extraParts.push("Average bill: " + value + "₩");
+            avgEl.textContent = "Average bill: " + value + "₩";
         } else {
-            extraParts.push("평균 객단가: " + value + "₩");
+            avgEl.textContent = "평균 객단가: " + value + "₩";
         }
+    } else {
+        avgEl.textContent = "";
     }
-    openingEl.textContent = extraParts.length > 0 ? extraParts[0] : "";
-    avgEl.textContent = extraParts.length > 1 ? extraParts[1] : "";
     const pageBookingInfo = document.getElementById("cafePageBookingInfo");
     if (pageBookingInfo) {
         pageBookingInfo.textContent = "";
@@ -952,7 +988,54 @@ async function openCafePage(cafe) {
     }
     panel.classList.remove("hidden");
     await updateCafeSubscribersCount();
-    await loadCafePosts();
+    await loadCafePosts(true);
+}
+
+function formatCafeOpeningHours(raw) {
+    if (!raw) {
+        return "";
+    }
+    if (typeof raw === "string") {
+        const trimmed = raw.trim();
+        if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
+            try {
+                const obj = JSON.parse(trimmed);
+                const daysOrder = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+                const config = translations[currentLang] || translations.ko;
+                const daysNames = (config && config.days) || {};
+                const parts = [];
+                daysOrder.forEach((code) => {
+                    const value = obj[code];
+                    if (!value) {
+                        return;
+                    }
+                    const label = daysNames[code] || code;
+                    parts.push(label + ": " + value);
+                });
+                if (parts.length) {
+                    return parts.join(" · ");
+                }
+            } catch (e) {
+            }
+        }
+        return trimmed;
+    }
+    if (typeof raw === "object" && raw) {
+        const daysOrder = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+        const config = translations[currentLang] || translations.ko;
+        const daysNames = (config && config.days) || {};
+        const parts = [];
+        daysOrder.forEach((code) => {
+            const value = raw[code];
+            if (!value) {
+                return;
+            }
+            const label = daysNames[code] || code;
+            parts.push(label + ": " + value);
+        });
+        return parts.join(" · ");
+    }
+    return "";
 }
 
 async function updateCafeSubscribersCount() {
@@ -991,7 +1074,7 @@ async function updateCafeSubscribersCount() {
     }
 }
 
-async function loadCafePosts() {
+async function loadCafePosts(reset = true) {
     const modalList = document.getElementById("cafePostsList");
     const pageList = document.getElementById("cafePagePostsList");
     const targets = [];
@@ -1000,18 +1083,29 @@ async function loadCafePosts() {
     if (!targets.length || !currentCafeId) {
         return;
     }
+    if (reset) {
+        currentCafePostsOffset = 0;
+        currentCafePostsHasMore = false;
+        targets.forEach((t) => {
+            t.innerHTML = "";
+        });
+    }
     try {
         const res = await fetch(
-            "/api/cafes/" + encodeURIComponent(currentCafeId) + "/posts"
+            "/api/cafes/" +
+                encodeURIComponent(currentCafeId) +
+                "/posts?limit=" +
+                encodeURIComponent(CAFE_POSTS_PAGE_SIZE) +
+                "&offset=" +
+                encodeURIComponent(currentCafePostsOffset)
         );
         if (!res.ok) {
             return;
         }
         const data = await res.json();
         const posts = data && data.posts ? data.posts : [];
-        targets.forEach((t) => {
-            t.innerHTML = "";
-        });
+        currentCafePostsHasMore = !!data.hasMore;
+        currentCafePostsOffset += posts.length;
         posts.forEach((post) => {
             const item = document.createElement("div");
             item.className = "cafe-post-item";
@@ -1087,7 +1181,7 @@ async function loadCafePosts() {
                     if (!resLike.ok) {
                         return;
                     }
-                    await loadCafePosts();
+                    await loadCafePosts(true);
                 } catch (e) {
                 }
             });
@@ -1142,7 +1236,7 @@ async function loadCafePosts() {
                     if (!resRate.ok) {
                         return;
                     }
-                    await loadCafePosts();
+                    await loadCafePosts(true);
                 } catch (e) {
                 }
             });
@@ -1202,7 +1296,7 @@ async function loadCafePosts() {
                         return;
                     }
                     commentInput.value = "";
-                    await loadCafePosts();
+                    await loadCafePosts(true);
                 } catch (e) {
                 }
             });
@@ -1236,6 +1330,18 @@ async function loadCafePosts() {
             targets.forEach((t) => {
                 t.appendChild(item.cloneNode(true));
             });
+        });
+        const loadMoreButtons = [];
+        const btnModal = document.getElementById("btnCafePostsLoadMore");
+        const btnPage = document.getElementById("btnCafePagePostsLoadMore");
+        if (btnModal) loadMoreButtons.push(btnModal);
+        if (btnPage) loadMoreButtons.push(btnPage);
+        loadMoreButtons.forEach((btn) => {
+            if (!posts.length && currentCafePostsOffset === 0 && !currentCafePostsHasMore) {
+                btn.classList.add("hidden");
+            } else {
+                btn.classList.toggle("hidden", !currentCafePostsHasMore);
+            }
         });
     } catch (e) {
     }
@@ -2967,6 +3073,19 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnCafePageBook) {
         btnCafePageBook.addEventListener("click", () => {
             handleCafeBookClick("cafePageBookingInfo");
+        });
+    }
+
+    const btnCafePostsLoadMore = document.getElementById("btnCafePostsLoadMore");
+    if (btnCafePostsLoadMore) {
+        btnCafePostsLoadMore.addEventListener("click", () => {
+            loadCafePosts(false);
+        });
+    }
+    const btnCafePagePostsLoadMore = document.getElementById("btnCafePagePostsLoadMore");
+    if (btnCafePagePostsLoadMore) {
+        btnCafePagePostsLoadMore.addEventListener("click", () => {
+            loadCafePosts(false);
         });
     }
 

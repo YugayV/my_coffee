@@ -121,6 +121,7 @@
                 <div class="cafe-modal-section">
                     <h3>Посты кафе</h3>
                     <div id="cafePagePostsList" class="cafe-posts-list"></div>
+                    <button id="btnCafePagePostsLoadMore" type="button" class="btn btn-outline btn-small">Показать ещё</button>
                 </div>
             </div>
         </div>
@@ -185,7 +186,7 @@
                     </select>
                     <input id="ownerCafeAddress" type="text" placeholder="Адрес">
                     <input id="ownerCafePhone" type="tel" placeholder="Телефон">
-                    <input id="ownerCafeOpeningHours" type="text" placeholder="Часы работы (например, 09:00–22:00)">
+                    <input id="ownerCafeOpeningHours" type="text" placeholder="Часы работы (JSON: {&quot;mon&quot;:&quot;09:00–18:00&quot;,&quot;sat&quot;:&quot;10:00–16:00&quot;})">
                     <input id="ownerCafeAverageCheck" type="number" placeholder="Средний чек (₩)">
                     <textarea id="ownerCafeDescription" placeholder="Описание" rows="2"></textarea>
                     <button type="submit" class="btn btn-primary">Добавить кафе</button>
@@ -317,7 +318,7 @@
         </div>
     </div>
 
-    <div id="cafeModal" class="modal">
+            <div id="cafeModal" class="modal">
         <div class="modal-content cafe-modal-content">
             <span class="close" data-modal-id="cafeModal">&times;</span>
             <h2 id="cafeModalTitle">Кафе</h2>
@@ -329,10 +330,11 @@
             </div>
             <div id="cafeSubscribersCount" class="cafe-modal-subscribers"></div>
             <div id="cafeBookingInfo" class="cafe-booking-info"></div>
-            <div class="cafe-modal-section">
-                <h3>Посты кафе</h3>
-                <div id="cafePostsList" class="cafe-posts-list"></div>
-            </div>
+                <div class="cafe-modal-section">
+                    <h3>Посты кафе</h3>
+                    <div id="cafePostsList" class="cafe-posts-list"></div>
+                    <button id="btnCafePostsLoadMore" type="button" class="btn btn-outline btn-small">Показать ещё</button>
+                </div>
         </div>
     </div>
 

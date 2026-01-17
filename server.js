@@ -1012,14 +1012,31 @@ app.post("/api/cafes/:id/posts", authMiddleware, ownerOnly, async (req, res) => 
 app.get("/api/cafes/:id/posts", async (req, res) => {
   try {
     const { id } = req.params;
+    const limitRaw = req.query.limit;
+    const offsetRaw = req.query.offset;
+    let limit = Number(limitRaw);
+    let offset = Number(offsetRaw);
+    if (!Number.isFinite(limit) || limit <= 0) {
+      limit = 10;
+    }
+    if (!Number.isFinite(offset) || offset < 0) {
+      offset = 0;
+    }
+    if (limit > 50) {
+      limit = 50;
+    }
     const cafe = await Cafe.findById(id).select("_id isActive").lean();
     if (!cafe || !cafe.isActive) {
       return res.status(404).json({ error: "cafe not found" });
     }
-    const posts = await CafePost.find({ cafe: cafe._id })
+    const rawPosts = await CafePost.find({ cafe: cafe._id })
       .sort({ createdAt: -1 })
+      .skip(offset)
+      .limit(limit + 1)
       .lean();
-    const normalized = posts.map((p) => {
+    const hasMore = rawPosts.length > limit;
+    const slice = hasMore ? rawPosts.slice(0, limit) : rawPosts;
+    const normalized = slice.map((p) => {
       const likesCount = Array.isArray(p.likes) ? p.likes.length : 0;
       const ratingCount =
         typeof p.ratingCount === "number" && p.ratingCount > 0
@@ -1040,7 +1057,7 @@ app.get("/api/cafes/:id/posts", async (req, res) => {
         comments: Array.isArray(p.comments) ? p.comments : []
       };
     });
-    res.json({ posts: normalized });
+    res.json({ posts: normalized, hasMore, limit, offset });
   } catch (err) {
     console.error("list cafe posts error", err);
     res.status(500).json({ error: "server error" });
