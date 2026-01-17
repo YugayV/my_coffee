@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kafe Booking - 한국 카페 예약 플랫폼</title>
+    <title>CoffeBooking - 한국 카페 예약 플랫폼</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
         <div class="left-sidebar">
             <div class="logo">
-                <h1>Kafe Booking</h1>
+                <h1>CoffeBooking</h1>
             </div>
             <div class="lang-switcher">
                 <button class="lang-btn active" data-lang="ko">한국어</button>
@@ -69,18 +69,72 @@
                 <button class="slider-btn next" onclick="nextSlide()">›</button>
             </div>
 
-            <div class="ad-banner">
-                <div class="ad-content">
-                    <h3 id="adTitle">특별 할인 이벤트!</h3>
-                    <p id="adText">첫 예약 시 20% 할인</p>
-                    <button id="adButton" class="btn btn-ad">자세히 보기</button>
+            <div id="map" class="map-container"></div>
+
+            <div class="main-feed">
+                <div class="feed-section feed-section-wide feed-section-stats">
+                    <h3>Статистика сайта</h3>
+                    <p class="feed-stats-row">
+                        Всего посещений: <span id="statsTotalVisits">0</span>
+                    </p>
+                    <p class="feed-stats-row">
+                        Сегодня: <span id="statsDailyVisits">0</span>
+                    </p>
+                </div>
+                <div class="feed-section">
+                    <h3>Новости Kafe AI</h3>
+                    <ul id="newsList" class="feed-news-list"></ul>
+                </div>
+                <div class="feed-section">
+                    <h3>Кафе в выбранном городе</h3>
+                    <div id="feedCafesList" class="feed-cafes-list"></div>
+                </div>
+                <div class="feed-section">
+                    <h3>Рекомендации по городу</h3>
+                    <p id="feedRecommendText"></p>
+                </div>
+                <div class="feed-section">
+                    <h3>Реклама</h3>
+                    <div id="feedAdsContainer" class="feed-ads-container"></div>
                 </div>
             </div>
-
-            <div id="map" class="map-container"></div>
         </div>
 
         <div class="right-sidebar">
+            <div class="city-selector">
+                <h3 id="citySelectTitle">도시 선택</h3>
+                <div class="province-list">
+                    <button class="province-btn active" data-province="capital">수도권</button>
+                    <button class="province-btn" data-province="yeongnam">영남권</button>
+                    <button class="province-btn" data-province="honam">호남권</button>
+                    <button class="province-btn" data-province="chungcheong">충청권</button>
+                    <button class="province-btn" data-province="jeju_region">제주/기타</button>
+                </div>
+                <div class="city-list">
+                    <button class="city-btn active" data-city="seoul" data-province="capital">서울</button>
+                    <button class="city-btn" data-city="incheon" data-province="capital">인천</button>
+                    <button class="city-btn" data-city="suwon" data-province="capital">수원</button>
+                    <button class="city-btn" data-city="seongnam" data-province="capital">성남</button>
+                    <button class="city-btn" data-city="goyang" data-province="capital">고양</button>
+                    <button class="city-btn" data-city="yongin" data-province="capital">용인</button>
+                    <button class="city-btn" data-city="busan" data-province="yeongnam">부산</button>
+                    <button class="city-btn" data-city="daegu" data-province="yeongnam">대구</button>
+                    <button class="city-btn" data-city="ulsan" data-province="yeongnam">울산</button>
+                    <button class="city-btn" data-city="changwon" data-province="yeongnam">창원</button>
+                    <button class="city-btn" data-city="pohang" data-province="yeongnam">포항</button>
+                    <button class="city-btn" data-city="gumi" data-province="yeongnam">구미</button>
+                    <button class="city-btn" data-city="gwangju" data-province="honam">광주</button>
+                    <button class="city-btn" data-city="jeonju" data-province="honam">전주</button>
+                    <button class="city-btn" data-city="daejeon" data-province="chungcheong">대전</button>
+                    <button class="city-btn" data-city="cheongju" data-province="chungcheong">청주</button>
+                    <button class="city-btn" data-city="jeju" data-province="jeju_region">제주</button>
+                </div>
+            </div>
+
+            <div class="search-bar">
+                <input id="searchInput" type="text" placeholder="Поиск по городу и кафе">
+            </div>
+
             <div id="ownerPanel" class="owner-panel hidden">
                 <h3>Мои кафе</h3>
                 <form id="ownerCafeForm" class="owner-cafe-form">
@@ -111,29 +165,58 @@
                 </form>
                 <div id="ownerCafesList" class="owner-cafes-list"></div>
             </div>
-            <div class="city-selector">
-                <h3 id="citySelectTitle">도시 선택</h3>
-                <div class="city-list">
-                    <button class="city-btn active" data-city="seoul">서울</button>
-                    <button class="city-btn" data-city="busan">부산</button>
-                    <button class="city-btn" data-city="incheon">인천</button>
-                    <button class="city-btn" data-city="daegu">대구</button>
-                    <button class="city-btn" data-city="daejeon">대전</button>
-                    <button class="city-btn" data-city="gwangju">광주</button>
-                    <button class="city-btn" data-city="ulsan">울산</button>
-                    <button class="city-btn" data-city="jeju">제주</button>
-                    <button class="city-btn" data-city="suwon">수원</button>
-                    <button class="city-btn" data-city="seongnam">성남</button>
-                    <button class="city-btn" data-city="goyang">고양</button>
-                    <button class="city-btn" data-city="yongin">용인</button>
-                    <button class="city-btn" data-city="changwon">창원</button>
-                    <button class="city-btn" data-city="cheongju">청주</button>
-                    <button class="city-btn" data-city="jeonju">전주</button>
-                    <button class="city-btn" data-city="pohang">포항</button>
-                    <button class="city-btn" data-city="gumi">구미</button>
+            <div id="adminPanel" class="admin-panel hidden">
+                <h3>Админ панель</h3>
+                <div class="admin-tabs">
+                    <button class="admin-tab-btn active" data-tab="users">Пользователи</button>
+                    <button class="admin-tab-btn" data-tab="cafes">Кафе</button>
+                    <button class="admin-tab-btn" data-tab="ads">Реклама</button>
+                    <button class="admin-tab-btn" data-tab="news">Новости</button>
+                    <button class="admin-tab-btn" data-tab="verifications">Верификация</button>
+                    <button class="admin-tab-btn" data-tab="config">Контакты</button>
+                </div>
+                <div id="adminUsersTab" class="admin-tab-content active">
+                    <div id="adminUsersList" class="admin-list"></div>
+                </div>
+                <div id="adminCafesTab" class="admin-tab-content">
+                    <div id="adminCafesList" class="admin-list"></div>
+                </div>
+                <div id="adminAdsTab" class="admin-tab-content">
+                    <div id="adminAdsList" class="admin-list"></div>
+                    <form id="adminAdForm" class="admin-ad-form">
+                        <input id="adminAdTitle" type="text" placeholder="Заголовок рекламы" required>
+                        <textarea id="adminAdText" rows="2" placeholder="Текст рекламы"></textarea>
+                        <input id="adminAdCityCode" type="text" placeholder="Код города (или all)">
+                        <input id="adminAdUrl" type="text" placeholder="Ссылка">
+                        <input id="adminAdWeight" type="number" placeholder="Вес (1 по умолчанию)">
+                        <button type="submit" class="btn btn-primary">Создать рекламу</button>
+                    </form>
+                </div>
+            <div id="adminNewsTab" class="admin-tab-content">
+                <div id="adminNewsList" class="admin-list"></div>
+                <form id="adminNewsForm" class="admin-news-form">
+                        <input id="adminNewsTitle" type="text" placeholder="Заголовок новости" required>
+                        <textarea id="adminNewsText" rows="3" placeholder="Текст новости" required></textarea>
+                        <select id="adminNewsLang">
+                            <option value="ru">Русский</option>
+                            <option value="ko">한국어</option>
+                            <option value="en">English</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary">Опубликовать новость</button>
+                    </form>
+                </div>
+                <div id="adminVerificationsTab" class="admin-tab-content">
+                    <div id="adminVerificationsList" class="admin-list"></div>
+                </div>
+                <div id="adminConfigTab" class="admin-tab-content">
+                    <form id="adminConfigForm" class="admin-config-form">
+                        <input id="adminContactEmail" type="email" placeholder="Email для связи">
+                        <input id="adminTelegramUrl" type="text" placeholder="Ссылка на Telegram">
+                        <input id="adminInstagramUrl" type="text" placeholder="Ссылка на Instagram">
+                        <button type="submit" class="btn btn-primary">Сохранить контакты</button>
+                    </form>
                 </div>
             </div>
-
             <div class="cafe-list">
                 <h4 id="selectedCityTitle">선택된 도시: 서울</h4>
                 <div class="cafe-items">
@@ -165,6 +248,14 @@
                 <h4 id="recommendTitle">추천 지역</h4>
                 <p id="recommendText">서울에서는 강남, 홍대, 이태원 주변 카페를 추천합니다.</p>
             </div>
+
+            <div class="ad-banner">
+                <div class="ad-content">
+                    <h3 id="adTitle">특별 할인 이벤트!</h3>
+                    <p id="adText">첫 예약 시 20% 할인</p>
+                    <button id="adButton" class="btn btn-ad">자세히 보기</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -175,7 +266,20 @@
             <form id="registerForm">
                 <input type="hidden" id="userType" value="user">
                 <input id="registerName" type="text" placeholder="이름" required>
-                <input id="registerPhone" type="tel" placeholder="전화번호" required>
+                <input id="registerEmail" type="email" placeholder="Email" required>
+                <label id="verificationChannelLabel" for="registerCodeChannel">Куда отправить код подтверждения</label>
+                <select id="registerCodeChannel">
+                    <option value="sms">Код по SMS</option>
+                    <option value="email">Код на email</option>
+                    <option value="kakao">Код через Kakao</option>
+                    <option value="facebook">Код через Facebook</option>
+                </select>
+                <div class="verification-channel-hint" id="verificationChannelHint"></div>
+                <div class="register-phone-row">
+                    <input id="registerPhone" type="tel" placeholder="전화번호" required>
+                    <button id="btnSendCode" type="button" class="btn btn-secondary btn-small">Отправить код</button>
+                </div>
+                <input id="registerPhoneCode" type="text" placeholder="Код из SMS" required>
                 <input id="registerPassword" type="password" placeholder="비밀번호" required>
                 <input id="registerPasswordConfirm" type="password" placeholder="비밀번호 확인" required>
                 <button type="submit" class="btn btn-primary">가입하기</button>
@@ -188,14 +292,30 @@
             <span class="close" data-modal-id="loginModal">&times;</span>
             <h2>로그인</h2>
             <form id="loginForm">
-                <input id="loginPhone" type="tel" placeholder="전화번호" required>
+                <input id="loginIdentifier" type="text" placeholder="Телефон, email или логин" required>
                 <input id="loginPassword" type="password" placeholder="비밀번호" required>
                 <button type="submit" class="btn btn-primary">로그인</button>
             </form>
+            <button id="btnKakaoLogin" type="button" class="btn btn-kakao">Kakao로 로그인</button>
         </div>
     </div>
 
+    <footer class="site-footer">
+        <div class="site-footer-left">
+            <div class="site-footer-title">Kafe Booking</div>
+            <div class="site-footer-rights">© Kafe Booking, все права защищены.</div>
+        </div>
+        <div class="site-footer-contact">
+            <div>Связаться: <a href="mailto:vamp.09.94@gmail.com" id="contactEmailLink">vamp.09.94@gmail.com</a></div>
+            <div class="site-footer-socials">
+                <a href="#" id="footerTelegramLink" target="_blank" rel="noopener noreferrer">Telegram</a>
+                <a href="#" id="footerInstagramLink" target="_blank" rel="noopener noreferrer">Instagram</a>
+            </div>
+        </div>
+    </footer>
+
     <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_JAVASCRIPT_KEY&libraries=services"></script>
+    <script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

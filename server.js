@@ -9,6 +9,7 @@ const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
+const nodemailer = require("nodemailer");
 require("dotenv").config();
 
 const app = express();
@@ -25,6 +26,23 @@ const KAKAO_AD_UNIT_ID = process.env.KAKAO_AD_UNIT_ID;
 const KAKAO_AD_SCRIPT_URL = process.env.KAKAO_AD_SCRIPT_URL;
 const NAVER_AD_UNIT_ID = process.env.NAVER_AD_UNIT_ID;
 const NAVER_AD_SCRIPT_URL = process.env.NAVER_AD_SCRIPT_URL;
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
+const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
+const TWILIO_FROM_NUMBER = process.env.TWILIO_FROM_NUMBER;
+const SMTP_HOST = process.env.SMTP_HOST;
+const SMTP_PORT = process.env.SMTP_PORT;
+const SMTP_USER = process.env.SMTP_USER;
+const SMTP_PASS = process.env.SMTP_PASS;
+const SMTP_FROM_EMAIL = process.env.SMTP_FROM_EMAIL || ADMIN_EMAIL || "";
+
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET is required");
+}
+if (!MONGODB_URI) {
+  throw new Error("MONGODB_URI is required");
+}
 
 mongoose.set("strictQuery", true);
 mongoose
@@ -42,6 +60,7 @@ const userSchema = new mongoose.Schema(
   {
     phone: { type: String, unique: true, sparse: true },
     kakaoId: { type: String, unique: true, sparse: true },
+    email: { type: String, unique: true, sparse: true },
     name: { type: String, required: true },
     role: { type: String, enum: ["user", "owner"], default: "user" },
     cityCode: { type: String },
@@ -133,6 +152,58 @@ const paymentSchema = new mongoose.Schema(
 
 const Payment = mongoose.model("Payment", paymentSchema);
 
+const phoneVerificationSchema = new mongoose.Schema(
+  {
+    phone: { type: String },
+    email: { type: String },
+    channel: {
+      type: String,
+      enum: ["sms", "email", "kakao", "facebook"],
+      default: "sms"
+    },
+    code: { type: String, required: true },
+    expiresAt: { type: Date, required: true },
+    attempts: { type: Number, default: 0 }
+  },
+  { timestamps: true }
+);
+
+const PhoneVerification = mongoose.model("PhoneVerification", phoneVerificationSchema);
+
+const statsSchema = new mongoose.Schema(
+  {
+    date: { type: String, unique: true, required: true },
+    visits: { type: Number, default: 0 }
+  },
+  { timestamps: true }
+);
+
+const Stats = mongoose.model("Stats", statsSchema);
+
+const siteConfigSchema = new mongoose.Schema(
+  {
+    key: { type: String, unique: true, required: true },
+    contactEmail: { type: String },
+    telegramUrl: { type: String },
+    instagramUrl: { type: String }
+  },
+  { timestamps: true }
+);
+
+const SiteConfig = mongoose.model("SiteConfig", siteConfigSchema);
+
+const newsSchema = new mongoose.Schema(
+  {
+    title: { type: String, required: true },
+    text: { type: String, required: true },
+    lang: { type: String, enum: ["ko", "en", "ru"], default: "ru" },
+    isActive: { type: Boolean, default: true }
+  },
+  { timestamps: true }
+);
+
+const News = mongoose.model("News", newsSchema);
+
 function callTossPayments(pathname, body) {
   if (!TOSS_SECRET_KEY) {
     return Promise.reject(new Error("toss not configured"));
@@ -180,6 +251,133 @@ function callTossPayments(pathname, body) {
   });
 }
 
+function normalizePhone(raw) {
+  if (!raw) return "";
+  let p = String(raw).trim();
+  p = p.replace(/[\s\-()]/g, "");
+  if (!p) return "";
+  if (p.startsWith("+")) {
+    return p;
+  }
+  if (p.startsWith("00") && p.length > 2) {
+    return "+" + p.slice(2);
+  }
+  if (/^0\d{8,}$/.test(p)) {
+    return "+82" + p.slice(1);
+  }
+  if (/^[78]\d{10}$/.test(p)) {
+    return "+7" + p.slice(1);
+  }
+  if (/^\d{10,13}$/.test(p)) {
+    return "+" + p;
+  }
+  return p;
+}
+
+function generateVerificationCode() {
+  return String(Math.floor(100000 + Math.random() * 900000));
+}
+
+async function sendSms(phone, text) {
+  const normalizedPhone = normalizePhone(phone);
+  if (
+    TWILIO_ACCOUNT_SID &&
+    TWILIO_AUTH_TOKEN &&
+    TWILIO_FROM_NUMBER &&
+    normalizedPhone &&
+    text
+  ) {
+    try {
+      const bodyParams = new URLSearchParams();
+      bodyParams.append("To", normalizedPhone);
+      bodyParams.append("From", TWILIO_FROM_NUMBER);
+      bodyParams.append("Body", text);
+      const payload = bodyParams.toString();
+      const auth = Buffer.from(
+        `${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`
+      ).toString("base64");
+      const options = {
+        hostname: "api.twilio.com",
+        port: 443,
+        path: `/2010-04-01/Accounts/${encodeURIComponent(
+          TWILIO_ACCOUNT_SID
+        )}/Messages.json`,
+        method: "POST",
+        headers: {
+          Authorization: `Basic ${auth}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Content-Length": Buffer.byteLength(payload)
+        }
+      };
+      await new Promise((resolve, reject) => {
+        const req = https.request(options, (res) => {
+          res.on("data", () => {});
+          res.on("end", () => resolve());
+        });
+        req.on("error", (err) => {
+          console.error("twilio sms error", err.message);
+          resolve();
+        });
+        req.write(payload);
+        req.end();
+      });
+      return;
+    } catch (err) {
+      console.error("twilio sms unexpected error", err.message);
+    }
+  }
+  console.log("SMS to", normalizedPhone || phone, text);
+}
+
+async function sendEmail(to, subject, text) {
+  if (!to || !subject || !text) {
+    return;
+  }
+  if (SMTP_HOST && SMTP_PORT && SMTP_USER && SMTP_PASS && SMTP_FROM_EMAIL) {
+    try {
+      const transport = nodemailer.createTransport({
+        host: SMTP_HOST,
+        port: Number(SMTP_PORT),
+        secure: Number(SMTP_PORT) === 465,
+        auth: {
+          user: SMTP_USER,
+          pass: SMTP_PASS
+        }
+      });
+      await transport.sendMail({
+        from: SMTP_FROM_EMAIL,
+        to,
+        subject,
+        text
+      });
+      return;
+    } catch (err) {
+      console.error("smtp email error", err.message);
+    }
+  }
+  console.log("EMAIL to", to, subject, text);
+}
+
+async function sendFacebook(recipient, text) {
+  if (!recipient || !text) {
+    return;
+  }
+  console.log("FACEBOOK message to", recipient, text);
+}
+
+async function registerVisit() {
+  try {
+    const now = new Date();
+    const key = now.toISOString().slice(0, 10);
+    await Stats.findOneAndUpdate(
+      { date: key },
+      { $inc: { visits: 1 } },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+  } catch (e) {
+  }
+}
+
 const uploadsDir = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
@@ -197,7 +395,18 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024
+  },
+  fileFilter(req, file, cb) {
+    if (!file.mimetype || !file.mimetype.startsWith("image/")) {
+      return cb(new Error("only image uploads allowed"));
+    }
+    cb(null, true);
+  }
+});
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -258,7 +467,8 @@ function adminOnly(req, res, next) {
   next();
 }
 
-app.get("/", (req, res) => {
+app.get("/", async (req, res) => {
+  await registerVisit();
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
@@ -270,19 +480,129 @@ app.get("/payments/toss/fail", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
+app.post("/api/auth/request-phone-code", authLimiter, async (req, res) => {
+  try {
+    const { phone, email, channel } = req.body;
+    const requestedChannel =
+      typeof channel === "string" && channel.trim()
+        ? channel.trim().toLowerCase()
+        : "sms";
+    if (requestedChannel === "email") {
+      if (!email || typeof email !== "string") {
+        return res.status(400).json({ error: "email required" });
+      }
+      const trimmedEmail = email.trim().toLowerCase();
+      const code = generateVerificationCode();
+      const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+      await PhoneVerification.findOneAndUpdate(
+        { email: trimmedEmail, channel: "email" },
+        { code, expiresAt, attempts: 0 },
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+      );
+      await sendEmail(
+        trimmedEmail,
+        "Kafe Booking verification code",
+        "Ваш код для Kafe Booking: " + code
+      );
+      return res.json({ ok: true });
+    }
+    if (!phone) {
+      return res.status(400).json({ error: "phone required" });
+    }
+    const normalizedPhone = normalizePhone(phone);
+    if (!normalizedPhone) {
+      return res.status(400).json({ error: "invalid phone" });
+    }
+    const channelValue =
+      requestedChannel === "kakao" || requestedChannel === "facebook"
+        ? requestedChannel
+        : "sms";
+    const code = generateVerificationCode();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    await PhoneVerification.findOneAndUpdate(
+      { phone: normalizedPhone, channel: channelValue },
+      { code, expiresAt, attempts: 0 },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+    if (channelValue === "facebook") {
+      await sendFacebook(normalizedPhone, "Ваш код для Kafe Booking: " + code);
+    } else {
+      await sendSms(normalizedPhone, "Ваш код для Kafe Booking: " + code);
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("request-phone-code error", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
 app.post("/api/auth/register-phone", authLimiter, async (req, res) => {
   try {
-    const { phone, password, name, role, cityCode, preferredLang, marketingOptIn } = req.body;
-    if (!phone || !password || !name) {
-      return res.status(400).json({ error: "phone, password, name required" });
+    const {
+      phone,
+      email,
+      password,
+      name,
+      role,
+      cityCode,
+      preferredLang,
+      marketingOptIn,
+      code,
+      channel
+    } = req.body;
+    if (!phone || !email || !password || !name || !code) {
+      return res
+        .status(400)
+        .json({ error: "phone, email, password, name, code required" });
     }
-    const existing = await User.findOne({ phone });
-    if (existing) {
+    const trimmedEmail =
+      typeof email === "string" ? email.trim().toLowerCase() : "";
+    if (!trimmedEmail || !trimmedEmail.includes("@")) {
+      return res.status(400).json({ error: "invalid email" });
+    }
+    const normalizedPhone = normalizePhone(phone);
+    if (!normalizedPhone) {
+      return res.status(400).json({ error: "invalid phone" });
+    }
+    const existingByPhone = await User.findOne({ phone: normalizedPhone });
+    if (existingByPhone) {
       return res.status(409).json({ error: "user already exists" });
     }
+    const existingByEmail = await User.findOne({ email: trimmedEmail });
+    if (existingByEmail) {
+      return res.status(409).json({ error: "user already exists" });
+    }
+    const requestedChannel =
+      typeof channel === "string" && channel.trim()
+        ? channel.trim().toLowerCase()
+        : "sms";
+    let verificationFilter;
+    if (requestedChannel === "email") {
+      verificationFilter = { email: trimmedEmail, channel: "email" };
+    } else if (requestedChannel === "kakao") {
+      verificationFilter = { phone: normalizedPhone, channel: "kakao" };
+    } else if (requestedChannel === "facebook") {
+      verificationFilter = { phone: normalizedPhone, channel: "facebook" };
+    } else {
+      verificationFilter = { phone: normalizedPhone, channel: "sms" };
+    }
+    const verification = await PhoneVerification.findOne(verificationFilter);
+    if (!verification) {
+      return res.status(400).json({ error: "verification required" });
+    }
+    if (verification.expiresAt < new Date()) {
+      return res.status(400).json({ error: "code expired" });
+    }
+    if (verification.code !== code) {
+      verification.attempts += 1;
+      await verification.save();
+      return res.status(400).json({ error: "invalid code" });
+    }
+    await PhoneVerification.deleteOne({ _id: verification._id });
     const hash = await bcrypt.hash(password, 10);
     const user = await User.create({
-      phone,
+      phone: normalizedPhone,
+      email: trimmedEmail,
       passwordHash: hash,
       name,
       role: role === "owner" ? "owner" : "user",
@@ -302,6 +622,7 @@ app.post("/api/auth/register-phone", authLimiter, async (req, res) => {
       user: {
         id: user._id,
         phone: user.phone,
+        email: user.email,
         name: user.name,
         role: user.role,
         cityCode: user.cityCode,
@@ -317,13 +638,128 @@ app.post("/api/auth/register-phone", authLimiter, async (req, res) => {
   }
 });
 
+app.post("/api/auth/login-admin", authLimiter, async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: "email and password required" });
+    }
+    if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+      return res.status(500).json({ error: "admin login not configured" });
+    }
+    if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
+      return res.status(401).json({ error: "invalid credentials" });
+    }
+    let user = await User.findOne({ email: ADMIN_EMAIL });
+    if (!user) {
+      user = await User.create({
+        email: ADMIN_EMAIL,
+        name: "Admin",
+        role: "owner",
+        preferredLang: "ko",
+        isAdmin: true
+      });
+    } else if (!user.isAdmin) {
+      user.isAdmin = true;
+      await user.save();
+    }
+    const tokenPayload = {
+      id: user._id,
+      role: user.role,
+      isAdmin: user.isAdmin,
+      subscriptionPlan: user.subscriptionPlan
+    };
+    const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: "7d" });
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        phone: user.phone,
+        kakaoId: user.kakaoId,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        cityCode: user.cityCode,
+        preferredLang: user.preferredLang,
+        isAdmin: user.isAdmin,
+        subscriptionPlan: user.subscriptionPlan,
+        subscriptionExpiresAt: user.subscriptionExpiresAt
+      }
+    });
+  } catch (err) {
+    console.error("login-admin error", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+app.post("/api/auth/login", authLimiter, async (req, res) => {
+  try {
+    const { login, password } = req.body;
+    if (!login || !password) {
+      return res.status(400).json({ error: "login and password required" });
+    }
+    let user = null;
+    const rawLogin = String(login).trim();
+    if (rawLogin.includes("@")) {
+      const email = rawLogin.toLowerCase();
+      user = await User.findOne({ email });
+    }
+    if (!user) {
+      const normalizedPhone = normalizePhone(rawLogin);
+      if (normalizedPhone) {
+        user = await User.findOne({ phone: normalizedPhone });
+      }
+    }
+    if (!user) {
+      user = await User.findOne({ name: rawLogin });
+    }
+    if (!user || !user.passwordHash) {
+      return res.status(401).json({ error: "invalid credentials" });
+    }
+    const ok = await bcrypt.compare(password, user.passwordHash);
+    if (!ok) {
+      return res.status(401).json({ error: "invalid credentials" });
+    }
+    const tokenPayload = {
+      id: user._id,
+      role: user.role,
+      isAdmin: user.isAdmin,
+      subscriptionPlan: user.subscriptionPlan
+    };
+    const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: "7d" });
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        phone: user.phone,
+        kakaoId: user.kakaoId,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        cityCode: user.cityCode,
+        preferredLang: user.preferredLang,
+        isAdmin: user.isAdmin,
+        subscriptionPlan: user.subscriptionPlan,
+        subscriptionExpiresAt: user.subscriptionExpiresAt
+      }
+    });
+  } catch (err) {
+    console.error("login error", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
 app.post("/api/auth/login-phone", authLimiter, async (req, res) => {
   try {
     const { phone, password } = req.body;
     if (!phone || !password) {
       return res.status(400).json({ error: "phone and password required" });
     }
-    const user = await User.findOne({ phone });
+    const normalizedPhone = normalizePhone(phone);
+    if (!normalizedPhone) {
+      return res.status(400).json({ error: "invalid phone" });
+    }
+    const user = await User.findOne({ phone: normalizedPhone });
     if (!user || !user.passwordHash) {
       return res.status(401).json({ error: "invalid credentials" });
     }
@@ -354,6 +790,72 @@ app.post("/api/auth/login-phone", authLimiter, async (req, res) => {
     });
   } catch (err) {
     console.error("login-phone error", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+app.post("/api/auth/login-kakao", authLimiter, async (req, res) => {
+  try {
+    const { kakaoId, email, name } = req.body;
+    if (!kakaoId) {
+      return res.status(400).json({ error: "kakaoId required" });
+    }
+    const kakaoIdStr = String(kakaoId);
+    let user =
+      (await User.findOne({ kakaoId: kakaoIdStr })) ||
+      (email ? await User.findOne({ email }) : null);
+    if (!user) {
+      const userDoc = await User.create({
+        kakaoId: kakaoIdStr,
+        email: email || undefined,
+        name: name || "Kakao user",
+        role: "user",
+        preferredLang: "ko"
+      });
+      user = userDoc;
+    } else {
+      let changed = false;
+      if (!user.kakaoId) {
+        user.kakaoId = kakaoIdStr;
+        changed = true;
+      }
+      if (email && !user.email) {
+        user.email = email;
+        changed = true;
+      }
+      if (name && !user.name) {
+        user.name = name;
+        changed = true;
+      }
+      if (changed) {
+        await user.save();
+      }
+    }
+    const tokenPayload = {
+      id: user._id,
+      role: user.role,
+      isAdmin: user.isAdmin,
+      subscriptionPlan: user.subscriptionPlan
+    };
+    const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: "7d" });
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        phone: user.phone,
+        kakaoId: user.kakaoId,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        cityCode: user.cityCode,
+        preferredLang: user.preferredLang,
+        isAdmin: user.isAdmin,
+        subscriptionPlan: user.subscriptionPlan,
+        subscriptionExpiresAt: user.subscriptionExpiresAt
+      }
+    });
+  } catch (err) {
+    console.error("login-kakao error", err);
     res.status(500).json({ error: "server error" });
   }
 });
@@ -504,6 +1006,192 @@ app.get("/api/ads/config", async (req, res) => {
   }
 });
 
+app.get("/api/stats/visits", async (req, res) => {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const todayDoc = await Stats.findOne({ date: today }).lean();
+    const agg = await Stats.aggregate([
+      {
+        $group: {
+          _id: null,
+          total: { $sum: "$visits" }
+        }
+      }
+    ]);
+    const totalVisits = agg.length ? agg[0].total : 0;
+    const dailyVisits = todayDoc ? todayDoc.visits : 0;
+    res.json({ totalVisits, dailyVisits });
+  } catch (err) {
+    console.error("stats-visits error", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+app.get("/api/site-config", async (req, res) => {
+  try {
+    const cfg = await SiteConfig.findOne({ key: "default" }).lean();
+    res.json({
+      contactEmail: (cfg && cfg.contactEmail) || ADMIN_EMAIL || "",
+      telegramUrl: cfg && cfg.telegramUrl ? cfg.telegramUrl : "",
+      instagramUrl: cfg && cfg.instagramUrl ? cfg.instagramUrl : ""
+    });
+  } catch (err) {
+    console.error("site-config error", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+app.get("/api/news", async (req, res) => {
+  try {
+    const lang =
+      typeof req.query.lang === "string" && req.query.lang.trim()
+        ? req.query.lang.trim()
+        : null;
+    const query = { isActive: true };
+    if (lang) {
+      query.$or = [{ lang }, { lang: { $exists: false } }, { lang: "" }];
+    }
+    const items = await News.find(query)
+      .sort({ createdAt: -1 })
+      .limit(20)
+      .lean();
+    res.json({ news: items });
+  } catch (err) {
+    console.error("news list error", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+app.put("/api/admin/site-config", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const { contactEmail, telegramUrl, instagramUrl } = req.body;
+    const update = {};
+    if (contactEmail !== undefined) update.contactEmail = contactEmail;
+    if (telegramUrl !== undefined) update.telegramUrl = telegramUrl;
+    if (instagramUrl !== undefined) update.instagramUrl = instagramUrl;
+    const cfg = await SiteConfig.findOneAndUpdate(
+      { key: "default" },
+      update,
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+    res.json({
+      contactEmail: cfg.contactEmail || "",
+      telegramUrl: cfg.telegramUrl || "",
+      instagramUrl: cfg.instagramUrl || ""
+    });
+  } catch (err) {
+    console.error("admin-site-config error", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+app.get("/api/admin/news", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const items = await News.find({})
+      .sort({ createdAt: -1 })
+      .lean();
+    res.json({ news: items });
+  } catch (err) {
+    console.error("admin news list error", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+app.get("/api/admin/verifications", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const items = await PhoneVerification.find({})
+      .sort({ createdAt: -1 })
+      .limit(200)
+      .lean();
+    res.json({ verifications: items });
+  } catch (err) {
+    console.error("admin verifications list error", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+app.delete(
+  "/api/admin/verifications/:id",
+  authMiddleware,
+  adminOnly,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const doc = await PhoneVerification.findById(id);
+      if (!doc) {
+        return res.status(404).json({ error: "verification not found" });
+      }
+      await doc.deleteOne();
+      res.json({ ok: true });
+    } catch (err) {
+      console.error("admin verifications delete error", err);
+      res.status(500).json({ error: "server error" });
+    }
+  }
+);
+
+app.post("/api/admin/news", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const { title, text, lang, isActive } = req.body;
+    if (!title || !text) {
+      return res.status(400).json({ error: "title and text required" });
+    }
+    const doc = await News.create({
+      title,
+      text,
+      lang: lang && typeof lang === "string" ? lang : "ru",
+      isActive: isActive !== undefined ? !!isActive : true
+    });
+    res.status(201).json({ news: doc });
+  } catch (err) {
+    console.error("admin news create error", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+app.patch("/api/admin/news/:id", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, text, lang, isActive } = req.body;
+    const doc = await News.findById(id);
+    if (!doc) {
+      return res.status(404).json({ error: "news not found" });
+    }
+    if (title !== undefined) {
+      doc.title = title;
+    }
+    if (text !== undefined) {
+      doc.text = text;
+    }
+    if (lang !== undefined && typeof lang === "string" && lang) {
+      doc.lang = lang;
+    }
+    if (isActive !== undefined) {
+      doc.isActive = !!isActive;
+    }
+    await doc.save();
+    res.json({ news: doc });
+  } catch (err) {
+    console.error("admin news update error", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+app.delete("/api/admin/news/:id", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const doc = await News.findById(id);
+    if (!doc) {
+      return res.status(404).json({ error: "news not found" });
+    }
+    await doc.deleteOne();
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("admin news delete error", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
 app.post("/api/payments/subscribe", authMiddleware, async (req, res) => {
   try {
     const { plan } = req.body;
@@ -649,31 +1337,197 @@ app.post("/api/payments/toss/confirm", authMiddleware, async (req, res) => {
 });
 
 app.get("/api/admin/users", authMiddleware, adminOnly, async (req, res) => {
-  // список пользователей с ролями и тарифами
+  try {
+    const users = await User.find({})
+      .select(
+        "phone kakaoId email name role cityCode preferredLang marketingOptIn isAdmin isInvestor subscriptionPlan subscriptionExpiresAt createdAt"
+      )
+      .sort({ createdAt: -1 })
+      .lean();
+    res.json({ users });
+  } catch (err) {
+    console.error("admin users list error", err);
+    res.status(500).json({ error: "server error" });
+  }
 });
 
-app.patch("/api/admin/users/:id/subscription", authMiddleware, adminOnly, async (req, res) => {
-  // изменение subscriptionPlan, subscriptionExpiresAt, isAdmin, isInvestor
-});
+app.patch(
+  "/api/admin/users/:id/subscription",
+  authMiddleware,
+  adminOnly,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const {
+        subscriptionPlan,
+        subscriptionExpiresAt,
+        isAdmin,
+        isInvestor
+      } = req.body;
+      const user = await User.findById(id);
+      if (!user) {
+        return res.status(404).json({ error: "user not found" });
+      }
+      if (subscriptionPlan !== undefined) {
+        const allowedPlans = ["none", "client", "coffee", "invest"];
+        if (!allowedPlans.includes(subscriptionPlan)) {
+          return res.status(400).json({ error: "invalid subscriptionPlan" });
+        }
+        user.subscriptionPlan = subscriptionPlan;
+      }
+      if (subscriptionExpiresAt !== undefined) {
+        if (subscriptionExpiresAt === null || subscriptionExpiresAt === "") {
+          user.subscriptionExpiresAt = null;
+        } else {
+          const date = new Date(subscriptionExpiresAt);
+          if (Number.isNaN(date.getTime())) {
+            return res
+              .status(400)
+              .json({ error: "invalid subscriptionExpiresAt" });
+          }
+          user.subscriptionExpiresAt = date;
+        }
+      }
+      if (isAdmin !== undefined) {
+        user.isAdmin = !!isAdmin;
+      }
+      if (isInvestor !== undefined) {
+        user.isInvestor = !!isInvestor;
+      }
+      await user.save();
+      res.json({
+        user: {
+          id: user._id,
+          phone: user.phone,
+          kakaoId: user.kakaoId,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          cityCode: user.cityCode,
+          preferredLang: user.preferredLang,
+          marketingOptIn: user.marketingOptIn,
+          isAdmin: user.isAdmin,
+          isInvestor: user.isInvestor,
+          subscriptionPlan: user.subscriptionPlan,
+          subscriptionExpiresAt: user.subscriptionExpiresAt
+        }
+      });
+    } catch (err) {
+      console.error("admin user subscription update error", err);
+      res.status(500).json({ error: "server error" });
+    }
+  }
+);
 
 app.get("/api/admin/cafes", authMiddleware, adminOnly, async (req, res) => {
-  // список всех кафе
+  try {
+    const cafes = await Cafe.find({})
+      .populate({
+        path: "owner",
+        select:
+          "phone kakaoId email name role cityCode preferredLang isAdmin isInvestor"
+      })
+      .sort({ createdAt: -1 })
+      .lean();
+    res.json({ cafes });
+  } catch (err) {
+    console.error("admin cafes list error", err);
+    res.status(500).json({ error: "server error" });
+  }
 });
 
-app.patch("/api/admin/cafes/:id", authMiddleware, adminOnly, async (req, res) => {
-  // включить/выключить кафе (isActive)
-});
+app.patch(
+  "/api/admin/cafes/:id",
+  authMiddleware,
+  adminOnly,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { isActive } = req.body;
+      const cafe = await Cafe.findById(id);
+      if (!cafe) {
+        return res.status(404).json({ error: "cafe not found" });
+      }
+      if (isActive !== undefined) {
+        cafe.isActive = !!isActive;
+      }
+      await cafe.save();
+      res.json({ cafe });
+    } catch (err) {
+      console.error("admin cafe update error", err);
+      res.status(500).json({ error: "server error" });
+    }
+  }
+);
 
 app.get("/api/admin/ads", authMiddleware, adminOnly, async (req, res) => {
-  // список рекламных блоков
+  try {
+    const ads = await Ad.find({})
+      .sort({ createdAt: -1 })
+      .lean();
+    res.json({ ads });
+  } catch (err) {
+    console.error("admin ads list error", err);
+    res.status(500).json({ error: "server error" });
+  }
 });
 
 app.post("/api/admin/ads", authMiddleware, adminOnly, async (req, res) => {
-  // создание рекламного блока
+  try {
+    const { title, text, cityCode, url, active, weight } = req.body;
+    if (!title) {
+      return res.status(400).json({ error: "title required" });
+    }
+    const ad = await Ad.create({
+      title,
+      text: text || "",
+      cityCode: cityCode || "all",
+      url: url || "",
+      active: active !== undefined ? !!active : true,
+      weight:
+        typeof weight === "number" && Number.isFinite(weight) ? weight : 1
+    });
+    res.status(201).json({ ad });
+  } catch (err) {
+    console.error("admin ad create error", err);
+    res.status(500).json({ error: "server error" });
+  }
 });
 
 app.patch("/api/admin/ads/:id", authMiddleware, adminOnly, async (req, res) => {
-  // правка рекламного блока
+  try {
+    const { id } = req.params;
+    const { title, text, cityCode, url, active, weight } = req.body;
+    const ad = await Ad.findById(id);
+    if (!ad) {
+      return res.status(404).json({ error: "ad not found" });
+    }
+    if (title !== undefined) {
+      ad.title = title;
+    }
+    if (text !== undefined) {
+      ad.text = text;
+    }
+    if (cityCode !== undefined) {
+      ad.cityCode = cityCode;
+    }
+    if (url !== undefined) {
+      ad.url = url;
+    }
+    if (active !== undefined) {
+      ad.active = !!active;
+    }
+    if (weight !== undefined) {
+      if (typeof weight === "number" && Number.isFinite(weight)) {
+        ad.weight = weight;
+      }
+    }
+    await ad.save();
+    res.json({ ad });
+  } catch (err) {
+    console.error("admin ad update error", err);
+    res.status(500).json({ error: "server error" });
+  }
 });
 app.post("/api/cafes", authMiddleware, ownerOnly, async (req, res) => {
   try {

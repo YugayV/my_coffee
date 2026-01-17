@@ -5,6 +5,8 @@ let map;
 let mapMarker;
 let authToken = null;
 let currentUser = null;
+let currentEditingNewsId = null;
+const KAKAO_JS_KEY = "YOUR_KAKAO_JAVASCRIPT_KEY";
 
 const translations = {
     ko: {
@@ -16,10 +18,21 @@ const translations = {
             quickText: "회원가입 후 바로 예약 가능!",
             citySelectTitle: "도시 선택",
             selectedCityPrefix: "선택된 도시: ",
-            adTitle: "특별 할인 이벤트!",
-            adText: "첫 예약 시 20% 할인",
+            adTitle: "파트너 광고",
+            adText: "카페와 브랜드의 프로모션을 확인하세요.",
             adButton: "자세히 보기",
-            recommendTitle: "추천 지역"
+            recommendTitle: "추천 지역",
+            verifyChannelLabel: "인증 코드 수신 방법",
+            verifyChannelSms: "SMS로 코드 받기",
+            verifyChannelEmail: "이메일로 코드 받기",
+            verifyChannelKakao: "Kakao로 코드 받기",
+            verifyChannelFacebook: "Facebook으로 코드 받기",
+            verifyCodePlaceholder: "인증 코드",
+            verificationChannelHint: "인증 코드를 받을 채널을 선택하세요.",
+            verifyChannelSmsHint: "입력한 휴대폰 번호로 SMS 인증 코드를 받습니다.",
+            verifyChannelEmailHint: "입력한 이메일 주소로 인증 코드를 받습니다.",
+            verifyChannelKakaoHint: "Kakao 계정과 연결된 번호로 인증 코드를 받습니다.",
+            verifyChannelFacebookHint: "Facebook 계정과 연결된 연락처로 인증 코드를 받습니다."
         },
         cities: {
             seoul: "서울",
@@ -39,6 +52,13 @@ const translations = {
             jeonju: "전주",
             pohang: "포항",
             gumi: "구미"
+        },
+        regions: {
+            capital: "수도권",
+            yeongnam: "영남권",
+            honam: "호남권",
+            chungcheong: "충청권",
+            jeju_region: "제주/기타"
         },
         recommendations: {
             seoul: "서울에서는 강남, 홍대, 이태원 주변 카페를 추천합니다.",
@@ -66,13 +86,24 @@ const translations = {
             registerOwner: "Sign up (Cafe owner)",
             login: "Login",
             quickTitle: "Quick booking",
-            quickText: "Register and book a table instantly.",
+            quickText: "Booking is free on Kafe Booking.",
             citySelectTitle: "Choose city",
             selectedCityPrefix: "Selected city: ",
-            adTitle: "Special discount!",
-            adText: "20% off on your first booking.",
+            adTitle: "Partner ads",
+            adText: "Promotions from cafes and brands.",
             adButton: "Learn more",
-            recommendTitle: "Recommendations"
+            recommendTitle: "Recommendations",
+            verifyChannelLabel: "Where to receive verification code",
+            verifyChannelSms: "Get code via SMS",
+            verifyChannelEmail: "Get code via email",
+            verifyChannelKakao: "Get code via Kakao",
+            verifyChannelFacebook: "Get code via Facebook",
+            verifyCodePlaceholder: "Verification code",
+            verificationChannelHint: "Choose how you want to receive the verification code.",
+            verifyChannelSmsHint: "Code will be sent by SMS to the phone number you enter.",
+            verifyChannelEmailHint: "Code will be sent to the email address you enter.",
+            verifyChannelKakaoHint: "Code will be sent via your Kakao account.",
+            verifyChannelFacebookHint: "Code will be sent via your Facebook account."
         },
         cities: {
             seoul: "Seoul",
@@ -92,6 +123,13 @@ const translations = {
             jeonju: "Jeonju",
             pohang: "Pohang",
             gumi: "Gumi"
+        },
+        regions: {
+            capital: "Capital area",
+            yeongnam: "Yeongnam",
+            honam: "Honam",
+            chungcheong: "Chungcheong",
+            jeju_region: "Jeju/Other"
         },
         recommendations: {
             seoul: "Seoul: try cafes in Gangnam, Hongdae and Itaewon.",
@@ -119,13 +157,24 @@ const translations = {
             registerOwner: "Регистрация владельца кафе",
             login: "Войти",
             quickTitle: "Быстрое бронирование",
-            quickText: "После регистрации можно сразу бронировать столики.",
+            quickText: "Бронирование столиков на платформе бесплатное.",
             citySelectTitle: "Выбор города",
             selectedCityPrefix: "Выбранный город: ",
-            adTitle: "Специальная скидка!",
-            adText: "20% скидка на первую бронь.",
+            adTitle: "Реклама партнёров",
+            adText: "Актуальные предложения кафе и брендов.",
             adButton: "Подробнее",
-            recommendTitle: "Рекомендации по городу"
+            recommendTitle: "Рекомендации по городу",
+            verifyChannelLabel: "Куда отправить код подтверждения",
+            verifyChannelSms: "Получить код по SMS",
+            verifyChannelEmail: "Получить код на email",
+            verifyChannelKakao: "Получить код через Kakao",
+            verifyChannelFacebook: "Получить код через Facebook",
+            verifyCodePlaceholder: "Код подтверждения",
+            verificationChannelHint: "Выберите, куда отправить код подтверждения.",
+            verifyChannelSmsHint: "Код придёт по SMS на указанный номер телефона.",
+            verifyChannelEmailHint: "Код придёт на указанный адрес электронной почты.",
+            verifyChannelKakaoHint: "Код будет отправлен через ваш профиль Kakao.",
+            verifyChannelFacebookHint: "Код будет отправлен через ваш профиль Facebook."
         },
         cities: {
             seoul: "Сеул",
@@ -145,6 +194,13 @@ const translations = {
             jeonju: "Чонджу",
             pohang: "Пхохан",
             gumi: "Куми"
+        },
+        regions: {
+            capital: "Столичный регион",
+            yeongnam: "Регион Ённам",
+            honam: "Регион Хонам",
+            chungcheong: "Регион Чхунчхон",
+            jeju_region: "Чеджу и др."
         },
         recommendations: {
             seoul: "Сеул: рекомендуем кафе в районах Каннам, Хонде и Итхэвон.",
@@ -269,6 +325,7 @@ async function initAds() {
             }
             return;
         }
+        const feedAdsContainer = document.getElementById("feedAdsContainer");
         if (data.provider === "kakao" && data.kakaoUnitId && data.kakaoScriptUrl) {
             adBanner.innerHTML = "";
             const container = document.createElement("div");
@@ -290,6 +347,174 @@ async function initAds() {
             s.src = data.naverScriptUrl;
             document.head.appendChild(s);
             return;
+        }
+        if (!data.provider || data.provider === "local") {
+            try {
+                const adsRes = await fetch(
+                    "/api/ads?city=" + encodeURIComponent(currentCityCode || ""),
+                    { headers }
+                );
+                if (!adsRes.ok) {
+                    return;
+                }
+                const adsData = await adsRes.json();
+                const ads = adsData && adsData.ads ? adsData.ads : [];
+                if (!ads.length) {
+                    adBanner.classList.add("hidden");
+                    if (feedAdsContainer) {
+                        feedAdsContainer.innerHTML = "";
+                    }
+                    return;
+                }
+                adBanner.innerHTML = "";
+                const list = document.createElement("div");
+                list.className = "ad-local-list";
+                ads.forEach((ad) => {
+                    const item = document.createElement("div");
+                    item.className = "ad-local-item";
+                    const title = document.createElement("div");
+                    title.className = "ad-local-title";
+                    title.textContent = ad.title || "";
+                    const text = document.createElement("div");
+                    text.className = "ad-local-text";
+                    text.textContent = ad.text || "";
+                    item.appendChild(title);
+                    item.appendChild(text);
+                    if (ad.url) {
+                        item.addEventListener("click", () => {
+                            window.open(ad.url, "_blank");
+                        });
+                        item.classList.add("ad-local-clickable");
+                    }
+                    list.appendChild(item);
+                });
+                adBanner.appendChild(list);
+                if (feedAdsContainer) {
+                    feedAdsContainer.innerHTML = "";
+                    ads.slice(0, 3).forEach((ad) => {
+                        const item = document.createElement("div");
+                        item.className = "feed-ad-item";
+                        item.textContent = ad.title || "";
+                        feedAdsContainer.appendChild(item);
+                    });
+                }
+            } catch (e) {
+            }
+        }
+    } catch (e) {
+    }
+}
+
+async function initStats() {
+    const totalEl = document.getElementById("statsTotalVisits");
+    const dailyEl = document.getElementById("statsDailyVisits");
+    if (!totalEl || !dailyEl) {
+        return;
+    }
+    try {
+        const res = await fetch("/api/stats/visits");
+        if (!res.ok) {
+            return;
+        }
+        const data = await res.json();
+        if (data.totalVisits !== undefined) {
+            totalEl.textContent = String(data.totalVisits);
+        }
+        if (data.dailyVisits !== undefined) {
+            dailyEl.textContent = String(data.dailyVisits);
+        }
+    } catch (e) {
+    }
+}
+
+async function loadNews() {
+    const listEl = document.getElementById("newsList");
+    if (!listEl) {
+        return;
+    }
+    try {
+        const res = await fetch("/api/news?lang=" + encodeURIComponent(currentLang || ""));
+        if (!res.ok) {
+            return;
+        }
+        const data = await res.json();
+        const items = data && data.news ? data.news : [];
+        listEl.innerHTML = "";
+        items.forEach((item) => {
+            const li = document.createElement("li");
+            const title = item.title || "";
+            const text = item.text || "";
+            if (title && text) {
+                li.textContent = title + " — " + text;
+            } else {
+                li.textContent = title || text || "";
+            }
+            listEl.appendChild(li);
+        });
+    } catch (e) {
+    }
+}
+
+async function loadFeedCafes() {
+    const listEl = document.getElementById("feedCafesList");
+    if (!listEl) {
+        return;
+    }
+    try {
+        const res = await fetch("/api/cafes?city=" + encodeURIComponent(currentCityCode || ""));
+        if (!res.ok) {
+            return;
+        }
+        const data = await res.json();
+        const cafes = data && data.cafes ? data.cafes : [];
+        listEl.innerHTML = "";
+        cafes.slice(0, 5).forEach((cafe) => {
+            const div = document.createElement("div");
+            div.className = "feed-cafe-item";
+            const name = document.createElement("div");
+            name.textContent = cafe.name || "";
+            const address = document.createElement("div");
+            address.textContent = cafe.address || "";
+            div.appendChild(name);
+            if (cafe.address) {
+                div.appendChild(address);
+            }
+            listEl.appendChild(div);
+        });
+    } catch (e) {
+    }
+}
+
+async function loadSiteConfig() {
+    try {
+        const res = await fetch("/api/site-config");
+        if (!res.ok) {
+            return;
+        }
+        const data = await res.json();
+        const emailLink = document.getElementById("contactEmailLink");
+        const telegramLink = document.getElementById("footerTelegramLink");
+        const instagramLink = document.getElementById("footerInstagramLink");
+        const email = data.contactEmail || "vamp.09.94@gmail.com";
+        if (emailLink) {
+            emailLink.textContent = email;
+            emailLink.href = "mailto:" + email;
+        }
+        if (telegramLink) {
+            if (data.telegramUrl) {
+                telegramLink.href = data.telegramUrl;
+                telegramLink.classList.remove("hidden");
+            } else {
+                telegramLink.classList.add("hidden");
+            }
+        }
+        if (instagramLink) {
+            if (data.instagramUrl) {
+                instagramLink.href = data.instagramUrl;
+                instagramLink.classList.remove("hidden");
+            } else {
+                instagramLink.classList.add("hidden");
+            }
         }
     } catch (e) {
     }
@@ -356,6 +581,7 @@ function renderProfile() {
     const btnCoffeePremium = document.getElementById("btnCoffeePremium");
     const btnInvestPremium = document.getElementById("btnInvestPremium");
     const ownerPanel = document.getElementById("ownerPanel");
+    const adminPanel = document.getElementById("adminPanel");
     if (!statusEl) {
         return;
     }
@@ -367,6 +593,7 @@ function renderProfile() {
         if (btnCoffeePremium) btnCoffeePremium.classList.add("hidden");
         if (btnInvestPremium) btnInvestPremium.classList.add("hidden");
         if (ownerPanel) ownerPanel.classList.add("hidden");
+        if (adminPanel) adminPanel.classList.add("hidden");
         return;
     }
     const plan = currentUser.subscriptionPlan || "none";
@@ -426,6 +653,13 @@ function renderProfile() {
             ownerPanel.classList.remove("hidden");
         } else {
             ownerPanel.classList.add("hidden");
+        }
+    }
+    if (adminPanel) {
+        if (currentUser.isAdmin) {
+            adminPanel.classList.remove("hidden");
+        } else {
+            adminPanel.classList.add("hidden");
         }
     }
 }
@@ -528,9 +762,14 @@ function applyLanguage(lang) {
     const selectedCityTitle = document.getElementById("selectedCityTitle");
     const recommendTitle = document.getElementById("recommendTitle");
     const recommendText = document.getElementById("recommendText");
+    const feedRecommendText = document.getElementById("feedRecommendText");
     const adTitle = document.getElementById("adTitle");
     const adText = document.getElementById("adText");
     const adButton = document.getElementById("adButton");
+    const codeChannelSelect = document.getElementById("registerCodeChannel");
+    const codeInput = document.getElementById("registerPhoneCode");
+    const verificationChannelLabelEl = document.getElementById("verificationChannelLabel");
+    const verificationChannelHintEl = document.getElementById("verificationChannelHint");
 
     if (btnUser) btnUser.textContent = config.ui.registerUser;
     if (btnOwner) btnOwner.textContent = config.ui.registerOwner;
@@ -542,6 +781,39 @@ function applyLanguage(lang) {
     if (adText) adText.textContent = config.ui.adText;
     if (adButton) adButton.textContent = config.ui.adButton;
     if (recommendTitle) recommendTitle.textContent = config.ui.recommendTitle;
+    if (verificationChannelLabelEl && config.ui.verifyChannelLabel) {
+        verificationChannelLabelEl.textContent = config.ui.verifyChannelLabel;
+    }
+
+    if (codeChannelSelect) {
+        const smsOption = codeChannelSelect.querySelector("option[value='sms']");
+        const emailOption = codeChannelSelect.querySelector("option[value='email']");
+        const kakaoOption = codeChannelSelect.querySelector("option[value='kakao']");
+        const facebookOption = codeChannelSelect.querySelector("option[value='facebook']");
+        if (smsOption) smsOption.textContent = config.ui.verifyChannelSms;
+        if (emailOption) emailOption.textContent = config.ui.verifyChannelEmail;
+        if (kakaoOption) kakaoOption.textContent = config.ui.verifyChannelKakao;
+        if (facebookOption) facebookOption.textContent = config.ui.verifyChannelFacebook;
+    }
+    if (codeInput && config.ui.verifyCodePlaceholder) {
+        codeInput.placeholder = config.ui.verifyCodePlaceholder;
+    }
+
+    if (verificationChannelHintEl) {
+        const baseHint = config.ui.verificationChannelHint || "";
+        verificationChannelHintEl.textContent = baseHint;
+    }
+
+    const provinceButtons = document.querySelectorAll(".province-btn");
+    if (config.regions) {
+        provinceButtons.forEach((btn) => {
+            const code = btn.getAttribute("data-province");
+            const name = config.regions[code];
+            if (name) {
+                btn.textContent = name;
+            }
+        });
+    }
 
     const cityButtons = document.querySelectorAll(".city-btn");
     cityButtons.forEach((btn) => {
@@ -557,10 +829,15 @@ function applyLanguage(lang) {
         selectedCityTitle.textContent = config.ui.selectedCityPrefix + cityName;
     }
 
-    if (recommendText && config.recommendations) {
+    if (config.recommendations) {
         const rec = config.recommendations[currentCityCode];
         if (rec) {
-            recommendText.textContent = rec;
+            if (recommendText) {
+                recommendText.textContent = rec;
+            }
+            if (feedRecommendText) {
+                feedRecommendText.textContent = rec;
+            }
         }
     }
 
@@ -571,6 +848,27 @@ function applyLanguage(lang) {
     });
 
     renderProfile();
+    loadNews();
+}
+
+function applyVerificationChannelHint() {
+    const config = translations[currentLang];
+    if (!config) return;
+    const hintEl = document.getElementById("verificationChannelHint");
+    const selectEl = document.getElementById("registerCodeChannel");
+    if (!hintEl || !selectEl) return;
+    const channel = selectEl.value || "sms";
+    let text = config.ui.verificationChannelHint || "";
+    if (channel === "sms" && config.ui.verifyChannelSmsHint) {
+        text = config.ui.verifyChannelSmsHint;
+    } else if (channel === "email" && config.ui.verifyChannelEmailHint) {
+        text = config.ui.verifyChannelEmailHint;
+    } else if (channel === "kakao" && config.ui.verifyChannelKakaoHint) {
+        text = config.ui.verifyChannelKakaoHint;
+    } else if (channel === "facebook" && config.ui.verifyChannelFacebookHint) {
+        text = config.ui.verifyChannelFacebookHint;
+    }
+    hintEl.textContent = text;
 }
 
 function initKakaoMap(cityCode) {
@@ -626,6 +924,518 @@ async function loadOwnerCafes() {
     }
 }
 
+async function loadAdminUsers() {
+    const listEl = document.getElementById("adminUsersList");
+    if (!listEl || !authToken || !currentUser || !currentUser.isAdmin) {
+        return;
+    }
+    try {
+        const res = await fetch("/api/admin/users", {
+            headers: {
+                Authorization: "Bearer " + authToken
+            }
+        });
+        if (!res.ok) {
+            return;
+        }
+        const data = await res.json();
+        const users = data && data.users ? data.users : [];
+        listEl.innerHTML = "";
+        users.forEach((user) => {
+            const div = document.createElement("div");
+            div.className = "admin-list-item";
+            const plan = user.subscriptionPlan || "none";
+            const role = user.role || "user";
+            const name = user.name || "";
+            const cityCode = user.cityCode || "";
+            const flags = [];
+            if (user.isAdmin) {
+                flags.push("admin");
+            }
+            if (user.isInvestor) {
+                flags.push("investor");
+            }
+            const flagsText = flags.length ? " [" + flags.join(", ") + "]" : "";
+            const mainText = document.createElement("div");
+            mainText.textContent =
+                name +
+                " (" +
+                role +
+                ")" +
+                (cityCode ? " / " + cityCode : "") +
+                " - plan: " +
+                plan +
+                flagsText;
+            const buttonsWrap = document.createElement("div");
+            buttonsWrap.className = "admin-user-plan-buttons";
+            const plans = [
+                { code: "none", label: "None" },
+                { code: "client", label: "Client" },
+                { code: "coffee", label: "Coffee" },
+                { code: "invest", label: "Invest" }
+            ];
+            plans.forEach((p) => {
+                const b = document.createElement("button");
+                b.type = "button";
+                b.className =
+                    "admin-user-plan-btn" +
+                    (plan === p.code ? " admin-user-plan-btn-active" : "");
+                b.textContent = p.label;
+                b.addEventListener("click", async () => {
+                    await updateUserPlan(user._id, p.code);
+                });
+                buttonsWrap.appendChild(b);
+            });
+            div.appendChild(mainText);
+            div.appendChild(buttonsWrap);
+            listEl.appendChild(div);
+        });
+    } catch (e) {
+    }
+}
+
+async function updateUserPlan(userId, plan) {
+    if (!authToken || !currentUser || !currentUser.isAdmin) {
+        return;
+    }
+    const body =
+        plan === "none"
+            ? { subscriptionPlan: "none", subscriptionExpiresAt: null }
+            : { subscriptionPlan: plan };
+    try {
+        const res = await fetch("/api/admin/users/" + encodeURIComponent(userId) + "/subscription", {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + authToken
+            },
+            body: JSON.stringify(body)
+        });
+        if (!res.ok) {
+            return;
+        }
+        await loadAdminUsers();
+    } catch (e) {
+    }
+}
+
+async function loadAdminCafes() {
+    const listEl = document.getElementById("adminCafesList");
+    if (!listEl || !authToken || !currentUser || !currentUser.isAdmin) {
+        return;
+    }
+    try {
+        const res = await fetch("/api/admin/cafes", {
+            headers: {
+                Authorization: "Bearer " + authToken
+            }
+        });
+        if (!res.ok) {
+            return;
+        }
+        const data = await res.json();
+        const cafes = data && data.cafes ? data.cafes : [];
+        listEl.innerHTML = "";
+        cafes.forEach((cafe) => {
+            const div = document.createElement("div");
+            div.className =
+                "admin-list-item " +
+                (cafe.isActive ? "admin-list-item-active" : "admin-list-item-inactive");
+            const rowTop = document.createElement("div");
+            rowTop.className = "admin-list-row-top";
+            const mainText = document.createElement("div");
+            const name = cafe.name || "";
+            const cityCode = cafe.cityCode || "";
+            mainText.textContent = name + (cityCode ? " (" + cityCode + ")" : "");
+            const statusPill = document.createElement("div");
+            statusPill.className = "admin-status-pill";
+            const dot = document.createElement("span");
+            dot.className =
+                "admin-status-dot " +
+                (cafe.isActive ? "admin-status-dot-active" : "admin-status-dot-inactive");
+            const statusText = document.createElement("span");
+            statusText.textContent = cafe.isActive ? "ON" : "OFF";
+            statusPill.appendChild(dot);
+            statusPill.appendChild(statusText);
+            rowTop.appendChild(mainText);
+            rowTop.appendChild(statusPill);
+            div.appendChild(rowTop);
+            div.addEventListener("click", async () => {
+                await toggleCafeActive(cafe._id, !!cafe.isActive);
+            });
+            listEl.appendChild(div);
+        });
+    } catch (e) {
+    }
+}
+
+async function toggleCafeActive(cafeId, current) {
+    if (!authToken || !currentUser || !currentUser.isAdmin) {
+        return;
+    }
+    try {
+        const res = await fetch("/api/admin/cafes/" + encodeURIComponent(cafeId), {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + authToken
+            },
+            body: JSON.stringify({ isActive: !current })
+        });
+        if (!res.ok) {
+            return;
+        }
+        await loadAdminCafes();
+    } catch (e) {
+    }
+}
+
+async function loadAdminAds() {
+    const listEl = document.getElementById("adminAdsList");
+    if (!listEl || !authToken || !currentUser || !currentUser.isAdmin) {
+        return;
+    }
+    try {
+        const res = await fetch("/api/admin/ads", {
+            headers: {
+                Authorization: "Bearer " + authToken
+            }
+        });
+        if (!res.ok) {
+            return;
+        }
+        const data = await res.json();
+        const ads = data && data.ads ? data.ads : [];
+        listEl.innerHTML = "";
+        ads.forEach((ad) => {
+            const div = document.createElement("div");
+            div.className =
+                "admin-list-item " +
+                (ad.active ? "admin-list-item-active" : "admin-list-item-inactive");
+            const rowTop = document.createElement("div");
+            rowTop.className = "admin-list-row-top";
+            const mainText = document.createElement("div");
+            const title = ad.title || "";
+            const cityCode = ad.cityCode || "";
+            const weight = typeof ad.weight === "number" ? ad.weight : "";
+            let main = title;
+            if (cityCode) {
+                main += " / " + cityCode;
+            }
+            if (weight !== "") {
+                main += " (w=" + weight + ")";
+            }
+            mainText.textContent = main;
+            const statusPill = document.createElement("div");
+            statusPill.className = "admin-status-pill";
+            const dot = document.createElement("span");
+            dot.className =
+                "admin-status-dot " +
+                (ad.active ? "admin-status-dot-active" : "admin-status-dot-inactive");
+            const statusText = document.createElement("span");
+            statusText.textContent = ad.active ? "ON" : "OFF";
+            statusPill.appendChild(dot);
+            statusPill.appendChild(statusText);
+            rowTop.appendChild(mainText);
+            rowTop.appendChild(statusPill);
+            div.appendChild(rowTop);
+            div.addEventListener("click", async () => {
+                await toggleAdActive(ad._id, !!ad.active);
+            });
+            listEl.appendChild(div);
+        });
+    } catch (e) {
+    }
+}
+
+async function loadAdminNews() {
+    const listEl = document.getElementById("adminNewsList");
+    if (!listEl || !authToken || !currentUser || !currentUser.isAdmin) {
+        return;
+    }
+    try {
+        const res = await fetch("/api/admin/news", {
+            headers: {
+                Authorization: "Bearer " + authToken
+            }
+        });
+        if (!res.ok) {
+            return;
+        }
+        const data = await res.json();
+        const items = data && data.news ? data.news : [];
+        listEl.innerHTML = "";
+        items.forEach((item) => {
+            const row = document.createElement("div");
+            row.className = "admin-list-item admin-news-item";
+            const title = item.title || "";
+            const lang = item.lang || "";
+            const isActive = item.isActive ? "on" : "off";
+
+            const main = document.createElement("div");
+            main.className = "admin-news-main";
+            main.textContent =
+                (lang ? "[" + lang.toUpperCase() + "] " : "") +
+                title +
+                " - " +
+                isActive;
+            main.addEventListener("click", async () => {
+                await toggleNewsActive(item._id, !!item.isActive);
+            });
+
+            const controls = document.createElement("div");
+            controls.className = "admin-news-controls";
+
+            const editBtn = document.createElement("button");
+            editBtn.type = "button";
+            editBtn.className = "admin-news-btn";
+            editBtn.textContent = "✎";
+            editBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                const titleInput = document.getElementById("adminNewsTitle");
+                const textInput = document.getElementById("adminNewsText");
+                const langSelect = document.getElementById("adminNewsLang");
+                const submitBtn = document.querySelector("#adminNewsForm button[type='submit']");
+                if (titleInput && textInput && langSelect) {
+                    titleInput.value = item.title || "";
+                    textInput.value = item.text || "";
+                    if (item.lang && (item.lang === "ru" || item.lang === "ko" || item.lang === "en")) {
+                        langSelect.value = item.lang;
+                    }
+                    currentEditingNewsId = item._id;
+                    if (submitBtn) {
+                        submitBtn.textContent = "Сохранить изменения";
+                    }
+                }
+            });
+
+            const deleteBtn = document.createElement("button");
+            deleteBtn.type = "button";
+            deleteBtn.className = "admin-news-btn admin-news-btn-danger";
+            deleteBtn.textContent = "✕";
+            deleteBtn.addEventListener("click", async (e) => {
+                e.stopPropagation();
+                const confirmDelete =
+                    currentLang === "ru"
+                        ? "Удалить новость?"
+                        : currentLang === "en"
+                        ? "Delete this news item?"
+                        : "이 뉴스를 삭제할까요?";
+                if (!window.confirm(confirmDelete)) {
+                    return;
+                }
+                await deleteNews(item._id);
+            });
+
+            controls.appendChild(editBtn);
+            controls.appendChild(deleteBtn);
+            row.appendChild(main);
+            row.appendChild(controls);
+            listEl.appendChild(row);
+        });
+    } catch (e) {
+    }
+}
+
+async function loadAdminVerifications() {
+    const listEl = document.getElementById("adminVerificationsList");
+    if (!listEl || !authToken || !currentUser || !currentUser.isAdmin) {
+        return;
+    }
+    try {
+        const res = await fetch("/api/admin/verifications", {
+            headers: {
+                Authorization: "Bearer " + authToken
+            }
+        });
+        if (!res.ok) {
+            return;
+        }
+        const data = await res.json();
+        const items = data && data.verifications ? data.verifications : [];
+        listEl.innerHTML = "";
+        items.forEach((item) => {
+            const row = document.createElement("div");
+            row.className = "admin-list-item";
+            const main = document.createElement("div");
+            const channel = item.channel || "sms";
+            const dest = item.email || item.phone || "";
+            const created = item.createdAt ? new Date(item.createdAt) : null;
+            const expires = item.expiresAt ? new Date(item.expiresAt) : null;
+            const createdStr = created ? created.toLocaleString() : "";
+            const expiresStr = expires ? expires.toLocaleString() : "";
+            main.textContent =
+                "channel=" +
+                channel +
+                (dest ? " / " + dest : "") +
+                (createdStr ? " / " + createdStr : "") +
+                (expiresStr ? " → " + expiresStr : "") +
+                " / attempts=" +
+                (item.attempts || 0);
+            const controls = document.createElement("div");
+            const deleteBtn = document.createElement("button");
+            deleteBtn.type = "button";
+            deleteBtn.textContent = "Удалить";
+            deleteBtn.addEventListener("click", async () => {
+                if (
+                    !window.confirm(
+                        currentLang === "ru"
+                            ? "Удалить запись верификации?"
+                            : currentLang === "en"
+                            ? "Delete this verification entry?"
+                            : "이 인증 항목을 삭제할까요?"
+                    )
+                ) {
+                    return;
+                }
+                try {
+                    const delRes = await fetch(
+                        "/api/admin/verifications/" + encodeURIComponent(item._id),
+                        {
+                            method: "DELETE",
+                            headers: {
+                                Authorization: "Bearer " + authToken
+                            }
+                        }
+                    );
+                    if (!delRes.ok) {
+                        return;
+                    }
+                    await loadAdminVerifications();
+                } catch (e) {
+                }
+            });
+            controls.appendChild(deleteBtn);
+            row.appendChild(main);
+            row.appendChild(controls);
+            listEl.appendChild(row);
+        });
+    } catch (e) {
+    }
+}
+
+async function toggleNewsActive(newsId, current) {
+    if (!authToken || !currentUser || !currentUser.isAdmin) {
+        return;
+    }
+    try {
+        const res = await fetch("/api/admin/news/" + encodeURIComponent(newsId), {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + authToken
+            },
+            body: JSON.stringify({ isActive: !current })
+        });
+        if (!res.ok) {
+            return;
+        }
+        await loadAdminNews();
+        await loadNews();
+    } catch (e) {
+    }
+}
+
+async function deleteNews(newsId) {
+    if (!authToken || !currentUser || !currentUser.isAdmin) {
+        return;
+    }
+    try {
+        const res = await fetch("/api/admin/news/" + encodeURIComponent(newsId), {
+            method: "DELETE",
+            headers: {
+                Authorization: "Bearer " + authToken
+            }
+        });
+        if (!res.ok) {
+            return;
+        }
+        const titleInput = document.getElementById("adminNewsTitle");
+        const textInput = document.getElementById("adminNewsText");
+        const submitBtn = document.querySelector("#adminNewsForm button[type='submit']");
+        if (currentEditingNewsId === newsId) {
+            currentEditingNewsId = null;
+            if (titleInput) titleInput.value = "";
+            if (textInput) textInput.value = "";
+            if (submitBtn) submitBtn.textContent = "Опубликовать новость";
+        }
+        await loadAdminNews();
+        await loadNews();
+    } catch (e) {
+    }
+}
+
+async function toggleAdActive(adId, current) {
+    if (!authToken || !currentUser || !currentUser.isAdmin) {
+        return;
+    }
+    try {
+        const res = await fetch("/api/admin/ads/" + encodeURIComponent(adId), {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + authToken
+            },
+            body: JSON.stringify({ active: !current })
+        });
+        if (!res.ok) {
+            return;
+        }
+        await loadAdminAds();
+    } catch (e) {
+    }
+}
+
+async function reloadAdminData() {
+    await loadAdminUsers();
+    await loadAdminCafes();
+    await loadAdminAds();
+    await loadAdminNews();
+    await loadAdminVerifications();
+}
+
+async function adminLoginPrompt() {
+    const password = window.prompt("Введите пароль администратора");
+    if (!password) {
+        return;
+    }
+    try {
+        const res = await fetch("/api/auth/login-admin", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                email: "vamp.09.94@gmail.com",
+                password
+            })
+        });
+        if (!res.ok) {
+            alert(
+                currentLang === "ru"
+                    ? "Ошибка админ-входа"
+                    : currentLang === "en"
+                    ? "Admin login failed"
+                    : "관리자 로그인 실패"
+            );
+            return;
+        }
+        const data = await res.json();
+        if (data && data.token && data.user) {
+            setAuth(data.token, data.user);
+            await reloadAdminData();
+        }
+    } catch (e) {
+        alert(
+            currentLang === "ru"
+                ? "Сетевая ошибка"
+                : currentLang === "en"
+                ? "Network error"
+                : "네트워크 오류"
+        );
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     showSlide(0);
     loadAuthFromStorage();
@@ -649,8 +1459,69 @@ document.addEventListener("DOMContentLoaded", () => {
             currentCityCode = code || "seoul";
             applyLanguage(currentLang);
             initKakaoMap(currentCityCode);
+            loadFeedCafes();
         });
     });
+
+    const provinceButtons = document.querySelectorAll(".province-btn");
+    function filterCitiesByProvince(province) {
+        let firstVisible = null;
+        cityButtons.forEach((btn) => {
+            const p = btn.getAttribute("data-province");
+            if (!province || p === province) {
+                btn.style.display = "";
+                if (!firstVisible) {
+                    firstVisible = btn;
+                }
+            } else {
+                btn.style.display = "none";
+                btn.classList.remove("active");
+            }
+        });
+        if (firstVisible) {
+            cityButtons.forEach((b) => b.classList.remove("active"));
+            firstVisible.classList.add("active");
+            const code = firstVisible.getAttribute("data-city");
+            currentCityCode = code || "seoul";
+            applyLanguage(currentLang);
+            initKakaoMap(currentCityCode);
+        }
+    }
+
+    provinceButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+            provinceButtons.forEach((b) => b.classList.remove("active"));
+            btn.classList.add("active");
+            const province = btn.getAttribute("data-province");
+            filterCitiesByProvince(province);
+        });
+    });
+
+    const activeProvince = document.querySelector(".province-btn.active");
+    if (activeProvince) {
+        const province = activeProvince.getAttribute("data-province");
+        filterCitiesByProvince(province);
+    }
+
+    const searchInput = document.getElementById("searchInput");
+    if (searchInput) {
+        searchInput.addEventListener("input", () => {
+            const term = searchInput.value.toLowerCase().trim();
+            const cityButtonsSearch = document.querySelectorAll(".city-btn");
+            cityButtonsSearch.forEach((btn) => {
+                const code = btn.getAttribute("data-city") || "";
+                const text = btn.textContent || "";
+                const match = !term || text.toLowerCase().includes(term) || code.toLowerCase().includes(term);
+                btn.style.display = match ? "" : "none";
+            });
+            const cafeItems = document.querySelectorAll(".cafe-items .cafe-item");
+            cafeItems.forEach((item) => {
+                const text = item.innerText || "";
+                const match = !term || text.toLowerCase().includes(term);
+                item.style.display = match ? "" : "none";
+            });
+        });
+    }
 
     const langButtons = document.querySelectorAll(".lang-btn");
     langButtons.forEach((btn) => {
@@ -675,9 +1546,125 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const btnLogin = document.getElementById("btnLogin");
+    const btnKakaoLogin = document.getElementById("btnKakaoLogin");
     if (btnLogin) {
         btnLogin.addEventListener("click", () => {
             showLoginModal();
+        });
+    }
+    if (btnKakaoLogin) {
+        btnKakaoLogin.addEventListener("click", async () => {
+            if (!window.Kakao) {
+                alert(
+                    currentLang === "ru"
+                        ? "Kakao SDK недоступен"
+                        : currentLang === "en"
+                        ? "Kakao SDK not available"
+                        : "Kakao SDK를 사용할 수 없습니다."
+                );
+                return;
+            }
+            if (!window.Kakao.isInitialized()) {
+                if (!KAKAO_JS_KEY || KAKAO_JS_KEY === "YOUR_KAKAO_JAVASCRIPT_KEY") {
+                    alert(
+                        currentLang === "ru"
+                            ? "Kakao ключ не настроен"
+                            : currentLang === "en"
+                            ? "Kakao key is not configured"
+                            : "Kakao 키가 설정되지 않았습니다."
+                    );
+                    return;
+                }
+                window.Kakao.init(KAKAO_JS_KEY);
+            }
+            window.Kakao.Auth.login({
+                scope: "profile_nickname,account_email",
+                success() {
+                    window.Kakao.API.request({
+                        url: "/v2/user/me",
+                        success: async (res) => {
+                            try {
+                                const kakaoId = res && res.id ? String(res.id) : null;
+                                const profile =
+                                    res &&
+                                    res.kakao_account &&
+                                    res.kakao_account.profile
+                                        ? res.kakao_account.profile
+                                        : null;
+                                const nickname = profile && profile.nickname ? profile.nickname : "";
+                                const email =
+                                    res &&
+                                    res.kakao_account &&
+                                    res.kakao_account.email
+                                        ? res.kakao_account.email
+                                        : "";
+                                if (!kakaoId) {
+                                    alert(
+                                        currentLang === "ru"
+                                            ? "Не удалось получить профиль Kakao"
+                                            : currentLang === "en"
+                                            ? "Failed to get Kakao profile"
+                                            : "Kakao 프로필을 가져오지 못했습니다."
+                                    );
+                                    return;
+                                }
+                                const response = await fetch("/api/auth/login-kakao", {
+                                    method: "POST",
+                                    headers: {
+                                        "Content-Type": "application/json"
+                                    },
+                                    body: JSON.stringify({
+                                        kakaoId,
+                                        email,
+                                        name: nickname
+                                    })
+                                });
+                                if (!response.ok) {
+                                    alert(
+                                        currentLang === "ru"
+                                            ? "Ошибка входа через Kakao"
+                                            : currentLang === "en"
+                                            ? "Kakao login failed"
+                                            : "Kakao 로그인 실패"
+                                    );
+                                    return;
+                                }
+                                const data = await response.json();
+                                if (data && data.token && data.user) {
+                                    setAuth(data.token, data.user);
+                                    closeModal("loginModal");
+                                }
+                            } catch (e) {
+                                alert(
+                                    currentLang === "ru"
+                                        ? "Сетевая ошибка"
+                                        : currentLang === "en"
+                                        ? "Network error"
+                                        : "네트워크 오류"
+                                );
+                            }
+                        },
+                        fail() {
+                            alert(
+                                currentLang === "ru"
+                                    ? "Не удалось получить профиль Kakao"
+                                    : currentLang === "en"
+                                    ? "Failed to get Kakao profile"
+                                    : "Kakao 프로필을 가져오지 못했습니다."
+                            );
+                        }
+                    });
+                },
+                fail() {
+                    alert(
+                        currentLang === "ru"
+                            ? "Вход через Kakao отменён или не удался"
+                            : currentLang === "en"
+                            ? "Kakao login was cancelled or failed"
+                            : "Kakao 로그인이 취소되었거나 실패했습니다."
+                    );
+                }
+            });
         });
     }
 
@@ -696,11 +1683,14 @@ document.addEventListener("DOMContentLoaded", () => {
         registerForm.addEventListener("submit", async (e) => {
             e.preventDefault();
             const nameInput = document.getElementById("registerName");
+            const emailInput = document.getElementById("registerEmail");
             const phoneInput = document.getElementById("registerPhone");
             const passwordInput = document.getElementById("registerPassword");
             const passwordConfirmInput = document.getElementById("registerPasswordConfirm");
             const userTypeInput = document.getElementById("userType");
-            if (!nameInput || !phoneInput || !passwordInput || !passwordConfirmInput || !userTypeInput) {
+            const codeInput = document.getElementById("registerPhoneCode");
+            const channelSelect = document.getElementById("registerCodeChannel");
+            if (!nameInput || !emailInput || !phoneInput || !passwordInput || !passwordConfirmInput || !userTypeInput || !codeInput) {
                 return;
             }
             if (passwordInput.value !== passwordConfirmInput.value) {
@@ -715,10 +1705,13 @@ document.addEventListener("DOMContentLoaded", () => {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
+                        email: emailInput.value,
                         phone: phoneInput.value,
                         password: passwordInput.value,
                         name: nameInput.value,
-                        role: userTypeInput.value
+                        role: userTypeInput.value,
+                        code: codeInput.value,
+                        channel: channelSelect ? channelSelect.value : "sms"
                     })
                 });
                 if (!res.ok) {
@@ -738,23 +1731,93 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    const btnSendCode = document.getElementById("btnSendCode");
+    if (btnSendCode) {
+        btnSendCode.addEventListener("click", async () => {
+            const phoneInput = document.getElementById("registerPhone");
+            const emailInput = document.getElementById("registerEmail");
+            const channelSelect = document.getElementById("registerCodeChannel");
+            const channel = channelSelect ? channelSelect.value : "sms";
+            if (channel === "email") {
+                if (!emailInput || !emailInput.value) {
+                    alert(currentLang === "ru" ? "Введите email" :
+                        currentLang === "en" ? "Enter email" : "이메일을 입력하세요.");
+                    return;
+                }
+            } else {
+                if (!phoneInput || !phoneInput.value) {
+                    alert(currentLang === "ru" ? "Введите номер телефона" :
+                        currentLang === "en" ? "Enter phone number" : "전화번호를 입력하세요.");
+                    return;
+                }
+            }
+            try {
+                const res = await fetch("/api/auth/request-phone-code", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(
+                        channel === "email"
+                            ? {
+                                  email: emailInput.value,
+                                  channel: "email"
+                              }
+                            : {
+                                  phone: phoneInput.value,
+                                  channel
+                              }
+                    )
+                });
+                if (!res.ok) {
+                    alert(currentLang === "ru" ? "Не удалось отправить код" :
+                        currentLang === "en" ? "Failed to send code" : "코드 전송 실패");
+                    return;
+                }
+                const successMessage =
+                    currentLang === "ru"
+                        ? channel === "email"
+                            ? "Код отправлен. Проверьте email."
+                            : "Код отправлен. Проверьте SMS."
+                        : currentLang === "en"
+                        ? channel === "email"
+                            ? "Code sent. Check your email."
+                            : "Code sent. Check SMS."
+                        : channel === "email"
+                        ? "코드가 전송되었습니다. 이메일을 확인하세요."
+                        : "코드가 전송되었습니다. 문자를 확인하세요.";
+                alert(successMessage);
+            } catch (e) {
+                alert(currentLang === "ru" ? "Сетевая ошибка" :
+                    currentLang === "en" ? "Network error" : "네트워크 오류");
+            }
+        });
+    }
+
+    const codeChannelSelect = document.getElementById("registerCodeChannel");
+    if (codeChannelSelect) {
+        codeChannelSelect.addEventListener("change", () => {
+            applyVerificationChannelHint();
+        });
+    }
+
     const loginForm = document.getElementById("loginForm");
     if (loginForm) {
         loginForm.addEventListener("submit", async (e) => {
             e.preventDefault();
-            const phoneInput = document.getElementById("loginPhone");
+            const loginInput = document.getElementById("loginIdentifier");
             const passwordInput = document.getElementById("loginPassword");
-            if (!phoneInput || !passwordInput) {
+            if (!loginInput || !passwordInput) {
                 return;
             }
             try {
-                const res = await fetch("/api/auth/login-phone", {
+                const res = await fetch("/api/auth/login", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        phone: phoneInput.value,
+                        login: loginInput.value,
                         password: passwordInput.value
                     })
                 });
@@ -965,9 +2028,262 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    const logoTitle = document.querySelector(".logo h1");
+    if (logoTitle) {
+        logoTitle.addEventListener("dblclick", () => {
+            adminLoginPrompt();
+        });
+    }
+
+    const adminTabButtons = document.querySelectorAll(".admin-tab-btn");
+    const adminUsersTab = document.getElementById("adminUsersTab");
+    const adminCafesTab = document.getElementById("adminCafesTab");
+    const adminAdsTab = document.getElementById("adminAdsTab");
+    const adminNewsTab = document.getElementById("adminNewsTab");
+    const adminVerificationsTab = document.getElementById("adminVerificationsTab");
+    const adminConfigTab = document.getElementById("adminConfigTab");
+    adminTabButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const tab = btn.getAttribute("data-tab");
+            adminTabButtons.forEach((b) => b.classList.remove("active"));
+            btn.classList.add("active");
+            if (adminUsersTab && adminCafesTab && adminAdsTab && adminNewsTab && adminVerificationsTab && adminConfigTab) {
+                adminUsersTab.classList.remove("active");
+                adminCafesTab.classList.remove("active");
+                adminAdsTab.classList.remove("active");
+                adminNewsTab.classList.remove("active");
+                adminVerificationsTab.classList.remove("active");
+                adminConfigTab.classList.remove("active");
+                if (tab === "users") {
+                    adminUsersTab.classList.add("active");
+                    loadAdminUsers();
+                } else if (tab === "cafes") {
+                    adminCafesTab.classList.add("active");
+                    loadAdminCafes();
+                } else if (tab === "ads") {
+                    adminAdsTab.classList.add("active");
+                    loadAdminAds();
+                } else if (tab === "news") {
+                    adminNewsTab.classList.add("active");
+                    loadAdminNews();
+                } else if (tab === "verifications") {
+                    adminVerificationsTab.classList.add("active");
+                    loadAdminVerifications();
+                } else if (tab === "config") {
+                    adminConfigTab.classList.add("active");
+                }
+            }
+        });
+    });
+
+    const adminAdForm = document.getElementById("adminAdForm");
+    if (adminAdForm) {
+        adminAdForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            if (!authToken || !currentUser || !currentUser.isAdmin) {
+                alert(
+                    currentLang === "ru"
+                        ? "Требуется вход администратора"
+                        : currentLang === "en"
+                        ? "Admin login required"
+                        : "관리자 로그인이 필요합니다"
+                );
+                return;
+            }
+            const titleInput = document.getElementById("adminAdTitle");
+            const textInput = document.getElementById("adminAdText");
+            const cityInput = document.getElementById("adminAdCityCode");
+            const urlInput = document.getElementById("adminAdUrl");
+            const weightInput = document.getElementById("adminAdWeight");
+            if (!titleInput) {
+                return;
+            }
+            const payload = {
+                title: titleInput.value,
+                text: textInput ? textInput.value : "",
+                cityCode: cityInput ? cityInput.value || "all" : "all",
+                url: urlInput ? urlInput.value : ""
+            };
+            if (weightInput && weightInput.value) {
+                const parsed = Number(weightInput.value);
+                if (Number.isFinite(parsed)) {
+                    payload.weight = parsed;
+                }
+            }
+            try {
+                const res = await fetch("/api/admin/ads", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: "Bearer " + authToken
+                    },
+                    body: JSON.stringify(payload)
+                });
+                if (!res.ok) {
+                    alert(
+                        currentLang === "ru"
+                            ? "Не удалось создать рекламу"
+                            : currentLang === "en"
+                            ? "Failed to create ad"
+                            : "광고 생성 실패"
+                    );
+                    return;
+                }
+                if (titleInput) {
+                    titleInput.value = "";
+                }
+                if (textInput) {
+                    textInput.value = "";
+                }
+                if (cityInput) {
+                    cityInput.value = "";
+                }
+                if (urlInput) {
+                    urlInput.value = "";
+                }
+                if (weightInput) {
+                    weightInput.value = "";
+                }
+                await loadAdminAds();
+            } catch (e) {
+                alert(
+                    currentLang === "ru"
+                        ? "Сетевая ошибка"
+                        : currentLang === "en"
+                        ? "Network error"
+                        : "네트워크 오류"
+                );
+            }
+        });
+    }
+
+    const adminConfigForm = document.getElementById("adminConfigForm");
+    if (adminConfigForm) {
+        adminConfigForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            if (!authToken || !currentUser || !currentUser.isAdmin) {
+                alert(
+                    currentLang === "ru"
+                        ? "Требуется вход администратора"
+                        : currentLang === "en"
+                        ? "Admin login required"
+                        : "관리자 로그인이 필요합니다"
+                );
+                return;
+            }
+            const emailInput = document.getElementById("adminContactEmail");
+            const telegramInput = document.getElementById("adminTelegramUrl");
+            const instagramInput = document.getElementById("adminInstagramUrl");
+            try {
+                const res = await fetch("/api/admin/site-config", {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: "Bearer " + authToken
+                    },
+                    body: JSON.stringify({
+                        contactEmail: emailInput ? emailInput.value : "",
+                        telegramUrl: telegramInput ? telegramInput.value : "",
+                        instagramUrl: instagramInput ? instagramInput.value : ""
+                    })
+                });
+                if (!res.ok) {
+                    alert(
+                        currentLang === "ru"
+                            ? "Не удалось сохранить контакты"
+                            : currentLang === "en"
+                            ? "Failed to save contacts"
+                            : "연락처 저장 실패"
+                    );
+                    return;
+                }
+                await loadSiteConfig();
+                alert(
+                    currentLang === "ru"
+                        ? "Контакты обновлены."
+                        : currentLang === "en"
+                        ? "Contacts updated."
+                        : "연락처가 업데이트되었습니다."
+                );
+            } catch (e) {
+                alert(
+                    currentLang === "ru"
+                        ? "Сетевая ошибка"
+                        : currentLang === "en"
+                        ? "Network error"
+                        : "네트워크 오류"
+                );
+            }
+        });
+    }
+
+    const adminNewsForm = document.getElementById("adminNewsForm");
+    if (adminNewsForm) {
+        adminNewsForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            if (!authToken || !currentUser || !currentUser.isAdmin) {
+                alert(
+                    currentLang === "ru"
+                        ? "Требуется вход администратора"
+                        : currentLang === "en"
+                        ? "Admin login required"
+                        : "관리자 로그인이 필요합니다"
+                );
+                return;
+            }
+            const titleInput = document.getElementById("adminNewsTitle");
+            const textInput = document.getElementById("adminNewsText");
+            const langSelect = document.getElementById("adminNewsLang");
+            if (!titleInput || !textInput || !langSelect) {
+                return;
+            }
+            try {
+                const res = await fetch("/api/admin/news", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: "Bearer " + authToken
+                    },
+                    body: JSON.stringify({
+                        title: titleInput.value,
+                        text: textInput.value,
+                        lang: langSelect.value
+                    })
+                });
+                if (!res.ok) {
+                    alert(
+                        currentLang === "ru"
+                            ? "Не удалось создать новость"
+                            : currentLang === "en"
+                            ? "Failed to create news"
+                            : "뉴스 생성 실패"
+                    );
+                    return;
+                }
+                titleInput.value = "";
+                textInput.value = "";
+                await loadAdminNews();
+                await loadNews();
+            } catch (e) {
+                alert(
+                    currentLang === "ru"
+                        ? "Сетевая ошибка"
+                        : currentLang === "en"
+                        ? "Network error"
+                        : "네트워크 오류"
+                );
+            }
+        });
+    }
+
     applyLanguage(currentLang);
     initKakaoMap(currentCityCode);
     refreshProfileFromBackend();
     initAds();
     loadOwnerCafes();
+    reloadAdminData();
+    loadFeedCafes();
+    initStats();
+    loadSiteConfig();
+    loadNews();
 });
