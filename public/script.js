@@ -7,6 +7,7 @@ let authToken = null;
 let currentUser = null;
 let currentEditingNewsId = null;
 let currentCafeId = null;
+let currentCafeContact = null;
 const KAKAO_JS_KEY = "YOUR_KAKAO_JAVASCRIPT_KEY";
 
 const translations = {
@@ -538,7 +539,7 @@ async function loadFeedCafes() {
             item.appendChild(info);
 
             item.addEventListener("click", () => {
-                openCafeModal(cafe);
+                openCafePage(cafe);
             });
 
             listEl.appendChild(item);
@@ -827,6 +828,8 @@ async function openCafeModal(cafe) {
     const metaEl = document.getElementById("cafeModalMeta");
     const subscribeBtn = document.getElementById("btnCafeSubscribe");
     const postsList = document.getElementById("cafePostsList");
+    const descriptionEl = document.getElementById("cafeModalDescription");
+    const bookingInfoEl = document.getElementById("cafeBookingInfo");
     if (!modal || !titleEl || !metaEl || !subscribeBtn || !postsList) {
         return;
     }
@@ -835,19 +838,39 @@ async function openCafeModal(cafe) {
         return;
     }
     currentCafeId = cafeId;
+    currentCafeContact = {
+        name: cafe.name || "",
+        phone: cafe.phone || "",
+        address: cafe.address || ""
+    };
     const parts = [];
     if (cafe.name) {
         titleEl.textContent = cafe.name;
     } else {
         titleEl.textContent = "Cafe";
     }
+    const config = translations[currentLang] || translations.ko;
     if (cafe.cityCode) {
-        parts.push(cafe.cityCode);
+        const cityCode = cafe.cityCode;
+        const readableCity =
+            config &&
+            config.cities &&
+            cityCode &&
+            config.cities[cityCode]
+                ? config.cities[cityCode]
+                : cityCode;
+        parts.push(readableCity);
     }
     if (cafe.address) {
         parts.push(cafe.address);
     }
     metaEl.textContent = parts.join(" · ");
+    if (descriptionEl) {
+        descriptionEl.textContent = cafe.description || "";
+    }
+    if (bookingInfoEl) {
+        bookingInfoEl.textContent = "";
+    }
     if (authToken) {
         subscribeBtn.disabled = false;
     } else {
@@ -858,9 +881,84 @@ async function openCafeModal(cafe) {
     modal.style.display = "block";
 }
 
+async function openCafePage(cafe) {
+    const panel = document.getElementById("cafeDetailPanel");
+    const nameEl = document.getElementById("cafeDetailName");
+    const metaEl = document.getElementById("cafeDetailMeta");
+    const descEl = document.getElementById("cafeDetailDescription");
+    const openingEl = document.getElementById("cafeDetailOpeningHours");
+    const avgEl = document.getElementById("cafeDetailAverageCheck");
+    if (!panel || !nameEl || !metaEl || !descEl || !openingEl || !avgEl) {
+        return;
+    }
+    const cafeId = cafe && cafe._id ? cafe._id : null;
+    if (!cafeId) {
+        return;
+    }
+    currentCafeId = cafeId;
+    currentCafeContact = {
+        name: cafe.name || "",
+        phone: cafe.phone || "",
+        address: cafe.address || ""
+    };
+    nameEl.textContent = cafe.name || "Cafe";
+    const config = translations[currentLang] || translations.ko;
+    const parts = [];
+    if (cafe.cityCode) {
+        const cityCode = cafe.cityCode;
+        const readableCity =
+            config &&
+            config.cities &&
+            cityCode &&
+            config.cities[cityCode]
+                ? config.cities[cityCode]
+                : cityCode;
+        parts.push(readableCity);
+    }
+    if (cafe.address) {
+        parts.push(cafe.address);
+    }
+    metaEl.textContent = parts.join(" · ");
+    descEl.textContent = cafe.description || "";
+    const extraParts = [];
+    if (cafe.openingHours) {
+        if (currentLang === "ru") {
+            extraParts.push("Часы работы: " + cafe.openingHours);
+        } else if (currentLang === "en") {
+            extraParts.push("Opening hours: " + cafe.openingHours);
+        } else {
+            extraParts.push("영업 시간: " + cafe.openingHours);
+        }
+    }
+    if (typeof cafe.averageCheck === "number" && cafe.averageCheck > 0) {
+        const value = cafe.averageCheck;
+        if (currentLang === "ru") {
+            extraParts.push("Средний чек: " + value + "₩");
+        } else if (currentLang === "en") {
+            extraParts.push("Average bill: " + value + "₩");
+        } else {
+            extraParts.push("평균 객단가: " + value + "₩");
+        }
+    }
+    openingEl.textContent = extraParts.length > 0 ? extraParts[0] : "";
+    avgEl.textContent = extraParts.length > 1 ? extraParts[1] : "";
+    const pageBookingInfo = document.getElementById("cafePageBookingInfo");
+    if (pageBookingInfo) {
+        pageBookingInfo.textContent = "";
+    }
+    const detailCountEl = document.getElementById("cafePageSubscribersCount");
+    if (detailCountEl) {
+        detailCountEl.textContent = "";
+    }
+    panel.classList.remove("hidden");
+    await updateCafeSubscribersCount();
+    await loadCafePosts();
+}
+
 async function updateCafeSubscribersCount() {
-    const countEl = document.getElementById("cafeSubscribersCount");
-    if (!countEl || !currentCafeId) {
+    const modalEl = document.getElementById("cafeSubscribersCount");
+    const pageEl = document.getElementById("cafePageSubscribersCount");
+    if (!currentCafeId || (!modalEl && !pageEl)) {
         return;
     }
     try {
@@ -875,20 +973,31 @@ async function updateCafeSubscribersCount() {
             data && typeof data.count === "number"
                 ? data.count
                 : 0;
+        let text = "";
         if (currentLang === "ru") {
-            countEl.textContent = "Подписчики: " + count;
+            text = "Подписчики: " + count;
         } else if (currentLang === "en") {
-            countEl.textContent = "Subscribers: " + count;
+            text = "Subscribers: " + count;
         } else {
-            countEl.textContent = "구독자: " + count;
+            text = "구독자: " + count;
+        }
+        if (modalEl) {
+            modalEl.textContent = text;
+        }
+        if (pageEl) {
+            pageEl.textContent = text;
         }
     } catch (e) {
     }
 }
 
 async function loadCafePosts() {
-    const listEl = document.getElementById("cafePostsList");
-    if (!listEl || !currentCafeId) {
+    const modalList = document.getElementById("cafePostsList");
+    const pageList = document.getElementById("cafePagePostsList");
+    const targets = [];
+    if (modalList) targets.push(modalList);
+    if (pageList) targets.push(pageList);
+    if (!targets.length || !currentCafeId) {
         return;
     }
     try {
@@ -900,7 +1009,9 @@ async function loadCafePosts() {
         }
         const data = await res.json();
         const posts = data && data.posts ? data.posts : [];
-        listEl.innerHTML = "";
+        targets.forEach((t) => {
+            t.innerHTML = "";
+        });
         posts.forEach((post) => {
             const item = document.createElement("div");
             item.className = "cafe-post-item";
@@ -1122,7 +1233,9 @@ async function loadCafePosts() {
             item.appendChild(actionsRow);
             item.appendChild(commentsList);
 
-            listEl.appendChild(item);
+            targets.forEach((t) => {
+                t.appendChild(item.cloneNode(true));
+            });
         });
     } catch (e) {
     }
@@ -2288,8 +2401,26 @@ document.addEventListener("DOMContentLoaded", () => {
                     })
                 });
                 if (!res.ok) {
-                    alert(currentLang === "ru" ? "Ошибка входа" :
-                        currentLang === "en" ? "Login failed" : "로그인 실패");
+                    try {
+                        const errorData = await res.json();
+                        const message =
+                            errorData && errorData.error
+                                ? errorData.error
+                                : currentLang === "ru"
+                                ? "Ошибка входа"
+                                : currentLang === "en"
+                                ? "Login failed"
+                                : "로그인 실패";
+                        alert(message);
+                    } catch (parseErr) {
+                        alert(
+                            currentLang === "ru"
+                                ? "Ошибка входа"
+                                : currentLang === "en"
+                                ? "Login failed"
+                                : "로그인 실패"
+                        );
+                    }
                     return;
                 }
                 const data = await res.json();
@@ -2298,8 +2429,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     closeModal("loginModal");
                 }
             } catch (e) {
-                alert(currentLang === "ru" ? "Сетевая ошибка" :
-                    currentLang === "en" ? "Network error" : "네트워크 오류");
+                alert(
+                    currentLang === "ru"
+                        ? "Сетевая ошибка"
+                        : currentLang === "en"
+                        ? "Network error"
+                        : "네트워크 오류"
+                );
             }
         });
     }
@@ -2743,37 +2879,89 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const btnCafeSubscribe = document.getElementById("btnCafeSubscribe");
-    if (btnCafeSubscribe) {
-        btnCafeSubscribe.addEventListener("click", async () => {
-            if (!currentCafeId) {
-                return;
-            }
-            if (!authToken) {
-                alert(
-                    currentLang === "ru"
-                        ? "Сначала войдите"
-                        : currentLang === "en"
-                        ? "Please login first"
-                        : "먼저 로그인하세요."
-                );
-                return;
-            }
-            try {
-                const res = await fetch(
-                    "/api/cafes/" + encodeURIComponent(currentCafeId) + "/subscribe",
-                    {
-                        method: "POST",
-                        headers: {
-                            Authorization: "Bearer " + authToken
-                        }
+    async function handleCafeSubscribeClick() {
+        if (!currentCafeId) {
+            return;
+        }
+        if (!authToken) {
+            alert(
+                currentLang === "ru"
+                    ? "Сначала войдите"
+                    : currentLang === "en"
+                    ? "Please login first"
+                    : "먼저 로그인하세요."
+            );
+            return;
+        }
+        try {
+            const res = await fetch(
+                "/api/cafes/" + encodeURIComponent(currentCafeId) + "/subscribe",
+                {
+                    method: "POST",
+                    headers: {
+                        Authorization: "Bearer " + authToken
                     }
-                );
-                if (!res.ok) {
-                    return;
                 }
-                await updateCafeSubscribersCount();
-                await loadMySubscriptions();
-            } catch (e) {
+            );
+            if (!res.ok) {
+                return;
+            }
+            await updateCafeSubscribersCount();
+            await loadMySubscriptions();
+        } catch (e) {
+        }
+    }
+    if (btnCafeSubscribe) {
+        btnCafeSubscribe.addEventListener("click", handleCafeSubscribeClick);
+    }
+    const btnCafePageSubscribe = document.getElementById("btnCafePageSubscribe");
+    if (btnCafePageSubscribe) {
+        btnCafePageSubscribe.addEventListener("click", handleCafeSubscribeClick);
+    }
+
+    function handleCafeBookClick(targetId) {
+        const infoEl = document.getElementById(targetId);
+        if (!infoEl) {
+            return;
+        }
+        if (!currentCafeContact) {
+            infoEl.textContent = "";
+            return;
+        }
+        const parts = [];
+        if (currentCafeContact.phone) {
+            if (currentLang === "ru") {
+                parts.push("Телефон для брони: " + currentCafeContact.phone);
+            } else if (currentLang === "en") {
+                parts.push("Phone for booking: " + currentCafeContact.phone);
+            } else {
+                parts.push("예약 전화번호: " + currentCafeContact.phone);
+            }
+        }
+        if (currentCafeContact.address) {
+            parts.push(currentCafeContact.address);
+        }
+        infoEl.textContent = parts.join(" · ");
+    }
+    const btnCafeBook = document.getElementById("btnCafeBook");
+    if (btnCafeBook) {
+        btnCafeBook.addEventListener("click", () => {
+            handleCafeBookClick("cafeBookingInfo");
+        });
+    }
+    const btnCafePageBook = document.getElementById("btnCafePageBook");
+    if (btnCafePageBook) {
+        btnCafePageBook.addEventListener("click", () => {
+            handleCafeBookClick("cafePageBookingInfo");
+        });
+    }
+
+    const btnCafeDetailClose = document.getElementById("btnCafeDetailClose");
+    if (btnCafeDetailClose) {
+        btnCafeDetailClose.addEventListener("click", () => {
+            const panel = document.getElementById("cafeDetailPanel");
+            if (panel) {
+                panel.classList.add("hidden");
             }
         });
     }

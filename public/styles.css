@@ -1,7 +1,7 @@
 body {
     margin: 0;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: #f3f4f6;
+    background: radial-gradient(circle at top left, #fff7ed, #f3f4f6);
     color: #111827;
 }
 
@@ -46,8 +46,8 @@ body {
     padding: 4px 8px;
     border-radius: 999px;
     border: 1px solid rgba(148, 163, 184, 0.5);
-    background: transparent;
-    color: #e5e7eb;
+    background: #f9fafb;
+    color: #374151;
     font-size: 11px;
     cursor: pointer;
 }
@@ -348,8 +348,8 @@ body {
     padding: 6px 10px;
     border-radius: 999px;
     border: 1px solid rgba(148, 163, 184, 0.6);
-    background: transparent;
-    color: #e5e7eb;
+    background: #f9fafb;
+    color: #374151;
     font-size: 12px;
     cursor: pointer;
 }
@@ -790,8 +790,8 @@ body {
     padding: 6px 10px;
     border-radius: 999px;
     border: 1px solid rgba(148, 163, 184, 0.6);
-    background: transparent;
-    color: #e5e7eb;
+    background: #f9fafb;
+    color: #374151;
     font-size: 12px;
     cursor: pointer;
 }
@@ -916,6 +916,151 @@ body {
     float: right;
     font-size: 24px;
     cursor: pointer;
+}
+
+.cafe-modal-content {
+    max-width: 560px;
+}
+
+.cafe-modal-meta {
+    margin-top: 4px;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.cafe-modal-description {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #4b5563;
+}
+
+.cafe-modal-actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.cafe-modal-subscribers {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.cafe-booking-info {
+    margin-top: 8px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: #eff6ff;
+    border: 1px solid rgba(59, 130, 246, 0.4);
+    font-size: 13px;
+    color: #1e3a8a;
+}
+
+.cafe-modal-section {
+    margin-top: 16px;
+}
+
+.cafe-modal-section h3 {
+    margin: 0 0 8px;
+    font-size: 14px;
+}
+
+.cafe-posts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.cafe-post-item {
+    padding: 8px;
+    border-radius: 8px;
+    background: #f9fafb;
+    border: 1px solid rgba(148, 163, 184, 0.4);
+}
+
+.cafe-post-text {
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+
+.cafe-post-meta {
+    font-size: 11px;
+    color: #6b7280;
+    margin-bottom: 6px;
+}
+
+.cafe-post-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 6px;
+}
+
+.cafe-post-rating-input {
+    width: 56px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    border: 1px solid rgba(148, 163, 184, 0.6);
+    font-size: 12px;
+}
+
+.cafe-post-comment-input {
+    flex: 1;
+    min-width: 120px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    border: 1px solid rgba(148, 163, 184, 0.6);
+    font-size: 12px;
+}
+
+.cafe-post-comments {
+    border-top: 1px dashed rgba(148, 163, 184, 0.5);
+    margin-top: 4px;
+    padding-top: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.cafe-post-comment-row {
+    font-size: 11px;
+    color: #6b7280;
+}
+
+.cafe-detail {
+    margin-top: 18px;
+    padding: 16px 18px;
+    border-radius: 16px;
+    background: #ffffff;
+    border: 1px solid rgba(148, 163, 184, 0.4);
+}
+
+.cafe-detail-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.cafe-detail-extra {
+    margin-top: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.cafe-detail-actions {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
 }
 
 @media (max-width: 960px) {
