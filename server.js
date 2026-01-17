@@ -105,6 +105,14 @@ const cafeSchema = new mongoose.Schema(
     phone: { type: String },
     openingHours: { type: String },
     averageCheck: { type: Number },
+    menu: [
+      {
+        name: { type: String, required: true },
+        price: { type: Number },
+        category: { type: String },
+        description: { type: String }
+      }
+    ],
     photos: [
       {
         url: String,
@@ -1797,7 +1805,8 @@ app.post("/api/cafes", authMiddleware, ownerOnly, async (req, res) => {
       phone,
       openingHours,
       averageCheck,
-      tables
+      tables,
+      menu
     } = req.body;
     if (!name || !cityCode) {
       return res.status(400).json({ error: "name and cityCode required" });
@@ -1814,7 +1823,8 @@ app.post("/api/cafes", authMiddleware, ownerOnly, async (req, res) => {
         typeof averageCheck === "number"
           ? averageCheck
           : Number(averageCheck) || 0,
-      tables: Array.isArray(tables) ? tables : []
+      tables: Array.isArray(tables) ? tables : [],
+      menu: Array.isArray(menu) ? menu : []
     });
     res.status(201).json({ cafe });
   } catch (err) {
@@ -1827,7 +1837,7 @@ app.get("/api/my/cafes", authMiddleware, ownerOnly, async (req, res) => {
   try {
     const cafes = await Cafe.find({ owner: req.user.id })
       .select(
-        "name cityCode address description phone openingHours averageCheck isActive photos createdAt"
+        "name cityCode address description phone openingHours averageCheck isActive photos createdAt menu"
       )
       .sort({ createdAt: -1 })
       .lean();
@@ -1850,6 +1860,7 @@ app.put("/api/cafes/:id", authMiddleware, ownerOnly, async (req, res) => {
       openingHours,
       averageCheck,
       tables,
+      menu,
       isActive
     } = req.body;
     const cafe = await Cafe.findOne({ _id: id, owner: req.user.id });
@@ -1870,6 +1881,7 @@ app.put("/api/cafes/:id", authMiddleware, ownerOnly, async (req, res) => {
       cafe.averageCheck = Number.isFinite(numeric) ? numeric : 0;
     }
     if (tables !== undefined && Array.isArray(tables)) cafe.tables = tables;
+    if (menu !== undefined && Array.isArray(menu)) cafe.menu = menu;
     if (isActive !== undefined) cafe.isActive = !!isActive;
     await cafe.save();
     res.json({ cafe });
@@ -1887,7 +1899,7 @@ app.get("/api/cafes", async (req, res) => {
       query.cityCode = city;
     }
     const cafes = await Cafe.find(query)
-      .select("name cityCode address description phone openingHours averageCheck photos")
+      .select("name cityCode address description phone openingHours averageCheck photos menu")
       .sort({ createdAt: -1 })
       .lean();
     const cafeIds = cafes.map((c) => c._id);

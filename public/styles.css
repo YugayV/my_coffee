@@ -583,6 +583,54 @@ body {
     font-size: 12px;
 }
 
+.owner-cafe-menu-block {
+    margin-top: 2px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    border: 1px dashed rgba(148, 163, 184, 0.7);
+    background: #f9fafb;
+}
+
+.owner-cafe-menu-header {
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.owner-cafe-menu-items {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 6px;
+}
+
+.owner-cafe-menu-item-row {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1.2fr) auto;
+    gap: 4px;
+    align-items: center;
+}
+
+.owner-cafe-menu-item-row input {
+    padding: 4px 6px;
+    border-radius: 6px;
+    border: 1px solid rgba(148, 163, 184, 0.7);
+    font-size: 12px;
+}
+
+.owner-cafe-menu-remove {
+    border: none;
+    background: transparent;
+    color: #9ca3af;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 0 4px;
+}
+
+.owner-cafe-menu-remove:hover {
+    color: #ef4444;
+}
+
 .owner-cafes-list {
     display: flex;
     flex-direction: column;
@@ -880,7 +928,7 @@ body {
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(15, 23, 42, 0.8);
+    background-color: rgba(15, 23, 42, 0.65);
 }
 
 .modal-content {
@@ -890,7 +938,7 @@ body {
     border-radius: 16px;
     width: 90%;
     max-width: 420px;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8);
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.45);
     border: 1px solid rgba(148, 163, 184, 0.4);
 }
 
@@ -915,7 +963,18 @@ body {
 .close {
     float: right;
     font-size: 24px;
+    color: #9ca3af;
     cursor: pointer;
+}
+
+.close:hover {
+    color: #4b5563;
+}
+
+.register-subtitle {
+    margin: 4px 0 12px;
+    font-size: 13px;
+    color: #6b7280;
 }
 
 .cafe-modal-content {
@@ -1063,6 +1122,65 @@ body {
     align-items: center;
 }
 
+.cafe-detail-body {
+    margin-top: 12px;
+    display: grid;
+    grid-template-columns: minmax(0, 260px) minmax(0, 1.4fr) minmax(0, 260px);
+    gap: 16px;
+}
+
+.cafe-detail-left,
+.cafe-detail-center,
+.cafe-detail-right {
+    font-size: 13px;
+}
+
+.cafe-detail-left h3,
+.cafe-detail-center h3,
+.cafe-detail-right h3 {
+    margin: 0 0 6px;
+    font-size: 14px;
+}
+
+.cafe-detail-left {
+    color: #4b5563;
+}
+
+.cafe-detail-center {
+    border-left: 1px dashed rgba(148, 163, 184, 0.5);
+    border-right: 1px dashed rgba(148, 163, 184, 0.5);
+    padding: 0 12px;
+}
+
+.cafe-detail-right {
+    color: #4b5563;
+}
+
+.cafe-detail-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 12px;
+}
+
+.cafe-detail-menu-item {
+    padding: 4px 0;
+    border-bottom: 1px dotted rgba(148, 163, 184, 0.6);
+}
+
+.cafe-detail-menu-item:last-child {
+    border-bottom: none;
+}
+
+.cafe-detail-menu-title {
+    font-weight: 600;
+}
+
+.cafe-detail-menu-meta {
+    color: #6b7280;
+    font-size: 11px;
+}
+
 @media (max-width: 960px) {
     .container {
         grid-template-columns: 1fr;
@@ -1079,5 +1197,17 @@ body {
 
     .hero-slider {
         height: 260px;
+    }
+
+    .cafe-detail-body {
+        grid-template-columns: 1fr;
+        border-top: 1px dashed rgba(148, 163, 184, 0.4);
+        padding-top: 8px;
+    }
+
+    .cafe-detail-center {
+        border-left: none;
+        border-right: none;
+        padding: 0;
     }
 }

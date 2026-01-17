@@ -104,11 +104,6 @@
                     <div>
                         <h2 id="cafeDetailName">Кафе</h2>
                         <div id="cafeDetailMeta" class="cafe-modal-meta"></div>
-                        <div id="cafeDetailDescription" class="cafe-modal-description"></div>
-                        <div class="cafe-detail-extra">
-                            <span id="cafeDetailOpeningHours"></span>
-                            <span id="cafeDetailAverageCheck"></span>
-                        </div>
                     </div>
                     <button id="btnCafeDetailClose" type="button" class="btn btn-outline btn-small">×</button>
                 </div>
@@ -118,10 +113,24 @@
                     <div id="cafePageSubscribersCount" class="cafe-modal-subscribers"></div>
                 </div>
                 <div id="cafePageBookingInfo" class="cafe-booking-info"></div>
-                <div class="cafe-modal-section">
-                    <h3>Посты кафе</h3>
-                    <div id="cafePagePostsList" class="cafe-posts-list"></div>
-                    <button id="btnCafePagePostsLoadMore" type="button" class="btn btn-outline btn-small">Показать ещё</button>
+                <div class="cafe-detail-body">
+                    <div class="cafe-detail-left">
+                        <h3>О кафе</h3>
+                        <div id="cafeDetailDescription" class="cafe-modal-description"></div>
+                        <div class="cafe-detail-extra">
+                            <span id="cafeDetailOpeningHours"></span>
+                            <span id="cafeDetailAverageCheck"></span>
+                        </div>
+                    </div>
+                    <div class="cafe-detail-center">
+                        <h3>Лента кафе</h3>
+                        <div id="cafePagePostsList" class="cafe-posts-list"></div>
+                        <button id="btnCafePagePostsLoadMore" type="button" class="btn btn-outline btn-small">Показать ещё</button>
+                    </div>
+                    <div class="cafe-detail-right">
+                        <h3>Наше меню</h3>
+                        <div id="cafeDetailMenu" class="cafe-detail-menu"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -189,6 +198,11 @@
                     <input id="ownerCafeOpeningHours" type="text" placeholder="Часы работы (JSON: {&quot;mon&quot;:&quot;09:00–18:00&quot;,&quot;sat&quot;:&quot;10:00–16:00&quot;})">
                     <input id="ownerCafeAverageCheck" type="number" placeholder="Средний чек (₩)">
                     <textarea id="ownerCafeDescription" placeholder="Описание" rows="2"></textarea>
+                    <div class="owner-cafe-menu-block">
+                        <div class="owner-cafe-menu-header">Меню</div>
+                        <div id="ownerCafeMenuItems" class="owner-cafe-menu-items"></div>
+                        <button type="button" id="ownerCafeMenuAdd" class="btn btn-secondary btn-small">Добавить позицию</button>
+                    </div>
                     <button type="submit" class="btn btn-primary">Добавить кафе</button>
                 </form>
                 <div id="ownerCafesList" class="owner-cafes-list"></div>
@@ -291,6 +305,7 @@
         <div class="modal-content">
             <span class="close" data-modal-id="registerModal">&times;</span>
             <h2 id="modalTitle">회원가입</h2>
+            <p id="registerSubtitle" class="register-subtitle"></p>
             <form id="registerForm">
                 <select id="userType">
                     <option value="user">Гость</option>
@@ -298,6 +313,8 @@
                 </select>
                 <input id="registerName" type="text" placeholder="이름" required>
                 <input id="registerEmail" type="email" placeholder="Email" required>
+                <input id="registerCity" type="text" placeholder="Город (можно вводить вручную)" list="registerCitySuggestions">
+                <datalist id="registerCitySuggestions"></datalist>
                 <input id="registerPhone" type="tel" placeholder="Телефон (необязательно)">
                 <input id="registerPassword" type="password" placeholder="비밀번호" required>
                 <input id="registerPasswordConfirm" type="password" placeholder="비밀번호 확인" required>

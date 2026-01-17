@@ -37,7 +37,8 @@ const translations = {
             verifyChannelSmsHint: "입력한 휴대폰 번호로 SMS 인증 코드를 받습니다.",
             verifyChannelEmailHint: "입력한 이메일 주소로 인증 코드를 받습니다.",
             verifyChannelKakaoHint: "Kakao 계정과 연결된 번호로 인증 코드를 받습니다.",
-            verifyChannelFacebookHint: "Facebook 계정과 연결된 연락처로 인증 코드를 받습니다."
+            verificationChannelFacebookHint: "Facebook 계정과 연결된 연락처로 인증 코드를 받습니다.",
+            registerCityPlaceholder: "도시 (직접 입력)"
         },
         days: {
             mon: "월",
@@ -117,7 +118,8 @@ const translations = {
             verifyChannelSmsHint: "Code will be sent by SMS to the phone number you enter.",
             verifyChannelEmailHint: "Code will be sent to the email address you enter.",
             verifyChannelKakaoHint: "Code will be sent via your Kakao account.",
-            verifyChannelFacebookHint: "Code will be sent via your Facebook account."
+            verifyChannelFacebookHint: "Code will be sent via your Facebook account.",
+            registerCityPlaceholder: "City (you can type it yourself)"
         },
         days: {
             mon: "Mon",
@@ -197,7 +199,8 @@ const translations = {
             verifyChannelSmsHint: "Код придёт по SMS на указанный номер телефона.",
             verifyChannelEmailHint: "Код придёт на указанный адрес электронной почты.",
             verifyChannelKakaoHint: "Код будет отправлен через ваш профиль Kakao.",
-            verifyChannelFacebookHint: "Код будет отправлен через ваш профиль Facebook."
+            verifyChannelFacebookHint: "Код будет отправлен через ваш профиль Facebook.",
+            registerCityPlaceholder: "Город (можно вводить вручную)"
         },
         days: {
             mon: "Пн",
@@ -255,6 +258,41 @@ const translations = {
         }
     }
 };
+
+function addOwnerMenuRow(container) {
+    const row = document.createElement("div");
+    row.className = "owner-cafe-menu-item-row";
+    const nameInput = document.createElement("input");
+    nameInput.type = "text";
+    nameInput.className = "owner-cafe-menu-name";
+    nameInput.placeholder = "Название";
+    const priceInput = document.createElement("input");
+    priceInput.type = "number";
+    priceInput.className = "owner-cafe-menu-price";
+    priceInput.placeholder = "Цена, ₩";
+    const categoryInput = document.createElement("input");
+    categoryInput.type = "text";
+    categoryInput.className = "owner-cafe-menu-category";
+    categoryInput.placeholder = "Категория";
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "owner-cafe-menu-remove";
+    removeBtn.textContent = "×";
+    removeBtn.addEventListener("click", () => {
+        if (container.children.length > 1) {
+            container.removeChild(row);
+        } else {
+            nameInput.value = "";
+            priceInput.value = "";
+            categoryInput.value = "";
+        }
+    });
+    row.appendChild(nameInput);
+    row.appendChild(priceInput);
+    row.appendChild(categoryInput);
+    row.appendChild(removeBtn);
+    container.appendChild(row);
+}
 
 function setAuth(token, user) {
     authToken = token;
@@ -781,6 +819,36 @@ const cityCenters = {
     gumi: { lat: 36.1195, lng: 128.3442 }
 };
 
+function resolveCityCodeFromInput(value) {
+    if (!value) {
+        return "";
+    }
+    const trimmed = String(value).trim();
+    if (!trimmed) {
+        return "";
+    }
+    const lower = trimmed.toLowerCase();
+    for (const langKey of Object.keys(translations)) {
+        const cfg = translations[langKey];
+        if (!cfg || !cfg.cities) {
+            continue;
+        }
+        const entries = Object.entries(cfg.cities);
+        for (let i = 0; i < entries.length; i++) {
+            const code = entries[i][0];
+            const label = entries[i][1];
+            if (typeof label === "string" && label.toLowerCase() === lower) {
+                return code;
+            }
+        }
+    }
+    const currentCfg = translations[currentLang];
+    if (currentCfg && currentCfg.cities && currentCfg.cities[trimmed]) {
+        return trimmed;
+    }
+    return "";
+}
+
 function showSlide(index) {
     const slides = document.querySelectorAll(".slide");
     if (!slides.length) return;
@@ -806,6 +874,7 @@ function showRegisterModal(type) {
     const modal = document.getElementById("registerModal");
     const userTypeInput = document.getElementById("userType");
     const title = document.getElementById("modalTitle");
+    const subtitle = document.getElementById("registerSubtitle");
     if (!modal || !userTypeInput || !title) return;
     if (type === "owner" || type === "user") {
         userTypeInput.value = type;
@@ -814,10 +883,28 @@ function showRegisterModal(type) {
     }
     if (currentLang === "ko") {
         title.textContent = type === "owner" ? "카페 사장님 회원가입" : "일반 회원가입";
+        if (subtitle) {
+            subtitle.textContent =
+                type === "owner"
+                    ? "카페 페이지를 만들고 손님들과 소통해 보세요."
+                    : "좋아하는 카페를 구독하고 소식을 받아보세요.";
+        }
     } else if (currentLang === "en") {
         title.textContent = type === "owner" ? "Sign up (Cafe owner)" : "Sign up (Guest)";
+        if (subtitle) {
+            subtitle.textContent =
+                type === "owner"
+                    ? "Create a cafe page and talk with your guests."
+                    : "Follow cafes you love and read their updates.";
+        }
     } else {
         title.textContent = type === "owner" ? "Регистрация владельца кафе" : "Регистрация гостя";
+        if (subtitle) {
+            subtitle.textContent =
+                type === "owner"
+                    ? "Добавьте своё кафе и общайтесь с гостями в ленте."
+                    : "Подписывайтесь на кафе и делитесь впечатлениями.";
+        }
     }
     modal.style.display = "block";
 }
@@ -920,6 +1007,7 @@ async function openCafePage(cafe) {
     const descEl = document.getElementById("cafeDetailDescription");
     const openingEl = document.getElementById("cafeDetailOpeningHours");
     const avgEl = document.getElementById("cafeDetailAverageCheck");
+    const menuEl = document.getElementById("cafeDetailMenu");
     if (!panel || !nameEl || !metaEl || !descEl || !openingEl || !avgEl) {
         return;
     }
@@ -985,6 +1073,42 @@ async function openCafePage(cafe) {
     const detailCountEl = document.getElementById("cafePageSubscribersCount");
     if (detailCountEl) {
         detailCountEl.textContent = "";
+    }
+    if (menuEl) {
+        menuEl.innerHTML = "";
+        const items = Array.isArray(cafe.menu) ? cafe.menu : [];
+        if (items.length) {
+            items.forEach((item) => {
+                const row = document.createElement("div");
+                row.className = "cafe-detail-menu-item";
+                const title = document.createElement("div");
+                title.className = "cafe-detail-menu-title";
+                title.textContent = item.name || "";
+                const meta = document.createElement("div");
+                meta.className = "cafe-detail-menu-meta";
+                const parts = [];
+                if (typeof item.price === "number") {
+                    parts.push(item.price + "₩");
+                }
+                if (item.category) {
+                    parts.push(item.category);
+                }
+                meta.textContent = parts.join(" · ");
+                row.appendChild(title);
+                if (meta.textContent) {
+                    row.appendChild(meta);
+                }
+                menuEl.appendChild(row);
+            });
+        } else {
+            if (currentLang === "ru") {
+                menuEl.textContent = "Меню этого кафе появится здесь. Попросите владельца заполнить его.";
+            } else if (currentLang === "en") {
+                menuEl.textContent = "Cafe menu will be shown here once the owner adds it.";
+            } else {
+                menuEl.textContent = "사장님이 메뉴를 추가하면 이곳에 표시됩니다.";
+            }
+        }
     }
     panel.classList.remove("hidden");
     await updateCafeSubscribersCount();
@@ -1368,6 +1492,9 @@ function applyLanguage(lang) {
     const verificationChannelLabelEl = document.getElementById("verificationChannelLabel");
     const verificationChannelHintEl = document.getElementById("verificationChannelHint");
 
+    const registerCityInput = document.getElementById("registerCity");
+    const citySuggestions = document.getElementById("registerCitySuggestions");
+
     if (btnOpenAuth) btnOpenAuth.textContent = config.ui.login;
     if (quickTitle) quickTitle.textContent = config.ui.quickTitle;
     if (quickText) quickText.textContent = config.ui.quickText;
@@ -1392,6 +1519,18 @@ function applyLanguage(lang) {
     }
     if (codeInput && config.ui.verifyCodePlaceholder) {
         codeInput.placeholder = config.ui.verifyCodePlaceholder;
+    }
+
+    if (registerCityInput && config.ui.registerCityPlaceholder) {
+        registerCityInput.placeholder = config.ui.registerCityPlaceholder;
+    }
+    if (citySuggestions && config.cities) {
+        citySuggestions.innerHTML = "";
+        Object.keys(config.cities).forEach((code) => {
+            const option = document.createElement("option");
+            option.value = config.cities[code];
+            citySuggestions.appendChild(option);
+        });
     }
 
     if (verificationChannelHintEl) {
@@ -2344,6 +2483,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const nameInput = document.getElementById("registerName");
             const emailInput = document.getElementById("registerEmail");
             const phoneInput = document.getElementById("registerPhone");
+            const cityInput = document.getElementById("registerCity");
             const passwordInput = document.getElementById("registerPassword");
             const passwordConfirmInput = document.getElementById("registerPasswordConfirm");
             const userTypeInput = document.getElementById("userType");
@@ -2356,6 +2496,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
             try {
+                const rawCity = cityInput ? cityInput.value : "";
+                const cityCode = resolveCityCodeFromInput(rawCity);
                 const res = await fetch("/api/auth/register-phone", {
                     method: "POST",
                     headers: {
@@ -2366,7 +2508,9 @@ document.addEventListener("DOMContentLoaded", () => {
                         phone: phoneInput ? phoneInput.value : "",
                         password: passwordInput.value,
                         name: nameInput.value,
-                        role: userTypeInput.value
+                        role: userTypeInput.value,
+                        cityCode,
+                        preferredLang: currentLang
                     })
                 });
                 if (!res.ok) {
@@ -2683,6 +2827,17 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    const ownerCafeMenuItems = document.getElementById("ownerCafeMenuItems");
+    const ownerCafeMenuAdd = document.getElementById("ownerCafeMenuAdd");
+    if (ownerCafeMenuItems && ownerCafeMenuAdd) {
+        ownerCafeMenuAdd.addEventListener("click", () => {
+            addOwnerMenuRow(ownerCafeMenuItems);
+        });
+        if (!ownerCafeMenuItems.children.length) {
+            addOwnerMenuRow(ownerCafeMenuItems);
+        }
+    }
+
     const ownerCafeForm = document.getElementById("ownerCafeForm");
     if (ownerCafeForm) {
         ownerCafeForm.addEventListener("submit", async (e) => {
@@ -2710,6 +2865,37 @@ document.addEventListener("DOMContentLoaded", () => {
                 averageCheckInput && averageCheckInput.value
                     ? Number(averageCheckInput.value)
                     : 0;
+            const menuItems = [];
+            const menuContainer = document.getElementById("ownerCafeMenuItems");
+            if (menuContainer) {
+                const rows = menuContainer.querySelectorAll(".owner-cafe-menu-item-row");
+                rows.forEach((row) => {
+                    const nameInputEl = row.querySelector(".owner-cafe-menu-name");
+                    const priceInputEl = row.querySelector(".owner-cafe-menu-price");
+                    const categoryInputEl = row.querySelector(".owner-cafe-menu-category");
+                    if (!nameInputEl) {
+                        return;
+                    }
+                    const nameValue = nameInputEl.value ? nameInputEl.value.trim() : "";
+                    if (!nameValue) {
+                        return;
+                    }
+                    const item = { name: nameValue };
+                    if (priceInputEl && priceInputEl.value) {
+                        const priceNumber = Number(priceInputEl.value.replace(/\s/g, ""));
+                        if (Number.isFinite(priceNumber)) {
+                            item.price = priceNumber;
+                        }
+                    }
+                    if (categoryInputEl && categoryInputEl.value) {
+                        const categoryValue = categoryInputEl.value.trim();
+                        if (categoryValue) {
+                            item.category = categoryValue;
+                        }
+                    }
+                    menuItems.push(item);
+                });
+            }
             try {
                 const res = await fetch("/api/cafes", {
                     method: "POST",
@@ -2724,7 +2910,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         phone: phoneInput ? phoneInput.value : "",
                         openingHours: openingHoursValue,
                         averageCheck: averageCheckValue,
-                        description: descInput ? descInput.value : ""
+                        description: descInput ? descInput.value : "",
+                        menu: menuItems
                     })
                 });
                 if (!res.ok) {
@@ -2738,6 +2925,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (openingHoursInput) openingHoursInput.value = "";
                 if (averageCheckInput) averageCheckInput.value = "";
                 if (descInput) descInput.value = "";
+                if (menuContainer) {
+                    menuContainer.innerHTML = "";
+                    addOwnerMenuRow(menuContainer);
+                }
                 loadOwnerCafes();
             } catch (e) {
                 alert(currentLang === "ru" ? "Сетевая ошибка" :
