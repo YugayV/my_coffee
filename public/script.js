@@ -6,6 +6,7 @@ let mapMarker;
 let authToken = null;
 let currentUser = null;
 let currentEditingNewsId = null;
+let currentCafeId = null;
 const KAKAO_JS_KEY = "YOUR_KAKAO_JAVASCRIPT_KEY";
 
 const translations = {
@@ -537,27 +538,7 @@ async function loadFeedCafes() {
             item.appendChild(info);
 
             item.addEventListener("click", () => {
-                const lines = [];
-                if (cafe.name) {
-                    lines.push(cafe.name);
-                }
-                if (cityName) {
-                    lines.push(cityName);
-                }
-                if (cafe.address) {
-                    lines.push(cafe.address);
-                }
-                const details = lines.join("\n");
-                if (!details) {
-                    return;
-                }
-                if (currentLang === "ru") {
-                    alert("Кафе:\n" + details);
-                } else if (currentLang === "en") {
-                    alert("Cafe:\n" + details);
-                } else {
-                    alert("카페 정보:\n" + details);
-                }
+                openCafeModal(cafe);
             });
 
             listEl.appendChild(item);
