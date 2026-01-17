@@ -681,6 +681,16 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    const closeButtons = document.querySelectorAll(".modal .close");
+    closeButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const modalId = btn.getAttribute("data-modal-id");
+            if (modalId) {
+                closeModal(modalId);
+            }
+        });
+    });
+
     const registerForm = document.getElementById("registerForm");
     if (registerForm) {
         registerForm.addEventListener("submit", async (e) => {

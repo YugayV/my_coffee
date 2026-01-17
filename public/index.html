@@ -170,7 +170,7 @@
 
     <div id="registerModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal('registerModal')">&times;</span>
+            <span class="close" data-modal-id="registerModal">&times;</span>
             <h2 id="modalTitle">회원가입</h2>
             <form id="registerForm">
                 <input type="hidden" id="userType" value="user">
@@ -185,7 +185,7 @@
 
     <div id="loginModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal('loginModal')">&times;</span>
+            <span class="close" data-modal-id="loginModal">&times;</span>
             <h2>로그인</h2>
             <form id="loginForm">
                 <input id="loginPhone" type="tel" placeholder="전화번호" required>
