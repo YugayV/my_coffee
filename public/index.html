@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CoffeBooking - 한국 카페 예약 플랫폼</title>
+    <meta name="description" content="Платформа бронирования столиков и поиска кафе в Корее. Найдите лучшее кафе в своём городе.">
+    <meta property="og:title" content="CoffeBooking - 한국 카페 예약 플랫폼">
+    <meta property="og:description" content="Поиск корейских кафе, бронирование столиков, подписки на любимые заведения.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="">
+    <meta property="og:image" content="">
     <link rel="stylesheet" href="styles.css">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5238023878656507" crossorigin="anonymous"></script>
 </head>
@@ -18,6 +24,11 @@
                     <button class="lang-btn active" data-lang="ko">한국어</button>
                     <button class="lang-btn" data-lang="en">EN</button>
                     <button class="lang-btn" data-lang="ru">RU</button>
+                </div>
+                <div class="header-city-row">
+                    <select id="headerProvinceSelect"></select>
+                    <select id="headerCitySelect"></select>
+                    <input id="headerCitySearch" type="text" placeholder="Поиск города">
                 </div>
                 <button id="btnOpenAuth" class="btn btn-outline auth-inline-btn">Войти</button>
             </div>
@@ -158,7 +169,7 @@
         </div>
 
         <div class="right-sidebar">
-            <div class="city-selector">
+            <div class="city-selector hidden">
                 <h3 id="citySelectTitle">도시 선택</h3>
                 <div class="province-list">
                     <button class="province-btn active" data-province="capital">수도권</button>
@@ -188,7 +199,7 @@
                 </div>
             </div>
 
-            <div class="search-bar">
+            <div class="search-bar hidden">
                 <input id="searchInput" type="text" placeholder="Поиск по городу и кафе">
             </div>
 

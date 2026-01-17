@@ -38,7 +38,8 @@ const translations = {
             verifyChannelEmailHint: "입력한 이메일 주소로 인증 코드를 받습니다.",
             verifyChannelKakaoHint: "Kakao 계정과 연결된 번호로 인증 코드를 받습니다.",
             verificationChannelFacebookHint: "Facebook 계정과 연결된 연락처로 인증 코드를 받습니다.",
-            registerCityPlaceholder: "도시 (직접 입력)"
+            registerCityPlaceholder: "도시 (직접 입력)",
+            headerCitySearchPlaceholder: "도시 검색"
         },
         days: {
             mon: "월",
@@ -119,7 +120,8 @@ const translations = {
             verifyChannelEmailHint: "Code will be sent to the email address you enter.",
             verifyChannelKakaoHint: "Code will be sent via your Kakao account.",
             verifyChannelFacebookHint: "Code will be sent via your Facebook account.",
-            registerCityPlaceholder: "City (you can type it yourself)"
+            registerCityPlaceholder: "City (you can type it yourself)",
+            headerCitySearchPlaceholder: "Search city"
         },
         days: {
             mon: "Mon",
@@ -200,7 +202,8 @@ const translations = {
             verifyChannelEmailHint: "Код придёт на указанный адрес электронной почты.",
             verifyChannelKakaoHint: "Код будет отправлен через ваш профиль Kakao.",
             verifyChannelFacebookHint: "Код будет отправлен через ваш профиль Facebook.",
-            registerCityPlaceholder: "Город (можно вводить вручную)"
+            registerCityPlaceholder: "Город (можно вводить вручную)",
+            headerCitySearchPlaceholder: "Поиск города"
         },
         days: {
             mon: "Пн",
@@ -826,6 +829,14 @@ const cityCenters = {
     gumi: { lat: 36.1195, lng: 128.3442 }
 };
 
+const provinceCityMap = {
+    capital: ["seoul", "incheon", "suwon", "seongnam", "goyang", "yongin"],
+    yeongnam: ["busan", "daegu", "ulsan", "changwon", "pohang", "gumi"],
+    honam: ["gwangju", "jeonju"],
+    chungcheong: ["daejeon", "cheongju"],
+    jeju_region: ["jeju"]
+};
+
 function resolveCityCodeFromInput(value) {
     if (!value) {
         return "";
@@ -1030,7 +1041,8 @@ async function openCafePage(cafe) {
     };
     currentCafePostsOffset = 0;
     currentCafePostsHasMore = false;
-    nameEl.textContent = cafe.name || "Cafe";
+    const cafeName = cafe.name || "Cafe";
+    nameEl.textContent = cafeName;
     const config = translations[currentLang] || translations.ko;
     const parts = [];
     if (cafe.cityCode) {
@@ -1047,8 +1059,69 @@ async function openCafePage(cafe) {
     if (cafe.address) {
         parts.push(cafe.address);
     }
-    metaEl.textContent = parts.join(" · ");
-    descEl.textContent = cafe.description || "";
+    const metaText = parts.join(" · ");
+    metaEl.textContent = metaText;
+    const descriptionText = cafe.description || "";
+    descEl.textContent = descriptionText;
+    const baseTitle = "CoffeBooking";
+    if (typeof document !== "undefined") {
+        const titleParts = [cafeName];
+        if (metaText) {
+            titleParts.push(metaText);
+        }
+        titleParts.push(baseTitle);
+        document.title = titleParts.join(" · ");
+        const descMeta =
+            document.querySelector('meta[name="description"]') ||
+            document.createElement("meta");
+        descMeta.setAttribute("name", "description");
+        const descContent =
+            descriptionText ||
+            (metaText
+                ? cafeName + " — " + metaText
+                : cafeName + " — кафе в Корее на платформе CoffeBooking");
+        descMeta.setAttribute("content", descContent);
+        if (!descMeta.parentNode && document.head) {
+            document.head.appendChild(descMeta);
+        }
+        const urlMeta =
+            document.querySelector('meta[property="og:url"]') ||
+            document.createElement("meta");
+        urlMeta.setAttribute("property", "og:url");
+        urlMeta.setAttribute("content", window.location.href);
+        if (!urlMeta.parentNode && document.head) {
+            document.head.appendChild(urlMeta);
+        }
+        const ogTitleMeta =
+            document.querySelector('meta[property="og:title"]') ||
+            document.createElement("meta");
+        ogTitleMeta.setAttribute("property", "og:title");
+        ogTitleMeta.setAttribute("content", cafeName + " · " + baseTitle);
+        if (!ogTitleMeta.parentNode && document.head) {
+            document.head.appendChild(ogTitleMeta);
+        }
+        const ogDescMeta =
+            document.querySelector('meta[property="og:description"]') ||
+            document.createElement("meta");
+        ogDescMeta.setAttribute("property", "og:description");
+        ogDescMeta.setAttribute("content", descContent);
+        if (!ogDescMeta.parentNode && document.head) {
+            document.head.appendChild(ogDescMeta);
+        }
+        const ogImageMeta =
+            document.querySelector('meta[property="og:image"]') ||
+            document.createElement("meta");
+        ogImageMeta.setAttribute("property", "og:image");
+        const photos = Array.isArray(cafe.photos) ? cafe.photos : [];
+        if (photos.length && photos[0].url) {
+            ogImageMeta.setAttribute("content", photos[0].url);
+        } else {
+            ogImageMeta.setAttribute("content", "");
+        }
+        if (!ogImageMeta.parentNode && document.head) {
+            document.head.appendChild(ogImageMeta);
+        }
+    }
     const hoursText = formatCafeOpeningHours(cafe.openingHours);
     if (hoursText) {
         if (currentLang === "ru") {
@@ -1501,6 +1574,7 @@ function applyLanguage(lang) {
 
     const registerCityInput = document.getElementById("registerCity");
     const citySuggestions = document.getElementById("registerCitySuggestions");
+    const headerCitySearch = document.getElementById("headerCitySearch");
 
     if (btnOpenAuth) btnOpenAuth.textContent = config.ui.login;
     if (quickTitle) quickTitle.textContent = config.ui.quickTitle;
@@ -1531,6 +1605,9 @@ function applyLanguage(lang) {
     if (registerCityInput && config.ui.registerCityPlaceholder) {
         registerCityInput.placeholder = config.ui.registerCityPlaceholder;
     }
+    if (headerCitySearch && config.ui.headerCitySearchPlaceholder) {
+        headerCitySearch.placeholder = config.ui.headerCitySearchPlaceholder;
+    }
     if (citySuggestions && config.cities) {
         citySuggestions.innerHTML = "";
         Object.keys(config.cities).forEach((code) => {
@@ -1543,6 +1620,55 @@ function applyLanguage(lang) {
     if (verificationChannelHintEl) {
         const baseHint = config.ui.verificationChannelHint || "";
         verificationChannelHintEl.textContent = baseHint;
+    }
+
+    const headerProvinceSelect = document.getElementById("headerProvinceSelect");
+    const headerCitySelect = document.getElementById("headerCitySelect");
+    if (headerProvinceSelect && headerCitySelect && provinceCityMap) {
+        const provinces = Object.keys(provinceCityMap);
+        headerProvinceSelect.innerHTML = "";
+        provinces.forEach((code) => {
+            const option = document.createElement("option");
+            option.value = code;
+            const name =
+                (config.regions && config.regions[code]) ||
+                code;
+            option.textContent = name;
+            headerProvinceSelect.appendChild(option);
+        });
+        let selectedProvince = "";
+        provinces.forEach((code) => {
+            const list = provinceCityMap[code] || [];
+            if (!selectedProvince && list.indexOf(currentCityCode) !== -1) {
+                selectedProvince = code;
+            }
+        });
+        if (!selectedProvince && provinces.length) {
+            selectedProvince = provinces[0];
+        }
+        if (selectedProvince) {
+            headerProvinceSelect.value = selectedProvince;
+        }
+        headerCitySelect.innerHTML = "";
+        const cities = provinceCityMap[selectedProvince] || [];
+        cities.forEach((code) => {
+            const option = document.createElement("option");
+            option.value = code;
+            const name =
+                (config.cities && config.cities[code]) ||
+                code;
+            option.textContent = name;
+            headerCitySelect.appendChild(option);
+        });
+        let selectedCity = "";
+        if (currentCityCode && cities.indexOf(currentCityCode) !== -1) {
+            selectedCity = currentCityCode;
+        } else if (cities.length) {
+            selectedCity = cities[0];
+        }
+        if (selectedCity) {
+            headerCitySelect.value = selectedCity;
+        }
     }
 
     const provinceButtons = document.querySelectorAll(".province-btn");
@@ -1636,6 +1762,23 @@ function initKakaoMap(cityCode) {
             mapMarker.setPosition(center);
         }
     }
+}
+
+function setCurrentCity(code) {
+    const selected = code || "seoul";
+    currentCityCode = selected;
+    const topCitySelect = document.getElementById("topCitySelect");
+    if (topCitySelect) {
+        topCitySelect.value = selected;
+    }
+    const cityButtonsSync = document.querySelectorAll(".city-btn");
+    cityButtonsSync.forEach((btn) => {
+        const btnCode = btn.getAttribute("data-city");
+        btn.classList.toggle("active", btnCode === selected);
+    });
+    applyLanguage(currentLang);
+    initKakaoMap(currentCityCode);
+    loadFeedCafes();
 }
 
 async function loadOwnerCafes() {
@@ -2263,23 +2406,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (data && data.cafe) {
                         const cafe = data.cafe;
                         if (cafe.cityCode) {
-                            currentCityCode = cafe.cityCode;
-                            const topCitySelect = document.getElementById("topCitySelect");
-                            if (topCitySelect) {
-                                topCitySelect.value = currentCityCode;
-                            }
-                            const cityButtonsSync = document.querySelectorAll(".city-btn");
-                            cityButtonsSync.forEach((btn) => {
-                                const btnCode = btn.getAttribute("data-city");
-                                if (btnCode === currentCityCode) {
-                                    btn.classList.add("active");
-                                } else {
-                                    btn.classList.remove("active");
-                                }
-                            });
-                            applyLanguage(currentLang);
-                            initKakaoMap(currentCityCode);
-                            loadFeedCafes();
+                            setCurrentCity(cafe.cityCode);
                         }
                         openCafePage(cafe);
                     }
@@ -2303,15 +2430,8 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.addEventListener("click", () => {
             cityButtons.forEach((b) => b.classList.remove("active"));
             btn.classList.add("active");
-            const code = btn.getAttribute("data-city");
-            currentCityCode = code || "seoul";
-            const topCitySelect = document.getElementById("topCitySelect");
-            if (topCitySelect) {
-                topCitySelect.value = currentCityCode;
-            }
-            applyLanguage(currentLang);
-            initKakaoMap(currentCityCode);
-            loadFeedCafes();
+            const code = btn.getAttribute("data-city") || "seoul";
+            setCurrentCity(code);
         });
     });
 
@@ -2333,10 +2453,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (firstVisible) {
             cityButtons.forEach((b) => b.classList.remove("active"));
             firstVisible.classList.add("active");
-            const code = firstVisible.getAttribute("data-city");
-            currentCityCode = code || "seoul";
-            applyLanguage(currentLang);
-            initKakaoMap(currentCityCode);
+            const code = firstVisible.getAttribute("data-city") || "seoul";
+            setCurrentCity(code);
         }
     }
 
@@ -2360,39 +2478,56 @@ document.addEventListener("DOMContentLoaded", () => {
         topCitySelect.value = currentCityCode;
         topCitySelect.addEventListener("change", () => {
             const code = topCitySelect.value || "seoul";
-            currentCityCode = code;
-            const cityButtonsSync = document.querySelectorAll(".city-btn");
-            cityButtonsSync.forEach((btn) => {
-                const btnCode = btn.getAttribute("data-city");
-                if (btnCode === code) {
-                    btn.classList.add("active");
-                } else {
-                    btn.classList.remove("active");
-                }
-            });
-            applyLanguage(currentLang);
-            initKakaoMap(currentCityCode);
-            loadFeedCafes();
+            setCurrentCity(code);
+        });
+    }
+
+    const headerProvinceSelect = document.getElementById("headerProvinceSelect");
+    const headerCitySelect = document.getElementById("headerCitySelect");
+    if (headerProvinceSelect && headerCitySelect && provinceCityMap) {
+        headerProvinceSelect.addEventListener("change", () => {
+            const province = headerProvinceSelect.value;
+            const cities = provinceCityMap[province] || [];
+            const nextCity = cities.length ? cities[0] : "seoul";
+            setCurrentCity(nextCity);
+        });
+        headerCitySelect.addEventListener("change", () => {
+            const code = headerCitySelect.value || "seoul";
+            setCurrentCity(code);
+        });
+    }
+
+    function applyCitySearch(term) {
+        const value = term.toLowerCase().trim();
+        const cityButtonsSearch = document.querySelectorAll(".city-btn");
+        cityButtonsSearch.forEach((btn) => {
+            const code = btn.getAttribute("data-city") || "";
+            const text = btn.textContent || "";
+            const match =
+                !value ||
+                text.toLowerCase().includes(value) ||
+                code.toLowerCase().includes(value);
+            btn.style.display = match ? "" : "none";
+        });
+        const cafeItems = document.querySelectorAll(".cafe-items .cafe-item");
+        cafeItems.forEach((item) => {
+            const text = item.innerText || "";
+            const match = !value || text.toLowerCase().includes(value);
+            item.style.display = match ? "" : "none";
         });
     }
 
     const searchInput = document.getElementById("searchInput");
     if (searchInput) {
         searchInput.addEventListener("input", () => {
-            const term = searchInput.value.toLowerCase().trim();
-            const cityButtonsSearch = document.querySelectorAll(".city-btn");
-            cityButtonsSearch.forEach((btn) => {
-                const code = btn.getAttribute("data-city") || "";
-                const text = btn.textContent || "";
-                const match = !term || text.toLowerCase().includes(term) || code.toLowerCase().includes(term);
-                btn.style.display = match ? "" : "none";
-            });
-            const cafeItems = document.querySelectorAll(".cafe-items .cafe-item");
-            cafeItems.forEach((item) => {
-                const text = item.innerText || "";
-                const match = !term || text.toLowerCase().includes(term);
-                item.style.display = match ? "" : "none";
-            });
+            applyCitySearch(searchInput.value);
+        });
+    }
+
+    const headerCitySearch = document.getElementById("headerCitySearch");
+    if (headerCitySearch) {
+        headerCitySearch.addEventListener("input", () => {
+            applyCitySearch(headerCitySearch.value);
         });
     }
 
