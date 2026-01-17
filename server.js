@@ -1833,7 +1833,9 @@ app.post("/api/cafes", authMiddleware, ownerOnly, async (req, res) => {
 app.get("/api/my/cafes", authMiddleware, ownerOnly, async (req, res) => {
   try {
     const cafes = await Cafe.find({ owner: req.user.id })
-      .select("name cityCode address description phone isActive photos createdAt")
+      .select(
+        "name cityCode address description phone openingHours averageCheck isActive photos createdAt"
+      )
       .sort({ createdAt: -1 })
       .lean();
     res.json({ cafes });

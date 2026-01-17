@@ -2594,10 +2594,20 @@ document.addEventListener("DOMContentLoaded", () => {
             const citySelect = document.getElementById("ownerCafeCity");
             const addressInput = document.getElementById("ownerCafeAddress");
             const phoneInput = document.getElementById("ownerCafePhone");
+            const openingHoursInput = document.getElementById("ownerCafeOpeningHours");
+            const averageCheckInput = document.getElementById("ownerCafeAverageCheck");
             const descInput = document.getElementById("ownerCafeDescription");
             if (!nameInput || !citySelect) {
                 return;
             }
+            const openingHoursValue =
+                openingHoursInput && openingHoursInput.value
+                    ? openingHoursInput.value
+                    : "";
+            const averageCheckValue =
+                averageCheckInput && averageCheckInput.value
+                    ? Number(averageCheckInput.value)
+                    : 0;
             try {
                 const res = await fetch("/api/cafes", {
                     method: "POST",
@@ -2610,6 +2620,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         cityCode: citySelect.value,
                         address: addressInput ? addressInput.value : "",
                         phone: phoneInput ? phoneInput.value : "",
+                        openingHours: openingHoursValue,
+                        averageCheck: averageCheckValue,
                         description: descInput ? descInput.value : ""
                     })
                 });
@@ -2621,6 +2633,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 nameInput.value = "";
                 if (addressInput) addressInput.value = "";
                 if (phoneInput) phoneInput.value = "";
+                if (openingHoursInput) openingHoursInput.value = "";
+                if (averageCheckInput) averageCheckInput.value = "";
                 if (descInput) descInput.value = "";
                 loadOwnerCafes();
             } catch (e) {
