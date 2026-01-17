@@ -298,19 +298,7 @@
                 </select>
                 <input id="registerName" type="text" placeholder="이름" required>
                 <input id="registerEmail" type="email" placeholder="Email" required>
-                <label id="verificationChannelLabel" for="registerCodeChannel">Куда отправить код подтверждения</label>
-                <select id="registerCodeChannel">
-                    <option value="sms">Код по SMS</option>
-                    <option value="email">Код на email</option>
-                    <option value="kakao">Код через Kakao</option>
-                    <option value="facebook">Код через Facebook</option>
-                </select>
-                <div class="verification-channel-hint" id="verificationChannelHint"></div>
-                <div class="register-phone-row">
-                    <input id="registerPhone" type="tel" placeholder="전화번호" required>
-                    <button id="btnSendCode" type="button" class="btn btn-secondary btn-small">Отправить код</button>
-                </div>
-                <input id="registerPhoneCode" type="text" placeholder="Код из SMS" required>
+                <input id="registerPhone" type="tel" placeholder="Телефон (необязательно)">
                 <input id="registerPassword" type="password" placeholder="비밀번호" required>
                 <input id="registerPasswordConfirm" type="password" placeholder="비밀번호 확인" required>
                 <button type="submit" class="btn btn-primary">가입하기</button>

@@ -599,62 +599,38 @@ app.post("/api/auth/register-phone", authLimiter, async (req, res) => {
       role,
       cityCode,
       preferredLang,
-      marketingOptIn,
-      code,
-      channel
+      marketingOptIn
     } = req.body;
-    if (!phone || !email || !password || !name || !code) {
+    if (!email || !password || !name) {
       return res
         .status(400)
-        .json({ error: "phone, email, password, name, code required" });
+        .json({ error: "email, password and name required" });
     }
     const trimmedEmail =
       typeof email === "string" ? email.trim().toLowerCase() : "";
     if (!trimmedEmail || !trimmedEmail.includes("@")) {
       return res.status(400).json({ error: "invalid email" });
     }
-    const normalizedPhone = normalizePhone(phone);
-    if (!normalizedPhone) {
-      return res.status(400).json({ error: "invalid phone" });
+    let normalizedPhone = "";
+    if (phone) {
+      normalizedPhone = normalizePhone(phone);
+      if (!normalizedPhone) {
+        return res.status(400).json({ error: "invalid phone" });
+      }
     }
-    const existingByPhone = await User.findOne({ phone: normalizedPhone });
-    if (existingByPhone) {
-      return res.status(409).json({ error: "user already exists" });
+    if (normalizedPhone) {
+      const existingByPhone = await User.findOne({ phone: normalizedPhone });
+      if (existingByPhone) {
+        return res.status(409).json({ error: "user already exists" });
+      }
     }
     const existingByEmail = await User.findOne({ email: trimmedEmail });
     if (existingByEmail) {
       return res.status(409).json({ error: "user already exists" });
     }
-    const requestedChannel =
-      typeof channel === "string" && channel.trim()
-        ? channel.trim().toLowerCase()
-        : "sms";
-    let verificationFilter;
-    if (requestedChannel === "email") {
-      verificationFilter = { email: trimmedEmail, channel: "email" };
-    } else if (requestedChannel === "kakao") {
-      verificationFilter = { phone: normalizedPhone, channel: "kakao" };
-    } else if (requestedChannel === "facebook") {
-      verificationFilter = { phone: normalizedPhone, channel: "facebook" };
-    } else {
-      verificationFilter = { phone: normalizedPhone, channel: "sms" };
-    }
-    const verification = await PhoneVerification.findOne(verificationFilter);
-    if (!verification) {
-      return res.status(400).json({ error: "verification required" });
-    }
-    if (verification.expiresAt < new Date()) {
-      return res.status(400).json({ error: "code expired" });
-    }
-    if (verification.code !== code) {
-      verification.attempts += 1;
-      await verification.save();
-      return res.status(400).json({ error: "invalid code" });
-    }
-    await PhoneVerification.deleteOne({ _id: verification._id });
     const hash = await bcrypt.hash(password, 10);
     const user = await User.create({
-      phone: normalizedPhone,
+      phone: normalizedPhone || undefined,
       email: trimmedEmail,
       passwordHash: hash,
       name,

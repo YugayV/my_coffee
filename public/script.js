@@ -16,11 +16,11 @@ const KAKAO_JS_KEY = "YOUR_KAKAO_JAVASCRIPT_KEY";
 const translations = {
     ko: {
         ui: {
-            registerUser: "일반 회원가입",
-            registerOwner: "카페 사장님 회원가입",
+            registerUser: "손님 회원가입",
+            registerOwner: "카페 오너 회원가입",
             login: "로그인",
-            quickTitle: "빠른 예약",
-            quickText: "회원가입 후 바로 예약 가능!",
+            quickTitle: "카페 소셜 피드",
+            quickText: "좋아하는 카페를 구독하고 소식을 빠르게 받아보세요.",
             citySelectTitle: "도시 선택",
             selectedCityPrefix: "선택된 도시: ",
             adTitle: "파트너 광고",
@@ -99,8 +99,8 @@ const translations = {
             registerUser: "Sign up (Guest)",
             registerOwner: "Sign up (Cafe owner)",
             login: "Login",
-            quickTitle: "Quick booking",
-            quickText: "Booking is free on Kafe Booking.",
+            quickTitle: "Cafe social feed",
+            quickText: "Follow cafes, read updates and share your experience.",
             citySelectTitle: "Choose city",
             selectedCityPrefix: "Selected city: ",
             adTitle: "Partner ads",
@@ -179,8 +179,8 @@ const translations = {
             registerUser: "Регистрация гостя",
             registerOwner: "Регистрация владельца кафе",
             login: "Войти",
-            quickTitle: "Быстрое бронирование",
-            quickText: "Бронирование столиков на платформе бесплатное.",
+            quickTitle: "Лента кафе и подписки",
+            quickText: "Подписывайтесь на любимые кафе, читайте новости и оставляйте отзывы.",
             citySelectTitle: "Выбор города",
             selectedCityPrefix: "Выбранный город: ",
             adTitle: "Реклама партнёров",
@@ -2347,9 +2347,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const passwordInput = document.getElementById("registerPassword");
             const passwordConfirmInput = document.getElementById("registerPasswordConfirm");
             const userTypeInput = document.getElementById("userType");
-            const codeInput = document.getElementById("registerPhoneCode");
-            const channelSelect = document.getElementById("registerCodeChannel");
-            if (!nameInput || !emailInput || !phoneInput || !passwordInput || !passwordConfirmInput || !userTypeInput || !codeInput) {
+            if (!nameInput || !emailInput || !passwordInput || !passwordConfirmInput || !userTypeInput) {
                 return;
             }
             if (passwordInput.value !== passwordConfirmInput.value) {
@@ -2365,12 +2363,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     },
                     body: JSON.stringify({
                         email: emailInput.value,
-                        phone: phoneInput.value,
+                        phone: phoneInput ? phoneInput.value : "",
                         password: passwordInput.value,
                         name: nameInput.value,
-                        role: userTypeInput.value,
-                        code: codeInput.value,
-                        channel: channelSelect ? channelSelect.value : "sms"
+                        role: userTypeInput.value
                     })
                 });
                 if (!res.ok) {
