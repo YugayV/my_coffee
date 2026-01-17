@@ -815,7 +815,317 @@ window.onclick = function (event) {
 };
 
 function showCafeDetail(id) {
-    alert("Здесь позже будет детальная страница кафе ID: " + id);
+    if (!id) {
+        return;
+    }
+    openCafeModal({ _id: id });
+}
+
+async function openCafeModal(cafe) {
+    const modal = document.getElementById("cafeModal");
+    const titleEl = document.getElementById("cafeModalTitle");
+    const metaEl = document.getElementById("cafeModalMeta");
+    const subscribeBtn = document.getElementById("btnCafeSubscribe");
+    const postsList = document.getElementById("cafePostsList");
+    if (!modal || !titleEl || !metaEl || !subscribeBtn || !postsList) {
+        return;
+    }
+    const cafeId = cafe && cafe._id ? cafe._id : null;
+    if (!cafeId) {
+        return;
+    }
+    currentCafeId = cafeId;
+    const parts = [];
+    if (cafe.name) {
+        titleEl.textContent = cafe.name;
+    } else {
+        titleEl.textContent = "Cafe";
+    }
+    if (cafe.cityCode) {
+        parts.push(cafe.cityCode);
+    }
+    if (cafe.address) {
+        parts.push(cafe.address);
+    }
+    metaEl.textContent = parts.join(" · ");
+    if (authToken) {
+        subscribeBtn.disabled = false;
+    } else {
+        subscribeBtn.disabled = false;
+    }
+    await updateCafeSubscribersCount();
+    await loadCafePosts();
+    modal.style.display = "block";
+}
+
+async function updateCafeSubscribersCount() {
+    const countEl = document.getElementById("cafeSubscribersCount");
+    if (!countEl || !currentCafeId) {
+        return;
+    }
+    try {
+        const res = await fetch(
+            "/api/cafes/" + encodeURIComponent(currentCafeId) + "/subscribers"
+        );
+        if (!res.ok) {
+            return;
+        }
+        const data = await res.json();
+        const count =
+            data && typeof data.count === "number"
+                ? data.count
+                : 0;
+        if (currentLang === "ru") {
+            countEl.textContent = "Подписчики: " + count;
+        } else if (currentLang === "en") {
+            countEl.textContent = "Subscribers: " + count;
+        } else {
+            countEl.textContent = "구독자: " + count;
+        }
+    } catch (e) {
+    }
+}
+
+async function loadCafePosts() {
+    const listEl = document.getElementById("cafePostsList");
+    if (!listEl || !currentCafeId) {
+        return;
+    }
+    try {
+        const res = await fetch(
+            "/api/cafes/" + encodeURIComponent(currentCafeId) + "/posts"
+        );
+        if (!res.ok) {
+            return;
+        }
+        const data = await res.json();
+        const posts = data && data.posts ? data.posts : [];
+        listEl.innerHTML = "";
+        posts.forEach((post) => {
+            const item = document.createElement("div");
+            item.className = "cafe-post-item";
+
+            const textEl = document.createElement("div");
+            textEl.className = "cafe-post-text";
+            textEl.textContent = post.text || "";
+
+            const metaRow = document.createElement("div");
+            metaRow.className = "cafe-post-meta";
+            const parts = [];
+            const created = post.createdAt ? new Date(post.createdAt) : null;
+            if (created && !Number.isNaN(created.getTime())) {
+                parts.push(created.toLocaleString());
+            }
+            if (typeof post.likesCount === "number") {
+                parts.push(
+                    (currentLang === "ru"
+                        ? "Лайки: "
+                        : currentLang === "en"
+                        ? "Likes: "
+                        : "좋아요: ") + post.likesCount
+                );
+            }
+            if (typeof post.rating === "number" && post.rating > 0) {
+                parts.push(
+                    (currentLang === "ru"
+                        ? "Рейтинг: "
+                        : currentLang === "en"
+                        ? "Rating: "
+                        : "평점: ") + post.rating
+                );
+            }
+            metaRow.textContent = parts.join(" · ");
+
+            const actionsRow = document.createElement("div");
+            actionsRow.className = "cafe-post-actions";
+
+            const likeBtn = document.createElement("button");
+            likeBtn.type = "button";
+            likeBtn.className = "btn btn-secondary btn-small";
+            likeBtn.textContent =
+                currentLang === "ru"
+                    ? "Лайк"
+                    : currentLang === "en"
+                    ? "Like"
+                    : "좋아요";
+            likeBtn.addEventListener("click", async () => {
+                if (!authToken) {
+                    alert(
+                        currentLang === "ru"
+                            ? "Сначала войдите"
+                            : currentLang === "en"
+                            ? "Please login first"
+                            : "먼저 로그인하세요."
+                    );
+                    return;
+                }
+                try {
+                    const resLike = await fetch(
+                        "/api/cafes/" +
+                            encodeURIComponent(currentCafeId) +
+                            "/posts/" +
+                            encodeURIComponent(post._id) +
+                            "/like",
+                        {
+                            method: "POST",
+                            headers: {
+                                Authorization: "Bearer " + authToken
+                            }
+                        }
+                    );
+                    if (!resLike.ok) {
+                        return;
+                    }
+                    await loadCafePosts();
+                } catch (e) {
+                }
+            });
+
+            const ratingInput = document.createElement("input");
+            ratingInput.type = "number";
+            ratingInput.min = "1";
+            ratingInput.max = "5";
+            ratingInput.value = "5";
+            ratingInput.className = "cafe-post-rating-input";
+
+            const rateBtn = document.createElement("button");
+            rateBtn.type = "button";
+            rateBtn.className = "btn btn-secondary btn-small";
+            rateBtn.textContent =
+                currentLang === "ru"
+                    ? "Оценить"
+                    : currentLang === "en"
+                    ? "Rate"
+                    : "평가하기";
+            rateBtn.addEventListener("click", async () => {
+                if (!authToken) {
+                    alert(
+                        currentLang === "ru"
+                            ? "Сначала войдите"
+                            : currentLang === "en"
+                            ? "Please login first"
+                            : "먼저 로그인하세요."
+                    );
+                    return;
+                }
+                const value = Number(ratingInput.value);
+                if (!Number.isFinite(value) || value < 1 || value > 5) {
+                    return;
+                }
+                try {
+                    const resRate = await fetch(
+                        "/api/cafes/" +
+                            encodeURIComponent(currentCafeId) +
+                            "/posts/" +
+                            encodeURIComponent(post._id) +
+                            "/rate",
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                Authorization: "Bearer " + authToken
+                            },
+                            body: JSON.stringify({ rating: value })
+                        }
+                    );
+                    if (!resRate.ok) {
+                        return;
+                    }
+                    await loadCafePosts();
+                } catch (e) {
+                }
+            });
+
+            const commentInput = document.createElement("input");
+            commentInput.type = "text";
+            commentInput.className = "cafe-post-comment-input";
+            if (currentLang === "ru") {
+                commentInput.placeholder = "Комментарий";
+            } else if (currentLang === "en") {
+                commentInput.placeholder = "Comment";
+            } else {
+                commentInput.placeholder = "댓글";
+            }
+
+            const commentBtn = document.createElement("button");
+            commentBtn.type = "button";
+            commentBtn.className = "btn btn-secondary btn-small";
+            commentBtn.textContent =
+                currentLang === "ru"
+                    ? "Отправить"
+                    : currentLang === "en"
+                    ? "Send"
+                    : "전송";
+            commentBtn.addEventListener("click", async () => {
+                if (!authToken) {
+                    alert(
+                        currentLang === "ru"
+                            ? "Сначала войдите"
+                            : currentLang === "en"
+                            ? "Please login first"
+                            : "먼저 로그인하세요."
+                    );
+                    return;
+                }
+                const text = commentInput.value.trim();
+                if (!text) {
+                    return;
+                }
+                try {
+                    const resComment = await fetch(
+                        "/api/cafes/" +
+                            encodeURIComponent(currentCafeId) +
+                            "/posts/" +
+                            encodeURIComponent(post._id) +
+                            "/comment",
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                Authorization: "Bearer " + authToken
+                            },
+                            body: JSON.stringify({ text })
+                        }
+                    );
+                    if (!resComment.ok) {
+                        return;
+                    }
+                    commentInput.value = "";
+                    await loadCafePosts();
+                } catch (e) {
+                }
+            });
+
+            actionsRow.appendChild(likeBtn);
+            actionsRow.appendChild(ratingInput);
+            actionsRow.appendChild(rateBtn);
+            actionsRow.appendChild(commentInput);
+            actionsRow.appendChild(commentBtn);
+
+            const commentsList = document.createElement("div");
+            commentsList.className = "cafe-post-comments";
+            const comments = Array.isArray(post.comments) ? post.comments : [];
+            comments.forEach((c) => {
+                const row = document.createElement("div");
+                row.className = "cafe-post-comment-row";
+                let text = c.text || "";
+                const created = c.createdAt ? new Date(c.createdAt) : null;
+                if (created && !Number.isNaN(created.getTime())) {
+                    text += " (" + created.toLocaleString() + ")";
+                }
+                row.textContent = text;
+                commentsList.appendChild(row);
+            });
+
+            item.appendChild(textEl);
+            item.appendChild(metaRow);
+            item.appendChild(actionsRow);
+            item.appendChild(commentsList);
+
+            listEl.appendChild(item);
+        });
+    } catch (e) {
+    }
 }
 
 function applyLanguage(lang) {
@@ -2428,6 +2738,42 @@ document.addEventListener("DOMContentLoaded", () => {
                         ? "Network error"
                         : "네트워크 오류"
                 );
+            }
+        });
+    }
+
+    const btnCafeSubscribe = document.getElementById("btnCafeSubscribe");
+    if (btnCafeSubscribe) {
+        btnCafeSubscribe.addEventListener("click", async () => {
+            if (!currentCafeId) {
+                return;
+            }
+            if (!authToken) {
+                alert(
+                    currentLang === "ru"
+                        ? "Сначала войдите"
+                        : currentLang === "en"
+                        ? "Please login first"
+                        : "먼저 로그인하세요."
+                );
+                return;
+            }
+            try {
+                const res = await fetch(
+                    "/api/cafes/" + encodeURIComponent(currentCafeId) + "/subscribe",
+                    {
+                        method: "POST",
+                        headers: {
+                            Authorization: "Bearer " + authToken
+                        }
+                    }
+                );
+                if (!res.ok) {
+                    return;
+                }
+                await updateCafeSubscribersCount();
+                await loadMySubscriptions();
+            } catch (e) {
             }
         });
     }
