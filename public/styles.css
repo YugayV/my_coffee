@@ -7,8 +7,10 @@ body {
 
 .container {
     display: grid;
-    grid-template-columns: 280px 1fr 320px;
-    height: 100vh;
+    grid-template-columns: 280px minmax(0, 1fr) 320px;
+    max-width: 1280px;
+    margin: 0 auto;
+    min-height: 100vh;
 }
 
 .left-sidebar,
@@ -219,24 +221,26 @@ body {
 }
 
 .btn {
-    padding: 10px 14px;
+    padding: 11px 16px;
     border-radius: 8px;
     border: none;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 15px;
+    font-weight: 600;
     transition: background 0.2s, transform 0.1s, box-shadow 0.1s;
 }
 
 .btn-primary {
     background: linear-gradient(135deg, #f97316, #fb923c);
     color: #0f172a;
-    font-weight: 600;
+    font-weight: 700;
+    box-shadow: 0 10px 20px rgba(249, 115, 22, 0.35);
 }
 
 .btn-secondary {
-    background: #0f172a;
-    color: #e5e7eb;
-    border: 1px solid rgba(148, 163, 184, 0.4);
+    background: #020617;
+    color: #f9fafb;
+    border: 1px solid rgba(249, 115, 22, 0.7);
 }
 
 .btn-outline {
@@ -273,6 +277,44 @@ body {
     margin: 0;
     font-size: 13px;
     color: #6b7280;
+}
+
+.search-results {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #ffffff;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+}
+
+.search-results-title {
+    margin: 0 0 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.search-results-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.search-result-item {
+    width: 100%;
+    text-align: left;
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, 0.5);
+    background: #f3f4f6;
+    padding: 6px 10px;
+    font-size: 12px;
+    color: #111827;
+    cursor: pointer;
+}
+
+.search-result-item:hover {
+    background: #e5e7eb;
+    border-color: #f97316;
 }
 
 .header-city-row {
@@ -576,8 +618,8 @@ body {
 }
 
 .btn-small {
-    padding: 6px 10px;
-    font-size: 12px;
+    padding: 7px 11px;
+    font-size: 13px;
 }
 
 .main-feed {
@@ -596,6 +638,27 @@ body {
     justify-content: center;
     font-size: 14px;
     color: #6b7280;
+}
+
+.feed-ads-container {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.feed-ad-item {
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: #fff7ed;
+    border: 1px solid rgba(249, 115, 22, 0.4);
+    font-size: 11px;
+    color: #c2410c;
+    cursor: pointer;
+}
+
+.feed-ad-item:hover {
+    background: #fffbeb;
 }
 
 .feed-cafes-block {
@@ -845,6 +908,10 @@ body {
     display: flex;
     gap: 6px;
     margin-bottom: 8px;
+}
+
+.admin-settings-button {
+    margin-top: 6px;
 }
 
 .admin-tab-btn {

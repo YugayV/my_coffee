@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kafe Booking — Настройки администратора</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="site-header-left">
+            <a href="/" class="logo">Kafe Booking</a>
+        </div>
+        <div class="site-header-right">
+            <button id="btnOpenAuth" class="btn btn-primary">Войти</button>
+        </div>
+    </header>
+
+    <main class="owner-page-main">
+        <section class="owner-header-section">
+            <div class="owner-header-left">
+                <h1>Настройки сайта</h1>
+                <div id="adminSettingsInfo" class="profile-info"></div>
+            </div>
+        </section>
+
+        <section class="owner-layout">
+            <div class="owner-layout-left">
+                <section class="admin-panel">
+                    <h3>Контакты и социальные сети</h3>
+                    <form id="adminConfigForm" class="admin-config-form">
+                        <input id="adminContactEmail" type="email" placeholder="Email для связи">
+                        <input id="adminTelegramUrl" type="text" placeholder="Ссылка на Telegram">
+                        <input id="adminInstagramUrl" type="text" placeholder="Ссылка на Instagram">
+                        <button type="submit" class="btn btn-primary">Сохранить контакты</button>
+                    </form>
+                </section>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="site-footer-left">
+            <div class="site-footer-title">Kafe Booking</div>
+            <div class="site-footer-rights">© Kafe Booking, все права защищены.</div>
+        </div>
+        <div class="site-footer-contact">
+            <div>Связаться: <a href="mailto:vamp.09.94@gmail.com" id="contactEmailLink">vamp.09.94@gmail.com</a></div>
+            <div class="site-footer-socials">
+                <a href="#" id="footerTelegramLink" target="_blank" rel="noopener noreferrer">Telegram</a>
+                <a href="#" id="footerInstagramLink" target="_blank" rel="noopener noreferrer">Instagram</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_JAVASCRIPT_KEY&libraries=services"></script>
+    <script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
+

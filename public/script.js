@@ -11,6 +11,7 @@ let currentCafeId = null;
 let currentCafeContact = null;
 let currentCafePostsOffset = 0;
 let currentCafePostsHasMore = false;
+let currentFeedCafes = [];
 const CAFE_POSTS_PAGE_SIZE = 5;
 const KAKAO_JS_KEY = "YOUR_KAKAO_JAVASCRIPT_KEY";
 
@@ -813,6 +814,7 @@ async function loadFeedCafes() {
         }
         const data = await res.json();
         const cafes = data && Array.isArray(data.cafes) ? data.cafes : [];
+        currentFeedCafes = cafes;
         listEl.innerHTML = "";
         const config = translations[currentLang] || translations.ko;
         cafes.slice(0, 5).forEach((cafe) => {
@@ -892,8 +894,74 @@ async function loadFeedCafes() {
 
             listEl.appendChild(item);
         });
+        updateSearchResults("");
     } catch (e) {
     }
+}
+
+function updateSearchResults(term) {
+    const container = document.getElementById("searchResults");
+    const list = document.getElementById("searchResultsList");
+    if (!container || !list) {
+        return;
+    }
+    const raw = term || "";
+    const value = raw.toLowerCase().trim();
+    const tokens = value
+        ? value
+              .split(/[,\s]+/)
+              .map((t) => t.trim())
+              .filter((t) => t.length > 0)
+        : [];
+    const cafesSource = Array.isArray(currentFeedCafes) ? currentFeedCafes : [];
+    const config = translations[currentLang] || translations.ko;
+    const citiesConfig = (config && config.cities) || {};
+    const matches = cafesSource.filter((cafe) => {
+        if (cafe.cityCode && currentCityCode && cafe.cityCode !== currentCityCode) {
+            return false;
+        }
+        if (!tokens.length) {
+            return true;
+        }
+        const cityCode = cafe.cityCode || "";
+        const cityName =
+            (cityCode && citiesConfig[cityCode]) || cityCode || "";
+        const haystack = (
+            (cafe.name || "") +
+            " " +
+            (cityName || "") +
+            " " +
+            (cafe.address || "")
+        ).toLowerCase();
+        return tokens.some((t) => haystack.includes(t));
+    });
+    list.innerHTML = "";
+    if (!matches.length) {
+        container.classList.add("hidden");
+        return;
+    }
+    matches.slice(0, 10).forEach((cafe) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "search-result-item";
+        const cityCode = cafe.cityCode || "";
+        const cityName =
+            (cityCode && citiesConfig[cityCode]) || cityCode || "";
+        let label = cafe.name || "";
+        if (cityName) {
+            label += " · " + cityName;
+        }
+        btn.textContent = label;
+        btn.addEventListener("click", () => {
+            if (cafe && cafe._id) {
+                window.location.href = "/cafe/" + encodeURIComponent(cafe._id);
+            } else {
+                openCafePage(cafe);
+            }
+        });
+        list.appendChild(btn);
+    });
+    container.classList.remove("hidden");
 }
 
 async function loadSiteConfig() {
@@ -926,6 +994,18 @@ async function loadSiteConfig() {
             } else {
                 instagramLink.classList.add("hidden");
             }
+        }
+        const adminEmailInput = document.getElementById("adminContactEmail");
+        const adminTelegramInput = document.getElementById("adminTelegramUrl");
+        const adminInstagramInput = document.getElementById("adminInstagramUrl");
+        if (adminEmailInput) {
+            adminEmailInput.value = data.contactEmail || "";
+        }
+        if (adminTelegramInput) {
+            adminTelegramInput.value = data.telegramUrl || "";
+        }
+        if (adminInstagramInput) {
+            adminInstagramInput.value = data.instagramUrl || "";
         }
     } catch (e) {
     }
@@ -3166,6 +3246,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (searchInput) {
         searchInput.addEventListener("input", () => {
             applyCitySearch(searchInput.value);
+            updateSearchResults(searchInput.value);
         });
     }
 
@@ -3174,17 +3255,20 @@ document.addEventListener("DOMContentLoaded", () => {
     if (headerCitySearch) {
         headerCitySearch.addEventListener("input", () => {
             applyCitySearch(headerCitySearch.value);
+            updateSearchResults(headerCitySearch.value);
         });
         headerCitySearch.addEventListener("keydown", (event) => {
             if (event.key === "Enter") {
                 event.preventDefault();
                 applyCitySearch(headerCitySearch.value);
+                updateSearchResults(headerCitySearch.value);
             }
         });
     }
     if (headerCitySearchButton && headerCitySearch) {
         headerCitySearchButton.addEventListener("click", () => {
             applyCitySearch(headerCitySearch.value);
+            updateSearchResults(headerCitySearch.value);
         });
     }
 
