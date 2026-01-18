@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kafe Booking — Профиль владельца</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="site-header-left">
+            <a href="/" class="logo">Kafe Booking</a>
+        </div>
+        <div class="site-header-right">
+            <button id="btnOpenAuth" class="btn btn-primary">Войти</button>
+        </div>
+    </header>
+
+    <main class="owner-page-main">
+        <section class="owner-header-section">
+            <div class="owner-header-left">
+                <h1>Профиль владельца кафе</h1>
+                <div id="ownerProfileSummary" class="profile-info"></div>
+            </div>
+            <div class="owner-header-right">
+                <div class="owner-stats">
+                    <div class="owner-stat-item">
+                        <div class="owner-stat-label">Кафе</div>
+                        <div id="ownerStatCafes" class="owner-stat-value">0</div>
+                    </div>
+                    <div class="owner-stat-item">
+                        <div class="owner-stat-label">Подписчики</div>
+                        <div id="ownerStatSubscribers" class="owner-stat-value">0</div>
+                    </div>
+                    <div class="owner-stat-item">
+                        <div class="owner-stat-label">Посты</div>
+                        <div id="ownerStatPosts" class="owner-stat-value">0</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="owner-layout">
+            <div class="owner-layout-left">
+                <div id="ownerMap" class="map-container owner-map"></div>
+                <section class="owner-panel" id="ownerPanel">
+                    <h2>Мои кафе</h2>
+                    <form id="ownerCafeForm" class="owner-cafe-form">
+                <input id="ownerCafeName" type="text" placeholder="Название кафе" required>
+                <select id="ownerCafeCity" required>
+                    <option value="seoul">Сеул</option>
+                    <option value="busan">Пусан</option>
+                    <option value="incheon">Инчхон</option>
+                    <option value="daegu">Тэгу</option>
+                    <option value="daejeon">Тэджон</option>
+                    <option value="gwangju">Гванчжу</option>
+                    <option value="ulsan">Ульсан</option>
+                    <option value="jeju">Чеджу</option>
+                    <option value="suwon">Сувон</option>
+                    <option value="seongnam">Соннам</option>
+                    <option value="goyang">Коян</option>
+                    <option value="yongin">Ёнин</option>
+                    <option value="changwon">Чханвон</option>
+                    <option value="cheongju">Чхонджу</option>
+                    <option value="jeonju">Чонджу</option>
+                    <option value="pohang">Пхохан</option>
+                    <option value="gumi">Куми</option>
+                </select>
+                <input id="ownerCafeAddress" type="text" placeholder="Адрес">
+                <input id="ownerCafePhone" type="tel" placeholder="Телефон">
+                <input id="ownerCafeOpeningHours" type="text" placeholder="Часы работы (JSON: {&quot;mon&quot;:&quot;09:00–18:00&quot;,&quot;sat&quot;:&quot;10:00–16:00&quot;})">
+                <input id="ownerCafeAverageCheck" type="number" placeholder="Средний чек (₩)">
+                <textarea id="ownerCafeDescription" placeholder="Описание" rows="2"></textarea>
+                <div class="owner-cafe-menu-block">
+                    <div class="owner-cafe-menu-header">Меню</div>
+                    <div id="ownerCafeMenuItems" class="owner-cafe-menu-items"></div>
+                    <button type="button" id="ownerCafeMenuAdd" class="btn btn-secondary btn-small">Добавить позицию</button>
+                </div>
+                <button type="submit" class="btn btn-primary">Добавить кафе</button>
+            </form>
+            <div id="ownerCafesList" class="owner-cafes-list"></div>
+                </section>
+            </div>
+
+            <div class="owner-layout-right">
+                <section class="owner-cafe-detail" id="ownerCafeDetailSection">
+                    <div class="owner-cafe-detail-header">
+                        <div>
+                            <h2 id="ownerCafeDetailName">Кафе</h2>
+                            <div id="ownerCafeDetailMeta" class="cafe-modal-meta"></div>
+                        </div>
+                        <button id="ownerCafeDetailBook" type="button" class="btn btn-primary btn-small">Бронировать / Доставка</button>
+                    </div>
+                    <div id="ownerCafeDetailBookingInfo" class="cafe-booking-info"></div>
+                    <div id="ownerCafeDetailDescription" class="cafe-modal-description"></div>
+                    <div class="owner-cafe-detail-photos">
+                        <h3>Фото</h3>
+                        <div id="ownerCafeDetailPhotos" class="owner-cafe-photos"></div>
+                    </div>
+                    <div class="owner-cafe-detail-posts">
+                        <h3>Посты кафе</h3>
+                        <form id="ownerPostForm" class="owner-post-form">
+                            <textarea id="ownerPostText" rows="3" placeholder="Напишите пост: новости, акции, меню..."></textarea>
+                            <div class="owner-post-form-row">
+                                <input id="ownerPostImage" type="file" accept="image/*">
+                                <button type="submit" class="btn btn-primary btn-small">Опубликовать</button>
+                            </div>
+                        </form>
+                        <div id="ownerCafePostsList" class="cafe-posts-list"></div>
+                    </div>
+                </section>
+            </div>
+        </section>
+    </main>
+
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" data-modal-id="loginModal">&times;</span>
+            <h2>로그인</h2>
+            <form id="loginForm" autocomplete="on">
+                <input id="loginIdentifier" type="text" placeholder="Телефон, email или логин" required autocomplete="username">
+                <input id="loginPassword" type="password" placeholder="비밀번호" required autocomplete="current-password">
+                <button type="submit" class="btn btn-primary">로그인</button>
+            </form>
+            <button id="btnKakaoLogin" type="button" class="btn btn-kakao">Kakao로 로그인</button>
+            <button id="btnOpenRegisterFromLogin" type="button" class="btn btn-outline btn-small">Регистрация</button>
+        </div>
+    </div>
+
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" data-modal-id="registerModal">&times;</span>
+            <h2 id="modalTitle">회원가입</h2>
+            <p id="registerSubtitle" class="register-subtitle"></p>
+            <form id="registerForm" autocomplete="on">
+                <select id="userType">
+                    <option value="user">Гость</option>
+                    <option value="owner">Владелец кафе</option>
+                </select>
+                <input id="registerName" type="text" placeholder="이름" required autocomplete="name">
+                <input id="registerEmail" type="email" placeholder="Email" required autocomplete="email">
+                <input id="registerCity" type="text" placeholder="Город (можно вводить вручную)" list="registerCitySuggestions">
+                <datalist id="registerCitySuggestions"></datalist>
+                <input id="registerPhone" type="tel" placeholder="Телефон (необязательно)" autocomplete="tel">
+                <input id="registerPassword" type="password" placeholder="비밀번호" required autocomplete="new-password">
+                <input id="registerPasswordConfirm" type="password" placeholder="비밀번호 확인" required autocomplete="new-password">
+                <button type="submit" class="btn btn-primary">가입하기</button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <div class="site-footer-left">
+            <div class="site-footer-title">Kafe Booking</div>
+            <div class="site-footer-rights">© Kafe Booking, все права защищены.</div>
+        </div>
+    </footer>
+
+    <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_JAVASCRIPT_KEY&libraries=services"></script>
+    <script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

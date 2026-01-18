@@ -532,6 +532,10 @@ app.get("/payments/toss/fail", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
+app.get("/owner", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "owner.html"));
+});
+
 app.post("/api/auth/request-phone-code", authLimiter, async (req, res) => {
   try {
     const { phone, email, channel } = req.body;
@@ -912,6 +916,81 @@ app.get("/api/profile/me", authMiddleware, async (req, res) => {
     res.json({ user });
   } catch (err) {
     console.error("profile-me error", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+app.post("/api/profile/update", authMiddleware, async (req, res) => {
+  try {
+    const { preferredLang, cityCode, currentPassword, newPassword } = req.body || {};
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ error: "user not found" });
+    }
+
+    let changed = false;
+
+    if (typeof preferredLang !== "undefined") {
+      const allowedLangs = ["ko", "en", "ru"];
+      if (!preferredLang || !allowedLangs.includes(preferredLang)) {
+        return res.status(400).json({ error: "invalid-lang" });
+      }
+      if (user.preferredLang !== preferredLang) {
+        user.preferredLang = preferredLang;
+        changed = true;
+      }
+    }
+
+    if (typeof cityCode === "string" && cityCode.trim()) {
+      if (user.cityCode !== cityCode) {
+        user.cityCode = cityCode;
+        changed = true;
+      }
+    }
+
+    const hasCurrentPassword = typeof currentPassword === "string" && currentPassword;
+    const hasNewPassword = typeof newPassword === "string" && newPassword;
+
+    if (hasCurrentPassword !== hasNewPassword) {
+      return res.status(400).json({ error: "password-fields-required" });
+    }
+
+    if (hasCurrentPassword && hasNewPassword) {
+      if (!user.passwordHash) {
+        return res.status(400).json({ error: "password-not-set" });
+      }
+      if (String(newPassword).length < 6) {
+        return res.status(400).json({ error: "password-too-short" });
+      }
+      const ok = await bcrypt.compare(currentPassword, user.passwordHash);
+      if (!ok) {
+        return res.status(400).json({ error: "invalid-current-password" });
+      }
+      user.passwordHash = await bcrypt.hash(newPassword, 10);
+      changed = true;
+    }
+
+    if (changed) {
+      await user.save();
+    }
+
+    res.json({
+      user: {
+        id: user._id,
+        phone: user.phone,
+        kakaoId: user.kakaoId,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        cityCode: user.cityCode,
+        preferredLang: user.preferredLang,
+        isAdmin: user.isAdmin,
+        subscriptionPlan: user.subscriptionPlan,
+        subscriptionExpiresAt: user.subscriptionExpiresAt
+      }
+    });
+  } catch (err) {
+    console.error("profile-update error", err);
     res.status(500).json({ error: "server error" });
   }
 });

@@ -29,19 +29,25 @@
                     <select id="headerProvinceSelect"></select>
                     <select id="headerCitySelect"></select>
                     <input id="headerCitySearch" type="text" placeholder="Поиск города">
+                    <button id="headerCitySearchButton" type="button" class="btn btn-secondary btn-small header-search-button">Поиск</button>
                 </div>
-                <button id="btnOpenAuth" class="btn btn-outline auth-inline-btn">Войти</button>
+                <div class="header-auth-row">
+                    <button id="btnOwnerDashboard" class="btn btn-secondary btn-small hidden">Кабинет владельца</button>
+                    <button id="btnOpenAuth" class="btn btn-outline auth-inline-btn">Войти</button>
+                </div>
             </div>
             <div id="profileSection" class="profile-section">
                 <h3 id="profileTitle">프로필</h3>
                 <div id="profileContent" class="profile-content">
                     <p id="profileStatus">로그인하지 않았습니다.</p>
+                    <div id="profilePhone" class="profile-phone"></div>
                     <div id="profileSubscriptions">
                         <div>Подписки на кафе:</div>
                         <div id="profileSubscriptionsList" class="profile-subscriptions-list"></div>
                     </div>
                 </div>
                 <div class="profile-actions">
+                    <button id="btnProfileSettings" class="btn btn-secondary btn-small">Настройки профиля</button>
                     <button id="btnBecomeOwner" class="btn btn-secondary hidden">카페 오너가 되기</button>
                 </div>
             </div>
@@ -105,31 +111,7 @@
             <div id="map" class="map-container"></div>
 
             <div class="main-feed">
-                <div class="feed-section feed-section-wide feed-section-stats">
-                    <h3>Статистика сайта</h3>
-                    <p class="feed-stats-row">
-                        Всего посещений: <span id="statsTotalVisits">0</span>
-                    </p>
-                    <p class="feed-stats-row">
-                        Сегодня: <span id="statsDailyVisits">0</span>
-                    </p>
-                </div>
-                <div class="feed-section">
-                    <h3>Новости Kafe AI</h3>
-                    <ul id="newsList" class="feed-news-list"></ul>
-                </div>
-                <div class="feed-section">
-                    <h3>Последние добавленные кафе</h3>
-                    <div id="feedCafesList" class="feed-cafes-list"></div>
-                </div>
-                <div class="feed-section">
-                    <h3>Рекомендации по городу</h3>
-                    <p id="feedRecommendText"></p>
-                </div>
-                <div class="feed-section">
-                    <h3>Реклама</h3>
-                    <div id="feedAdsContainer" class="feed-ads-container"></div>
-                </div>
+                <div id="mainIntegrationAd" class="integration-ad-block"></div>
             </div>
 
             <div id="cafeDetailPanel" class="cafe-detail hidden">
@@ -339,19 +321,43 @@
             <span class="close" data-modal-id="registerModal">&times;</span>
             <h2 id="modalTitle">회원가입</h2>
             <p id="registerSubtitle" class="register-subtitle"></p>
-            <form id="registerForm">
+            <form id="registerForm" autocomplete="on">
                 <select id="userType">
                     <option value="user">Гость</option>
                     <option value="owner">Владелец кафе</option>
                 </select>
-                <input id="registerName" type="text" placeholder="이름" required>
-                <input id="registerEmail" type="email" placeholder="Email" required>
+                <input id="registerName" type="text" placeholder="이름" required autocomplete="name">
+                <input id="registerEmail" type="email" placeholder="Email" required autocomplete="email">
                 <input id="registerCity" type="text" placeholder="Город (можно вводить вручную)" list="registerCitySuggestions">
                 <datalist id="registerCitySuggestions"></datalist>
-                <input id="registerPhone" type="tel" placeholder="Телефон (необязательно)">
-                <input id="registerPassword" type="password" placeholder="비밀번호" required>
-                <input id="registerPasswordConfirm" type="password" placeholder="비밀번호 확인" required>
+                <input id="registerPhone" type="tel" placeholder="Телефон (необязательно)" autocomplete="tel">
+                <input id="registerPassword" type="password" placeholder="비밀번호" required autocomplete="new-password">
+                <input id="registerPasswordConfirm" type="password" placeholder="비밀번호 확인" required autocomplete="new-password">
                 <button type="submit" class="btn btn-primary">가입하기</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="profileSettingsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" data-modal-id="profileSettingsModal">&times;</span>
+            <h2>Настройки профиля</h2>
+            <form id="profileSettingsForm">
+                <label for="profileLangSelect">Язык интерфейса</label>
+                <select id="profileLangSelect">
+                    <option value="ko">한국어</option>
+                    <option value="en">English</option>
+                    <option value="ru">Русский</option>
+                </select>
+                <label for="profileCitySelect">Город по умолчанию</label>
+                <select id="profileCitySelect"></select>
+                <label for="profileCurrentPassword">Текущий пароль</label>
+                <input id="profileCurrentPassword" type="password" placeholder="Текущий пароль">
+                <label for="profileNewPassword">Новый пароль</label>
+                <input id="profileNewPassword" type="password" placeholder="Новый пароль">
+                <label for="profileNewPasswordConfirm">Повтор нового пароля</label>
+                <input id="profileNewPasswordConfirm" type="password" placeholder="Повтор нового пароля">
+                <button type="submit" class="btn btn-primary">Сохранить</button>
             </form>
         </div>
     </div>
@@ -380,9 +386,9 @@
         <div class="modal-content">
             <span class="close" data-modal-id="loginModal">&times;</span>
             <h2>로그인</h2>
-            <form id="loginForm">
-                <input id="loginIdentifier" type="text" placeholder="Телефон, email или логин" required>
-                <input id="loginPassword" type="password" placeholder="비밀번호" required>
+            <form id="loginForm" autocomplete="on">
+                <input id="loginIdentifier" type="text" placeholder="Телефон, email или логин" required autocomplete="username">
+                <input id="loginPassword" type="password" placeholder="비밀번호" required autocomplete="current-password">
                 <button type="submit" class="btn btn-primary">로그인</button>
             </form>
             <button id="btnKakaoLogin" type="button" class="btn btn-kakao">Kakao로 로그인</button>
