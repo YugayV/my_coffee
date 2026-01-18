@@ -12,6 +12,8 @@
             <a href="/" class="logo">Kafe Booking</a>
         </div>
         <div class="site-header-right">
+            <button id="btnOwnerDashboard" class="btn btn-secondary btn-small hidden">Кабинет владельца</button>
+            <button id="btnAdminDashboard" class="btn btn-secondary btn-small hidden" onclick="window.location.href='/admin.html'">Админ панель</button>
             <button id="btnOpenAuth" class="btn btn-primary">Войти</button>
         </div>
     </header>
@@ -176,6 +178,9 @@
         </div>
     </footer>
 
+    <script>
+        window.KAKAO_JS_KEY = "YOUR_KAKAO_JAVASCRIPT_KEY";
+    </script>
     <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_JAVASCRIPT_KEY&libraries=services"></script>
     <script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script>
     <script src="script.js"></script>

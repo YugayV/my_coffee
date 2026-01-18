@@ -13,7 +13,7 @@ let currentCafePostsOffset = 0;
 let currentCafePostsHasMore = false;
 let currentFeedCafes = [];
 const CAFE_POSTS_PAGE_SIZE = 5;
-const KAKAO_JS_KEY = "YOUR_KAKAO_JAVASCRIPT_KEY";
+const KAKAO_JS_KEY = window.KAKAO_JS_KEY || "YOUR_KAKAO_JAVASCRIPT_KEY";
 
 const translations = {
     ko: {
@@ -801,9 +801,6 @@ async function loadNews() {
 
 async function loadFeedCafes() {
     const listEl = document.getElementById("feedCafesList");
-    if (!listEl) {
-        return;
-    }
     try {
         const res = await fetch(
             "/api/cafes" +
@@ -815,9 +812,14 @@ async function loadFeedCafes() {
         const data = await res.json();
         const cafes = data && Array.isArray(data.cafes) ? data.cafes : [];
         currentFeedCafes = cafes;
-        listEl.innerHTML = "";
         const config = translations[currentLang] || translations.ko;
-        cafes.slice(0, 5).forEach((cafe) => {
+        if (listEl) {
+            listEl.innerHTML = "";
+        }
+        cafes.slice(0, 10).forEach((cafe) => {
+            if (!listEl) {
+                return;
+            }
             const item = document.createElement("div");
             item.className = "feed-cafe-item";
 
@@ -1074,7 +1076,7 @@ function renderProfile() {
     const profilePhoneEl = document.getElementById("profilePhone");
     const headerAuthBtn = document.getElementById("btnOpenAuth");
     const ownerDashboardBtn = document.getElementById("btnOwnerDashboard");
-    const adminToggleBtn = document.getElementById("btnAdminToggle");
+    const adminDashboardBtn = document.getElementById("btnAdminDashboard");
     if (!statusEl) {
         return;
     }
@@ -1099,8 +1101,8 @@ function renderProfile() {
         if (ownerDashboardBtn) {
             ownerDashboardBtn.classList.add("hidden");
         }
-        if (adminToggleBtn) {
-            adminToggleBtn.classList.add("hidden");
+        if (adminDashboardBtn) {
+            adminDashboardBtn.classList.add("hidden");
         }
         return;
     }
@@ -1141,19 +1143,11 @@ function renderProfile() {
             ownerDashboardBtn.classList.add("hidden");
         }
     }
-    if (adminToggleBtn) {
+    if (adminDashboardBtn) {
         if (currentUser.isAdmin) {
-            adminToggleBtn.classList.remove("hidden");
-            if (window.location.pathname === "/") {
-                adminToggleBtn.textContent =
-                    adminPanel && !adminPanel.classList.contains("hidden")
-                        ? "Обычный режим"
-                        : "Режим администратора";
-            } else {
-                adminToggleBtn.classList.add("hidden");
-            }
+            adminDashboardBtn.classList.remove("hidden");
         } else {
-            adminToggleBtn.classList.add("hidden");
+            adminDashboardBtn.classList.add("hidden");
         }
     }
     if (profilePhoneEl) {
@@ -2237,7 +2231,15 @@ function applyLanguage(lang) {
                 recommendText.textContent = rec;
             }
             if (feedRecommendText) {
-                feedRecommendText.textContent = rec;
+                let suffix = "";
+                if (currentLang === "ru") {
+                    suffix = " · последние 10 кафе в выбранном городе";
+                } else if (currentLang === "en") {
+                    suffix = " · last 10 cafes in the selected city";
+                } else if (currentLang === "ko") {
+                    suffix = " · 선택한 도시의 최근 등록 카페 10곳";
+                }
+                feedRecommendText.textContent = rec + suffix;
             }
         }
     }
@@ -3002,6 +3004,8 @@ async function reloadAdminData() {
 }
 
 async function adminLoginPrompt() {
+    const email = window.prompt("Email:");
+    if (!email) return;
     const password = window.prompt("Введите пароль администратора");
     if (!password) {
         return;
@@ -3013,7 +3017,7 @@ async function adminLoginPrompt() {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                email: "vamp.09.94@gmail.com",
+                email,
                 password
             })
         });
@@ -3445,7 +3449,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnKakaoLogin = document.getElementById("btnKakaoLogin");
     const btnProfileSettings = document.getElementById("btnProfileSettings");
     const btnOwnerDashboard = document.getElementById("btnOwnerDashboard");
-    const btnAdminToggle = document.getElementById("btnAdminToggle");
+    const adminDashboardBtn = document.getElementById("btnAdminDashboard");
     if (btnOpenAuth) {
         btnOpenAuth.addEventListener("click", () => {
             if (currentUser) {
@@ -3463,22 +3467,13 @@ document.addEventListener("DOMContentLoaded", () => {
             window.location.href = "/owner";
         });
     }
-    if (btnAdminToggle) {
-        btnAdminToggle.addEventListener("click", () => {
-            const adminPanel = document.getElementById("adminPanel");
-            if (!adminPanel || !currentUser || !currentUser.isAdmin) {
+    if (adminDashboardBtn) {
+        adminDashboardBtn.addEventListener("click", () => {
+            if (!currentUser || !currentUser.isAdmin) {
                 adminLoginPrompt();
                 return;
             }
-            const isVisible = !adminPanel.classList.contains("hidden");
-            if (isVisible) {
-                adminPanel.classList.add("hidden");
-                btnAdminToggle.textContent = "Режим администратора";
-            } else {
-                adminPanel.classList.remove("hidden");
-                btnAdminToggle.textContent = "Обычный режим";
-                reloadAdminData();
-            }
+            window.location.href = "/admin.html";
         });
     }
     if (btnKakaoLogin) {

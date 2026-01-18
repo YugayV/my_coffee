@@ -36,6 +36,7 @@ const SMTP_PORT = process.env.SMTP_PORT;
 const SMTP_USER = process.env.SMTP_USER;
 const SMTP_PASS = process.env.SMTP_PASS;
 const SMTP_FROM_EMAIL = process.env.SMTP_FROM_EMAIL || ADMIN_EMAIL || "";
+const KAKAO_JS_KEY = process.env.KAKAO_JS_KEY || "YOUR_KAKAO_JAVASCRIPT_KEY";
 
 if (!JWT_SECRET) {
   throw new Error("JWT_SECRET is required");
@@ -580,25 +581,37 @@ function adminOnly(req, res, next) {
   next();
 }
 
+function sendHtmlWithKakao(fileName, res) {
+  const filePath = path.join(__dirname, "public", fileName);
+  fs.readFile(filePath, "utf8", (err, content) => {
+    if (err) {
+      res.status(500).send("server error");
+      return;
+    }
+    const replaced = content.replace(/YOUR_KAKAO_JAVASCRIPT_KEY/g, KAKAO_JS_KEY);
+    res.send(replaced);
+  });
+}
+
 app.get("/", async (req, res) => {
   await registerVisit();
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  sendHtmlWithKakao("index.html", res);
 });
 
 app.get("/cafe/:id", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  sendHtmlWithKakao("index.html", res);
 });
 
 app.get("/payments/toss/success", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  sendHtmlWithKakao("index.html", res);
 });
 
 app.get("/payments/toss/fail", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  sendHtmlWithKakao("index.html", res);
 });
 
 app.get("/owner", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "owner.html"));
+  sendHtmlWithKakao("owner.html", res);
 });
 
 app.post("/api/auth/request-phone-code", authLimiter, async (req, res) => {
@@ -1360,22 +1373,6 @@ app.get("/api/ads", async (req, res) => {
     const { city } = req.query;
     const cityCode = city || null;
     const query = { active: true };
-    let hideAds = false;
-    const header = req.headers.authorization;
-    if (header) {
-      const [type, token] = header.split(" ");
-      if (type === "Bearer" && token) {
-        try {
-          const payload = jwt.verify(token, JWT_SECRET);
-          if (payload.subscriptionPlan === "client" || payload.subscriptionPlan === "coffee") {
-            hideAds = true;
-          }
-        } catch (e) {}
-      }
-    }
-    if (hideAds) {
-      return res.json({ ads: [] });
-    }
     if (cityCode) {
       query.cityCode = { $in: [cityCode, "all"] };
     }
@@ -1389,24 +1386,16 @@ app.get("/api/ads", async (req, res) => {
 
 app.get("/api/ads/config", async (req, res) => {
   try {
-    let showAds = true;
+    let subscriptionPlan = null;
     const header = req.headers.authorization;
     if (header) {
       const parts = header.split(" ");
       if (parts[0] === "Bearer" && parts[1]) {
         try {
           const payload = jwt.verify(parts[1], JWT_SECRET);
-          if (payload.subscriptionPlan === "client" || payload.subscriptionPlan === "coffee") {
-            showAds = false;
-          }
+          subscriptionPlan = payload.subscriptionPlan || null;
         } catch (e) {}
       }
-    }
-    if (!showAds) {
-      return res.json({
-        showAds: false,
-        provider: ADS_PROVIDER || "local"
-      });
     }
     let provider = ADS_PROVIDER || "local";
     if (req.query.provider && typeof req.query.provider === "string") {
@@ -1414,6 +1403,12 @@ app.get("/api/ads/config", async (req, res) => {
       if (p === "adsense" || p === "kakao" || p === "naver" || p === "local") {
         provider = p;
       }
+    }
+    if (subscriptionPlan === "client" || subscriptionPlan === "coffee") {
+      return res.json({
+        showAds: true,
+        provider: "local"
+      });
     }
     if (provider === "adsense" && ADSENSE_CLIENT_ID && ADSENSE_SLOT_ID) {
       return res.json({

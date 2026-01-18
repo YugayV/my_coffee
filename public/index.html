@@ -33,7 +33,7 @@
                 </div>
                 <div class="header-auth-row">
                     <button id="btnOwnerDashboard" class="btn btn-secondary btn-small hidden">Кабинет владельца</button>
-                    <button id="btnAdminToggle" class="btn btn-secondary btn-small hidden">Режим администратора</button>
+                    <button id="btnAdminDashboard" class="btn btn-secondary btn-small hidden" onclick="window.location.href='/admin.html'">Админ панель</button>
                     <button id="btnOpenAuth" class="btn btn-outline auth-inline-btn">Войти</button>
                 </div>
             </div>
@@ -63,71 +63,19 @@
         </div>
 
         <div class="main-content">
-            <div class="top-city-bar">
-                <span id="topCityLabel">Город:</span>
-                <select id="topCitySelect">
-                    <option value="seoul">Сеул</option>
-                    <option value="busan">Пусан</option>
-                    <option value="incheon">Инчхон</option>
-                    <option value="daegu">Тэгу</option>
-                    <option value="daejeon">Тэджон</option>
-                    <option value="gwangju">Гванчжу</option>
-                    <option value="ulsan">Ульсан</option>
-                    <option value="jeju">Чеджу</option>
-                    <option value="suwon">Сувон</option>
-                    <option value="seongnam">Соннам</option>
-                    <option value="goyang">Коян</option>
-                    <option value="yongin">Ёнин</option>
-                    <option value="changwon">Чханвон</option>
-                    <option value="cheongju">Чхонджу</option>
-                    <option value="jeonju">Чонджу</option>
-                    <option value="pohang">Пхохан</option>
-                    <option value="gumi">Куми</option>
-                </select>
-            </div>
             <div class="homepage-news-section">
                 <h3>Новое на сайте</h3>
                 <ul id="newsList" class="homepage-news-list"></ul>
             </div>
-            <div class="hero-slider">
-                <div class="slider-container">
-                    <div class="slide active">
-                        <img src="https://via.placeholder.com/800x400/ff6b6b/ffffff?text=New+Cafe+Seoul" alt="New Cafe in Seoul">
-                        <div class="slide-content">
-                            <h2>서울 최신 카페</h2>
-                            <p>최근 오픈한 프리미엄 카페</p>
-                        </div>
-                    </div>
-                    <div class="slide">
-                        <img src="https://via.placeholder.com/800x400/4ecdc4/ffffff?text=Busan+Cafe" alt="Busan Cafe">
-                        <div class="slide-content">
-                            <h2>부산 바다뷰 카페</h2>
-                            <p>바다를 보며 즐기는 커피</p>
-                        </div>
-                    </div>
-                    <div class="slide">
-                        <img src="https://via.placeholder.com/800x400/45b7d1/ffffff?text=Traditional+Korean" alt="Traditional Korean Cafe">
-                        <div class="slide-content">
-                            <h2>전통 한국식 카페</h2>
-                            <p>한국의 전통 차 문화를 경험하세요</p>
-                        </div>
-                    </div>
-                </div>
-                <button class="slider-btn prev" onclick="prevSlide()">‹</button>
-                <button class="slider-btn next" onclick="nextSlide()">›</button>
+            <div class="main-feed-header">
+                <h3>Рекламные предложения в выбранном городе</h3>
             </div>
-
-            <div id="map" class="map-container"></div>
-
             <div class="main-feed">
                 <div id="mainIntegrationAd" class="integration-ad-block"></div>
                 <div id="feedAdsContainer" class="feed-ads-container"></div>
-                <div class="feed-cafes-block">
-                    <h3>Новые кафе в городе</h3>
-                    <p id="feedRecommendText" class="feed-recommend-text"></p>
-                    <div id="feedCafesList" class="feed-cafes-list"></div>
-                </div>
             </div>
+
+            <div id="map" class="map-container"></div>
 
             <div id="cafeDetailPanel" class="cafe-detail hidden">
                 <div class="cafe-detail-header">
@@ -309,87 +257,24 @@
                 </form>
                 <div id="ownerCafesList" class="owner-cafes-list"></div>
             </div>
-            <div id="adminPanel" class="admin-panel hidden">
-                <h3>Админ панель</h3>
-                <button id="btnAdminSettings" class="btn btn-secondary btn-small admin-settings-button">Настройки (отдельная страница)</button>
-                <div class="admin-tabs">
-                    <button class="admin-tab-btn active" data-tab="users">Пользователи</button>
-                    <button class="admin-tab-btn" data-tab="cafes">Кафе</button>
-                    <button class="admin-tab-btn" data-tab="ads">Реклама</button>
-                    <button class="admin-tab-btn" data-tab="news">Новости</button>
-                    <button class="admin-tab-btn" data-tab="verifications">Верификация</button>
-                </div>
-                <div id="adminUsersTab" class="admin-tab-content active">
-                    <div id="adminUsersList" class="admin-list"></div>
-                </div>
-                <div id="adminCafesTab" class="admin-tab-content">
-                    <div id="adminCafesList" class="admin-list"></div>
-                </div>
-                <div id="adminAdsTab" class="admin-tab-content">
-                    <div id="adminAdsList" class="admin-list"></div>
-                    <form id="adminAdForm" class="admin-ad-form">
-                        <input id="adminAdTitle" type="text" placeholder="Заголовок рекламы" required>
-                        <textarea id="adminAdText" rows="2" placeholder="Текст рекламы"></textarea>
-                        <input id="adminAdCityCode" type="text" placeholder="Код города (или all)">
-                        <input id="adminAdUrl" type="text" placeholder="Ссылка">
-                        <input id="adminAdWeight" type="number" placeholder="Вес (1 по умолчанию)">
-                        <button type="submit" class="btn btn-primary">Создать рекламу</button>
-                    </form>
-                </div>
-            <div id="adminNewsTab" class="admin-tab-content">
-                <div id="adminNewsList" class="admin-list"></div>
-                <form id="adminNewsForm" class="admin-news-form">
-                        <input id="adminNewsTitle" type="text" placeholder="Заголовок новости" required>
-                        <textarea id="adminNewsText" rows="3" placeholder="Текст новости" required></textarea>
-                        <select id="adminNewsLang">
-                            <option value="ru">Русский</option>
-                            <option value="ko">한국어</option>
-                            <option value="en">English</option>
-                        </select>
-                        <button type="submit" class="btn btn-primary">Опубликовать новость</button>
-                    </form>
-                </div>
-                <div id="adminVerificationsTab" class="admin-tab-content">
-                    <div id="adminVerificationsList" class="admin-list"></div>
-                </div>
-            </div>
-            <div class="cafe-list">
-                <h4 id="selectedCityTitle">선택된 도시: 서울</h4>
-                <div class="cafe-items">
-                    <div class="cafe-item" onclick="window.location.href='/cafe/demo1'">
-                        <img src="https://via.placeholder.com/60x60/ff6b6b/ffffff?text=C1" alt="Cafe 1">
-                        <div class="cafe-info">
-                            <h5>커피빈 강남점</h5>
-                            <p>⭐ 4.5 (123 reviews)</p>
-                        </div>
-                    </div>
-                    <div class="cafe-item" onclick="window.location.href='/cafe/demo2'">
-                        <img src="https://via.placeholder.com/60x60/4ecdc4/ffffff?text=C2" alt="Cafe 2">
-                            <div class="cafe-info">
-                            <h5>스타벅스 명동점</h5>
-                            <p>⭐ 4.3 (89 reviews)</p>
-                        </div>
-                    </div>
-                    <div class="cafe-item" onclick="window.location.href='/cafe/demo3'">
-                        <img src="https://via.placeholder.com/60x60/45b7d1/ffffff?text=C3" alt="Cafe 3">
-                        <div class="cafe-info">
-                            <h5>이디야 홍대점</h5>
-                            <p>⭐ 4.7 (156 reviews)</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <div class="city-recommendations">
-                <h4 id="recommendTitle">추천 지역</h4>
-                <p id="recommendText">서울에서는 강남, 홍대, 이태원 주변 카페를 추천합니다.</p>
+            <div class="stats-panel">
+                <h4>Статистика платформы</h4>
+                <div class="stats-row">
+                    <span>Всего визитов:</span>
+                    <span id="statsTotalVisits">—</span>
+                </div>
+                <div class="stats-row">
+                    <span>Визитов сегодня:</span>
+                    <span id="statsDailyVisits">—</span>
+                </div>
             </div>
 
             <div class="ad-banner">
                 <div class="ad-content">
-                    <h3 id="adTitle">특별 할인 이벤트!</h3>
-                    <p id="adText">첫 예약 시 20% 할인</p>
-                    <button id="adButton" class="btn btn-ad">자세히 보기</button>
+                    <h3 id="adTitle">Реклама партнёров</h3>
+                    <p id="adText">Динамический блок рекламы (AdSense / локальные объявления).</p>
+                    <button id="adButton" class="btn btn-ad">Подробнее</button>
                 </div>
             </div>
         </div>
@@ -489,6 +374,9 @@
         </div>
     </footer>
 
+    <script>
+        window.KAKAO_JS_KEY = "YOUR_KAKAO_JAVASCRIPT_KEY";
+    </script>
     <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_JAVASCRIPT_KEY&libraries=services"></script>
     <script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script>
     <script src="script.js"></script>

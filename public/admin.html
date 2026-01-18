@@ -26,14 +26,59 @@
 
         <section class="owner-layout">
             <div class="owner-layout-left">
-                <section class="admin-panel">
-                    <h3>Контакты и социальные сети</h3>
-                    <form id="adminConfigForm" class="admin-config-form">
-                        <input id="adminContactEmail" type="email" placeholder="Email для связи">
-                        <input id="adminTelegramUrl" type="text" placeholder="Ссылка на Telegram">
-                        <input id="adminInstagramUrl" type="text" placeholder="Ссылка на Instagram">
-                        <button type="submit" class="btn btn-primary">Сохранить контакты</button>
-                    </form>
+                <section class="admin-panel" id="adminPanel">
+                    <h3>Админ панель</h3>
+                    <div class="admin-tabs">
+                        <button class="admin-tab-btn active" data-tab="users">Пользователи</button>
+                        <button class="admin-tab-btn" data-tab="cafes">Кафе</button>
+                        <button class="admin-tab-btn" data-tab="ads">Реклама</button>
+                        <button class="admin-tab-btn" data-tab="news">Новости</button>
+                        <button class="admin-tab-btn" data-tab="verifications">Верификация</button>
+                        <button class="admin-tab-btn" data-tab="config">Настройки</button>
+                    </div>
+
+                    <div id="adminUsersTab" class="admin-tab-content active">
+                        <div id="adminUsersList" class="admin-list"></div>
+                    </div>
+                    <div id="adminCafesTab" class="admin-tab-content">
+                        <div id="adminCafesList" class="admin-list"></div>
+                    </div>
+                    <div id="adminAdsTab" class="admin-tab-content">
+                        <div id="adminAdsList" class="admin-list"></div>
+                        <form id="adminAdForm" class="admin-ad-form">
+                            <input id="adminAdTitle" type="text" placeholder="Заголовок рекламы" required>
+                            <textarea id="adminAdText" rows="2" placeholder="Текст рекламы"></textarea>
+                            <input id="adminAdCityCode" type="text" placeholder="Код города (или all)">
+                            <input id="adminAdUrl" type="text" placeholder="Ссылка">
+                            <input id="adminAdWeight" type="number" placeholder="Вес (1 по умолчанию)">
+                            <button type="submit" class="btn btn-primary">Создать рекламу</button>
+                        </form>
+                    </div>
+                    <div id="adminNewsTab" class="admin-tab-content">
+                        <div id="adminNewsList" class="admin-list"></div>
+                        <form id="adminNewsForm" class="admin-news-form">
+                            <input id="adminNewsTitle" type="text" placeholder="Заголовок новости" required>
+                            <textarea id="adminNewsText" rows="3" placeholder="Текст новости" required></textarea>
+                            <select id="adminNewsLang">
+                                <option value="ru">Русский</option>
+                                <option value="ko">한국어</option>
+                                <option value="en">English</option>
+                            </select>
+                            <button type="submit" class="btn btn-primary">Опубликовать новость</button>
+                        </form>
+                    </div>
+                    <div id="adminVerificationsTab" class="admin-tab-content">
+                        <div id="adminVerificationsList" class="admin-list"></div>
+                    </div>
+                    <div id="adminConfigTab" class="admin-tab-content">
+                        <h3>Контакты и социальные сети</h3>
+                        <form id="adminConfigForm" class="admin-config-form">
+                            <input id="adminContactEmail" type="email" placeholder="Email для связи">
+                            <input id="adminTelegramUrl" type="text" placeholder="Ссылка на Telegram">
+                            <input id="adminInstagramUrl" type="text" placeholder="Ссылка на Instagram">
+                            <button type="submit" class="btn btn-primary">Сохранить контакты</button>
+                        </form>
+                    </div>
                 </section>
             </div>
         </section>
@@ -53,9 +98,11 @@
         </div>
     </footer>
 
+    <script>
+        window.KAKAO_JS_KEY = "YOUR_KAKAO_JAVASCRIPT_KEY";
+    </script>
     <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_JAVASCRIPT_KEY&libraries=services"></script>
     <script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
-
