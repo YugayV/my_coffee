@@ -1532,8 +1532,32 @@ body {
         padding: 10px 10px;
     }
 
+    .main-feed-header {
+        margin-top: 12px;
+        margin-bottom: 6px;
+    }
+
+    .main-feed-header h3 {
+        font-size: 15px;
+    }
+
     .integration-ad-block {
         min-height: 200px;
+        padding: 10px 12px;
+        border-radius: 14px;
+    }
+
+    .main-feed {
+        margin-top: 12px;
+    }
+
+    .stats-panel,
+    .ad-banner {
+        margin-top: 12px;
+    }
+
+    .feed-ads-container {
+        gap: 4px;
     }
 
     .feed-cafe-item {
