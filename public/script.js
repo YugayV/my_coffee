@@ -2422,13 +2422,18 @@ async function loadOwnerCafes() {
 
             item.addEventListener("click", async () => {
                 currentCafeId = cafe._id;
+                const stickyLabel = document.getElementById("ownerStickyCafeLabel");
                 const detailNameEl = document.getElementById("ownerCafeDetailName");
                 const detailMetaEl = document.getElementById("ownerCafeDetailMeta");
                 const detailDescEl = document.getElementById("ownerCafeDetailDescription");
                 const detailBookingEl = document.getElementById("ownerCafeDetailBookingInfo");
                 const detailPhotosEl = document.getElementById("ownerCafeDetailPhotos");
+                const cafeName = cafe.name || "Кафе";
                 if (detailNameEl) {
-                    detailNameEl.textContent = cafe.name || "Кафе";
+                    detailNameEl.textContent = cafeName;
+                }
+                if (stickyLabel) {
+                    stickyLabel.textContent = cafeName;
                 }
                 if (detailMetaEl) {
                     const cfg = translations[currentLang] || translations.ko;
@@ -2552,7 +2557,7 @@ async function loadAdminUsers() {
         listEl.innerHTML = "";
         users.forEach((user) => {
             const div = document.createElement("div");
-            div.className = "admin-list-item";
+            div.className = "admin-list-item admin-list-item-collapsible admin-list-item-collapsed";
             const plan = user.subscriptionPlan || "none";
             const role = user.role || "user";
             const name = user.name || "";
@@ -2595,8 +2600,30 @@ async function loadAdminUsers() {
                 });
                 buttonsWrap.appendChild(b);
             });
+
+            const bodyWrap = document.createElement("div");
+            bodyWrap.className = "admin-list-body";
+            bodyWrap.appendChild(buttonsWrap);
+
+            const toggleHint = document.createElement("div");
+            toggleHint.className = "admin-list-item-toggle";
+            toggleHint.textContent = "Нажмите, чтобы развернуть";
+
             div.appendChild(mainText);
-            div.appendChild(buttonsWrap);
+            div.appendChild(toggleHint);
+            div.appendChild(bodyWrap);
+
+            mainText.addEventListener("click", () => {
+                const collapsed = div.classList.contains("admin-list-item-collapsed");
+                if (collapsed) {
+                    div.classList.remove("admin-list-item-collapsed");
+                    toggleHint.textContent = "Нажмите, чтобы свернуть";
+                } else {
+                    div.classList.add("admin-list-item-collapsed");
+                    toggleHint.textContent = "Нажмите, чтобы развернуть";
+                }
+            });
+
             listEl.appendChild(div);
         });
     } catch (e) {
@@ -2648,7 +2675,7 @@ async function loadAdminCafes() {
         cafes.forEach((cafe) => {
             const div = document.createElement("div");
             div.className =
-                "admin-list-item " +
+                "admin-list-item admin-list-item-collapsible admin-list-item-collapsed " +
                 (cafe.isActive ? "admin-list-item-active" : "admin-list-item-inactive");
             const rowTop = document.createElement("div");
             rowTop.className = "admin-list-row-top";
@@ -2668,10 +2695,40 @@ async function loadAdminCafes() {
             statusPill.appendChild(statusText);
             rowTop.appendChild(mainText);
             rowTop.appendChild(statusPill);
-            div.appendChild(rowTop);
-            div.addEventListener("click", async () => {
+
+            const bodyWrap = document.createElement("div");
+            bodyWrap.className = "admin-list-body";
+
+            const toggleBtn = document.createElement("button");
+            toggleBtn.type = "button";
+            toggleBtn.className = "admin-news-btn";
+            toggleBtn.textContent = cafe.isActive ? "Выключить" : "Включить";
+            toggleBtn.addEventListener("click", async (e) => {
+                e.stopPropagation();
                 await toggleCafeActive(cafe._id, !!cafe.isActive);
             });
+
+            bodyWrap.appendChild(toggleBtn);
+
+            const toggleHint = document.createElement("div");
+            toggleHint.className = "admin-list-item-toggle";
+            toggleHint.textContent = "Нажмите, чтобы развернуть";
+
+            div.appendChild(rowTop);
+            div.appendChild(toggleHint);
+            div.appendChild(bodyWrap);
+
+            rowTop.addEventListener("click", () => {
+                const collapsed = div.classList.contains("admin-list-item-collapsed");
+                if (collapsed) {
+                    div.classList.remove("admin-list-item-collapsed");
+                    toggleHint.textContent = "Нажмите, чтобы свернуть";
+                } else {
+                    div.classList.add("admin-list-item-collapsed");
+                    toggleHint.textContent = "Нажмите, чтобы развернуть";
+                }
+            });
+
             listEl.appendChild(div);
         });
     } catch (e) {
@@ -2719,7 +2776,7 @@ async function loadAdminAds() {
         ads.forEach((ad) => {
             const div = document.createElement("div");
             div.className =
-                "admin-list-item " +
+                "admin-list-item admin-list-item-collapsible admin-list-item-collapsed " +
                 (ad.active ? "admin-list-item-active" : "admin-list-item-inactive");
             const rowTop = document.createElement("div");
             rowTop.className = "admin-list-row-top";
@@ -2747,10 +2804,40 @@ async function loadAdminAds() {
             statusPill.appendChild(statusText);
             rowTop.appendChild(mainText);
             rowTop.appendChild(statusPill);
-            div.appendChild(rowTop);
-            div.addEventListener("click", async () => {
+
+            const bodyWrap = document.createElement("div");
+            bodyWrap.className = "admin-list-body";
+
+            const toggleBtn = document.createElement("button");
+            toggleBtn.type = "button";
+            toggleBtn.className = "admin-news-btn";
+            toggleBtn.textContent = ad.active ? "Выключить" : "Включить";
+            toggleBtn.addEventListener("click", async (e) => {
+                e.stopPropagation();
                 await toggleAdActive(ad._id, !!ad.active);
             });
+
+            bodyWrap.appendChild(toggleBtn);
+
+            const toggleHint = document.createElement("div");
+            toggleHint.className = "admin-list-item-toggle";
+            toggleHint.textContent = "Нажмите, чтобы развернуть";
+
+            div.appendChild(rowTop);
+            div.appendChild(toggleHint);
+            div.appendChild(bodyWrap);
+
+            rowTop.addEventListener("click", () => {
+                const collapsed = div.classList.contains("admin-list-item-collapsed");
+                if (collapsed) {
+                    div.classList.remove("admin-list-item-collapsed");
+                    toggleHint.textContent = "Нажмите, чтобы свернуть";
+                } else {
+                    div.classList.add("admin-list-item-collapsed");
+                    toggleHint.textContent = "Нажмите, чтобы развернуть";
+                }
+            });
+
             listEl.appendChild(div);
         });
     } catch (e) {
@@ -2865,7 +2952,7 @@ async function loadAdminVerifications() {
         listEl.innerHTML = "";
         items.forEach((item) => {
             const row = document.createElement("div");
-            row.className = "admin-list-item";
+            row.className = "admin-list-item admin-list-item-collapsible admin-list-item-collapsed";
             const main = document.createElement("div");
             const channel = item.channel || "sms";
             const dest = item.email || item.phone || "";
@@ -2882,10 +2969,12 @@ async function loadAdminVerifications() {
                 " / attempts=" +
                 (item.attempts || 0);
             const controls = document.createElement("div");
+            controls.className = "admin-list-body";
             const deleteBtn = document.createElement("button");
             deleteBtn.type = "button";
             deleteBtn.textContent = "Удалить";
-            deleteBtn.addEventListener("click", async () => {
+            deleteBtn.addEventListener("click", async (e) => {
+                e.stopPropagation();
                 if (
                     !window.confirm(
                         currentLang === "ru"
@@ -2914,9 +3003,27 @@ async function loadAdminVerifications() {
                 } catch (e) {
                 }
             });
+
             controls.appendChild(deleteBtn);
+
+            const toggleHint = document.createElement("div");
+            toggleHint.className = "admin-list-item-toggle";
+            toggleHint.textContent = "Нажмите, чтобы развернуть";
+
             row.appendChild(main);
+            row.appendChild(toggleHint);
             row.appendChild(controls);
+
+            main.addEventListener("click", () => {
+                const collapsed = row.classList.contains("admin-list-item-collapsed");
+                if (collapsed) {
+                    row.classList.remove("admin-list-item-collapsed");
+                    toggleHint.textContent = "Нажмите, чтобы свернуть";
+                } else {
+                    row.classList.add("admin-list-item-collapsed");
+                    toggleHint.textContent = "Нажмите, чтобы развернуть";
+                }
+            });
             listEl.appendChild(row);
         });
     } catch (e) {
@@ -4018,6 +4125,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const ownerCafeForm = document.getElementById("ownerCafeForm");
     if (ownerCafeForm) {
+        const ownerStickyAddCafe = document.getElementById("ownerStickyAddCafe");
+        if (ownerStickyAddCafe) {
+            ownerStickyAddCafe.addEventListener("click", () => {
+                ownerCafeForm.scrollIntoView({ behavior: "smooth", block: "start" });
+            });
+        }
         ownerCafeForm.addEventListener("submit", async (e) => {
             e.preventDefault();
             if (!authToken) {
@@ -4600,6 +4713,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const ownerPostForm = document.getElementById("ownerPostForm");
     if (ownerPostForm) {
+        const ownerStickyAddPost = document.getElementById("ownerStickyAddPost");
+        if (ownerStickyAddPost) {
+            ownerStickyAddPost.addEventListener("click", () => {
+                ownerPostForm.scrollIntoView({ behavior: "smooth", block: "start" });
+            });
+        }
         ownerPostForm.addEventListener("submit", async (e) => {
             e.preventDefault();
             if (!authToken) {
