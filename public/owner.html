@@ -71,6 +71,7 @@
                 <input id="ownerCafeOpeningHours" type="text" placeholder="Часы работы (JSON: {&quot;mon&quot;:&quot;09:00–18:00&quot;,&quot;sat&quot;:&quot;10:00–16:00&quot;})">
                 <input id="ownerCafeAverageCheck" type="number" placeholder="Средний чек (₩)">
                 <textarea id="ownerCafeDescription" placeholder="Описание" rows="2"></textarea>
+                <textarea id="ownerCafeBookingInfo" placeholder="Информация о бронировании/доставке (как связаться, условия)" rows="2"></textarea>
                 <div class="owner-cafe-menu-block">
                     <div class="owner-cafe-menu-header">Меню</div>
                     <div id="ownerCafeMenuItems" class="owner-cafe-menu-items"></div>
@@ -89,25 +90,36 @@
                             <h2 id="ownerCafeDetailName">Кафе</h2>
                             <div id="ownerCafeDetailMeta" class="cafe-modal-meta"></div>
                         </div>
-                        <button id="ownerCafeDetailBook" type="button" class="btn btn-primary btn-small">Бронировать / Доставка</button>
+                    </div>
+                    <div class="owner-cafe-detail-layout">
+                        <div class="owner-cafe-detail-left">
+                            <div class="owner-cafe-main-photo">
+                                <div id="ownerCafeMainPhoto" class="owner-cafe-main-photo-inner"></div>
+                                <div id="ownerCafeDetailPhotos" class="owner-cafe-photos"></div>
+                            </div>
+                            <div id="ownerCafeDetailInfo" class="owner-cafe-detail-info"></div>
+                            <button id="ownerCafeDetailBook" type="button" class="btn btn-primary btn-small owner-cafe-book-button">
+                                Забронировать столик
+                            </button>
+                        </div>
+                        <div class="owner-cafe-detail-center">
+                            <h3>Лента кафе</h3>
+                            <form id="ownerPostForm" class="owner-post-form">
+                                <textarea id="ownerPostText" rows="3" placeholder="Напишите пост: новости, акции, меню..."></textarea>
+                                <div class="owner-post-form-row">
+                                    <input id="ownerPostImage" type="file" accept="image/*">
+                                    <button type="submit" class="btn btn-primary btn-small">Опубликовать</button>
+                                </div>
+                            </form>
+                            <div id="ownerCafePostsList" class="cafe-posts-list"></div>
+                        </div>
+                        <div class="owner-cafe-detail-right">
+                            <h3>Меню</h3>
+                            <div id="ownerCafeDetailMenu" class="owner-cafe-detail-menu"></div>
+                        </div>
                     </div>
                     <div id="ownerCafeDetailBookingInfo" class="cafe-booking-info"></div>
                     <div id="ownerCafeDetailDescription" class="cafe-modal-description"></div>
-                    <div class="owner-cafe-detail-photos">
-                        <h3>Фото</h3>
-                        <div id="ownerCafeDetailPhotos" class="owner-cafe-photos"></div>
-                    </div>
-                    <div class="owner-cafe-detail-posts">
-                        <h3>Посты кафе</h3>
-                        <form id="ownerPostForm" class="owner-post-form">
-                            <textarea id="ownerPostText" rows="3" placeholder="Напишите пост: новости, акции, меню..."></textarea>
-                            <div class="owner-post-form-row">
-                                <input id="ownerPostImage" type="file" accept="image/*">
-                                <button type="submit" class="btn btn-primary btn-small">Опубликовать</button>
-                            </div>
-                        </form>
-                        <div id="ownerCafePostsList" class="cafe-posts-list"></div>
-                    </div>
                 </section>
             </div>
         </section>
@@ -146,6 +158,14 @@
                 <input id="registerPasswordConfirm" type="password" placeholder="비밀번호 확인" required autocomplete="new-password">
                 <button type="submit" class="btn btn-primary">가입하기</button>
             </form>
+        </div>
+    </div>
+
+    <div id="ownerCafeBookingModal" class="modal">
+        <div class="modal-content">
+            <span class="close" data-modal-id="ownerCafeBookingModal">&times;</span>
+            <h2 id="ownerCafeBookingModalTitle">Бронирование столика</h2>
+            <div id="ownerCafeBookingModalBody" class="owner-cafe-booking-modal-body"></div>
         </div>
     </div>
 

@@ -102,6 +102,7 @@ const cafeSchema = new mongoose.Schema(
     cityCode: { type: String, required: true },
     address: { type: String },
     description: { type: String },
+    bookingInfo: { type: String },
     phone: { type: String },
     openingHours: { type: String },
     averageCheck: { type: Number },
@@ -180,6 +181,13 @@ const cafePostSchema = new mongoose.Schema(
     cafe: { type: mongoose.Schema.Types.ObjectId, ref: "Cafe", required: true },
     author: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     text: { type: String, required: true },
+    photos: [
+      {
+        url: String,
+        originalName: String,
+        cafePhotoId: { type: mongoose.Schema.Types.ObjectId }
+      }
+    ],
     likes: [
       {
         user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }
@@ -404,6 +412,63 @@ async function sendEmail(to, subject, text) {
     }
   }
   console.log("EMAIL to", to, subject, text);
+}
+
+async function sendPostNotifications(cafeId, post) {
+  try {
+    if (!cafeId || !post || !post.text) {
+      return;
+    }
+    const cafe = await Cafe.findById(cafeId).select("name").lean();
+    if (!cafe) {
+      return;
+    }
+    const subscriptions = await CafeSubscription.find({ cafe: cafeId })
+      .select("user")
+      .populate("user", "email preferredLang name")
+      .lean();
+    if (!subscriptions || !subscriptions.length) {
+      return;
+    }
+    const cafeName = cafe.name || "Cafe";
+    await Promise.all(
+      subscriptions.map(async (sub) => {
+        const user = sub.user;
+        if (!user || !user.email) {
+          return;
+        }
+        const lang = user.preferredLang || "ru";
+        const userName = user.name || "";
+        let subject;
+        let text;
+        if (lang === "ko") {
+          subject = `새 카페 소식: ${cafeName}`;
+          text =
+            (userName ? `${userName}님,\n\n` : "") +
+            `구독 중인 카페 "${cafeName}"에 새로운 게시글이 등록되었습니다.\n\n` +
+            `${post.text}\n\n` +
+            `자세히 보기: /cafe/${cafeId}\n`;
+        } else if (lang === "en") {
+          subject = `New post from cafe ${cafeName}`;
+          text =
+            (userName ? `${userName},\n\n` : "") +
+            `A new post has been published in cafe "${cafeName}" you follow.\n\n` +
+            `${post.text}\n\n` +
+            `Open cafe page: /cafe/${cafeId}\n`;
+        } else {
+          subject = `Новый пост в кафе ${cafeName}`;
+          text =
+            (userName ? `${userName},\n\n` : "") +
+            `В кафе «${cafeName}», на которое вы подписаны, появился новый пост.\n\n` +
+            `${post.text}\n\n` +
+            `Открыть страницу кафе: /cafe/${cafeId}\n`;
+        }
+        await sendEmail(user.email, subject, text);
+      })
+    );
+  } catch (err) {
+    console.error("send post notifications error", err.message);
+  }
 }
 
 async function sendFacebook(recipient, text) {
@@ -1054,20 +1119,48 @@ app.get("/api/my/subscriptions", authMiddleware, async (req, res) => {
 app.post("/api/cafes/:id/posts", authMiddleware, ownerOnly, async (req, res) => {
   try {
     const { id } = req.params;
-    const { text } = req.body;
+    const { text, photos } = req.body;
     if (!text || typeof text !== "string") {
       return res.status(400).json({ error: "text required" });
     }
     const cafe = await Cafe.findOne({ _id: id, owner: req.user.id })
-      .select("_id isActive")
+      .select("_id isActive name")
       .lean();
     if (!cafe || !cafe.isActive) {
       return res.status(404).json({ error: "cafe not found" });
     }
+    const normalizedPhotos =
+      photos && Array.isArray(photos)
+        ? photos
+            .map((p) => {
+              if (!p || typeof p !== "object") return null;
+              const url = typeof p.url === "string" ? p.url : "";
+              const originalName =
+                typeof p.originalName === "string" ? p.originalName : "";
+              const cafePhotoId =
+                p.cafePhotoId && typeof p.cafePhotoId === "string"
+                  ? p.cafePhotoId
+                  : undefined;
+              if (!url) return null;
+              const base = { url };
+              if (originalName) base.originalName = originalName;
+              if (cafePhotoId) base.cafePhotoId = cafePhotoId;
+              return base;
+            })
+            .filter(Boolean)
+        : [];
+
     const post = await CafePost.create({
       cafe: cafe._id,
       author: req.user.id,
-      text: text.trim()
+      text: text.trim(),
+      photos: normalizedPhotos
+    });
+    sendPostNotifications(cafe._id, {
+      _id: post._id,
+      text: post.text
+    }).catch((err) => {
+      console.error("schedule post notifications error", err.message);
     });
     res.status(201).json({ post });
   } catch (err) {
@@ -1121,6 +1214,7 @@ app.get("/api/cafes/:id/posts", async (req, res) => {
         createdAt: p.createdAt,
         likesCount,
         rating,
+        photos: Array.isArray(p.photos) ? p.photos : [],
         comments: Array.isArray(p.comments) ? p.comments : []
       };
     });
@@ -1415,9 +1509,31 @@ app.put("/api/admin/site-config", authMiddleware, adminOnly, async (req, res) =>
   try {
     const { contactEmail, telegramUrl, instagramUrl } = req.body;
     const update = {};
-    if (contactEmail !== undefined) update.contactEmail = contactEmail;
-    if (telegramUrl !== undefined) update.telegramUrl = telegramUrl;
-    if (instagramUrl !== undefined) update.instagramUrl = instagramUrl;
+    if (contactEmail !== undefined) {
+      update.contactEmail = contactEmail;
+    }
+    if (telegramUrl !== undefined) {
+      if (telegramUrl) {
+        const value = String(telegramUrl).trim();
+        if (value && !/^https?:\/\//i.test(value)) {
+          return res.status(400).json({ error: "invalid telegramUrl" });
+        }
+        update.telegramUrl = value;
+      } else {
+        update.telegramUrl = "";
+      }
+    }
+    if (instagramUrl !== undefined) {
+      if (instagramUrl) {
+        const value = String(instagramUrl).trim();
+        if (value && !/^https?:\/\//i.test(value)) {
+          return res.status(400).json({ error: "invalid instagramUrl" });
+        }
+        update.instagramUrl = value;
+      } else {
+        update.instagramUrl = "";
+      }
+    }
     const cfg = await SiteConfig.findOneAndUpdate(
       { key: "default" },
       update,
@@ -1885,6 +2001,7 @@ app.post("/api/cafes", authMiddleware, ownerOnly, async (req, res) => {
       cityCode,
       address,
       description,
+      bookingInfo,
       phone,
       openingHours,
       averageCheck,
@@ -1900,6 +2017,7 @@ app.post("/api/cafes", authMiddleware, ownerOnly, async (req, res) => {
       cityCode,
       address: address || "",
       description: description || "",
+      bookingInfo: bookingInfo || "",
       phone: phone || "",
       openingHours: openingHours || "",
       averageCheck:
@@ -1920,7 +2038,7 @@ app.get("/api/my/cafes", authMiddleware, ownerOnly, async (req, res) => {
   try {
     const cafes = await Cafe.find({ owner: req.user.id })
       .select(
-        "name cityCode address description phone openingHours averageCheck isActive photos createdAt menu"
+        "name cityCode address description bookingInfo phone openingHours averageCheck isActive photos createdAt menu"
       )
       .sort({ createdAt: -1 })
       .lean();
@@ -1939,6 +2057,7 @@ app.put("/api/cafes/:id", authMiddleware, ownerOnly, async (req, res) => {
       cityCode,
       address,
       description,
+      bookingInfo,
       phone,
       openingHours,
       averageCheck,
@@ -1954,6 +2073,7 @@ app.put("/api/cafes/:id", authMiddleware, ownerOnly, async (req, res) => {
     if (cityCode !== undefined) cafe.cityCode = cityCode;
     if (address !== undefined) cafe.address = address;
     if (description !== undefined) cafe.description = description;
+    if (bookingInfo !== undefined) cafe.bookingInfo = bookingInfo;
     if (phone !== undefined) cafe.phone = phone;
     if (openingHours !== undefined) cafe.openingHours = openingHours;
     if (averageCheck !== undefined) {
@@ -1979,7 +2099,9 @@ app.get("/api/cafes", async (req, res) => {
     const { city, id } = req.query;
     if (id) {
       const cafe = await Cafe.findOne({ _id: id, isActive: true })
-        .select("name cityCode address description phone openingHours averageCheck photos menu")
+        .select(
+          "name cityCode address description bookingInfo phone openingHours averageCheck photos menu"
+        )
         .lean();
       if (!cafe) {
         return res.status(404).json({ error: "cafe not found" });
@@ -1991,7 +2113,9 @@ app.get("/api/cafes", async (req, res) => {
       query.cityCode = city;
     }
     const cafes = await Cafe.find(query)
-      .select("name cityCode address description phone openingHours averageCheck photos menu")
+      .select(
+        "name cityCode address description bookingInfo phone openingHours averageCheck photos menu"
+      )
       .sort({ createdAt: -1 })
       .lean();
     const cafeIds = cafes.map((c) => c._id);

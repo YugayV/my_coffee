@@ -33,6 +33,7 @@
                 </div>
                 <div class="header-auth-row">
                     <button id="btnOwnerDashboard" class="btn btn-secondary btn-small hidden">Кабинет владельца</button>
+                    <button id="btnAdminToggle" class="btn btn-secondary btn-small hidden">Режим администратора</button>
                     <button id="btnOpenAuth" class="btn btn-outline auth-inline-btn">Войти</button>
                 </div>
             </div>
@@ -108,10 +109,20 @@
                 <button class="slider-btn next" onclick="nextSlide()">›</button>
             </div>
 
+            <div class="homepage-news-section">
+                <h3>Новое на сайте</h3>
+                <ul id="newsList" class="homepage-news-list"></ul>
+            </div>
+
             <div id="map" class="map-container"></div>
 
             <div class="main-feed">
                 <div id="mainIntegrationAd" class="integration-ad-block"></div>
+                <div class="feed-cafes-block">
+                    <h3>Новые кафе в городе</h3>
+                    <p id="feedRecommendText" class="feed-recommend-text"></p>
+                    <div id="feedCafesList" class="feed-cafes-list"></div>
+                </div>
             </div>
 
             <div id="cafeDetailPanel" class="cafe-detail hidden">
@@ -167,17 +178,88 @@
                     <button class="city-btn" data-city="seongnam" data-province="capital">성남</button>
                     <button class="city-btn" data-city="goyang" data-province="capital">고양</button>
                     <button class="city-btn" data-city="yongin" data-province="capital">용인</button>
+                    <button class="city-btn" data-city="ansan" data-province="capital">안산시</button>
+                    <button class="city-btn" data-city="anseong" data-province="capital">안성시</button>
+                    <button class="city-btn" data-city="anyang" data-province="capital">안양시</button>
+                    <button class="city-btn" data-city="icheon" data-province="capital">이천시</button>
+                    <button class="city-btn" data-city="gwangju_gg" data-province="capital">광주시(경기도)</button>
+                    <button class="city-btn" data-city="gwangmyeong" data-province="capital">광명시</button>
+                    <button class="city-btn" data-city="gwacheon" data-province="capital">과천시</button>
+                    <button class="city-btn" data-city="gimpo" data-province="capital">김포시</button>
+                    <button class="city-btn" data-city="gunpo" data-province="capital">군포시</button>
+                    <button class="city-btn" data-city="guri" data-province="capital">구리시</button>
+                    <button class="city-btn" data-city="namyangju" data-province="capital">남양주시</button>
+                    <button class="city-btn" data-city="osan" data-province="capital">오산시</button>
+                    <button class="city-btn" data-city="bucheon" data-province="capital">부천시</button>
+                    <button class="city-btn" data-city="paju" data-province="capital">파주시</button>
+                    <button class="city-btn" data-city="pyeongtaek" data-province="capital">평택시</button>
+                    <button class="city-btn" data-city="pocheon" data-province="capital">포천시</button>
+                    <button class="city-btn" data-city="siheung" data-province="capital">시흥시</button>
+                    <button class="city-btn" data-city="dongducheon" data-province="capital">동두천시</button>
+                    <button class="city-btn" data-city="hanam" data-province="capital">하남시</button>
+                    <button class="city-btn" data-city="hwaseong" data-province="capital">화성시</button>
+                    <button class="city-btn" data-city="uiwang" data-province="capital">의왕시</button>
+                    <button class="city-btn" data-city="uijeongbu" data-province="capital">의정부시</button>
+                    <button class="city-btn" data-city="yangju" data-province="capital">양주시</button>
+
                     <button class="city-btn" data-city="busan" data-province="yeongnam">부산</button>
                     <button class="city-btn" data-city="daegu" data-province="yeongnam">대구</button>
                     <button class="city-btn" data-city="ulsan" data-province="yeongnam">울산</button>
                     <button class="city-btn" data-city="changwon" data-province="yeongnam">창원</button>
                     <button class="city-btn" data-city="pohang" data-province="yeongnam">포항</button>
                     <button class="city-btn" data-city="gumi" data-province="yeongnam">구미</button>
+                    <button class="city-btn" data-city="andong" data-province="yeongnam">안동시</button>
+                    <button class="city-btn" data-city="yeongju" data-province="yeongnam">영주시</button>
+                    <button class="city-btn" data-city="yeongcheon" data-province="yeongnam">영천시</button>
+                    <button class="city-btn" data-city="gyeongju" data-province="yeongnam">경주시</button>
+                    <button class="city-btn" data-city="gyeongsan" data-province="yeongnam">경산시</button>
+                    <button class="city-btn" data-city="gimcheon" data-province="yeongnam">김천시</button>
+                    <button class="city-btn" data-city="mungyeong" data-province="yeongnam">문경시</button>
+                    <button class="city-btn" data-city="sangju" data-province="yeongnam">상주시</button>
+                    <button class="city-btn" data-city="miryang" data-province="yeongnam">밀양시</button>
+                    <button class="city-btn" data-city="sacheon" data-province="yeongnam">사천시</button>
+                    <button class="city-btn" data-city="gimhae" data-province="yeongnam">김해시</button>
+                    <button class="city-btn" data-city="geoje" data-province="yeongnam">거제시</button>
+                    <button class="city-btn" data-city="jinju" data-province="yeongnam">진주시</button>
+                    <button class="city-btn" data-city="jinhae" data-province="yeongnam">진해시</button>
+                    <button class="city-btn" data-city="tongyeong" data-province="yeongnam">통영시</button>
+                    <button class="city-btn" data-city="yangsan" data-province="yeongnam">양산시</button>
+
                     <button class="city-btn" data-city="gwangju" data-province="honam">광주</button>
                     <button class="city-btn" data-city="jeonju" data-province="honam">전주</button>
+                    <button class="city-btn" data-city="iksan" data-province="honam">익산시</button>
+                    <button class="city-btn" data-city="gimje" data-province="honam">김제시</button>
+                    <button class="city-btn" data-city="gunsan" data-province="honam">군산시</button>
+                    <button class="city-btn" data-city="namwon" data-province="honam">남원시</button>
+                    <button class="city-btn" data-city="jeongeup" data-province="honam">정읍시</button>
+                    <button class="city-btn" data-city="yeosu" data-province="honam">여수시</button>
+                    <button class="city-btn" data-city="gwangyang" data-province="honam">광양시</button>
+                    <button class="city-btn" data-city="mokpo" data-province="honam">목포시</button>
+                    <button class="city-btn" data-city="naju" data-province="honam">나주시</button>
+                    <button class="city-btn" data-city="suncheon" data-province="honam">순천시</button>
+
                     <button class="city-btn" data-city="daejeon" data-province="chungcheong">대전</button>
                     <button class="city-btn" data-city="cheongju" data-province="chungcheong">청주</button>
+                    <button class="city-btn" data-city="asan" data-province="chungcheong">아산시</button>
+                    <button class="city-btn" data-city="gyeryong" data-province="chungcheong">계룡시</button>
+                    <button class="city-btn" data-city="gongju" data-province="chungcheong">공주시</button>
+                    <button class="city-btn" data-city="nonsan" data-province="chungcheong">논산시</button>
+                    <button class="city-btn" data-city="boryeong" data-province="chungcheong">보령시</button>
+                    <button class="city-btn" data-city="seosan" data-province="chungcheong">서산시</button>
+                    <button class="city-btn" data-city="dangjin" data-province="chungcheong">당진시</button>
+                    <button class="city-btn" data-city="cheonan" data-province="chungcheong">천안시</button>
+                    <button class="city-btn" data-city="jecheon" data-province="chungcheong">제천시</button>
+                    <button class="city-btn" data-city="chungju" data-province="chungcheong">충주시</button>
+
                     <button class="city-btn" data-city="jeju" data-province="jeju_region">제주</button>
+                    <button class="city-btn" data-city="seogwipo" data-province="jeju_region">서귀포시</button>
+                    <button class="city-btn" data-city="gangneung" data-province="jeju_region">강릉시</button>
+                    <button class="city-btn" data-city="wonju" data-province="jeju_region">원주시</button>
+                    <button class="city-btn" data-city="samcheok" data-province="jeju_region">삼척시</button>
+                    <button class="city-btn" data-city="sokcho" data-province="jeju_region">속초시</button>
+                    <button class="city-btn" data-city="donghae" data-province="jeju_region">동해시</button>
+                    <button class="city-btn" data-city="taebaek" data-province="jeju_region">태백시</button>
+                    <button class="city-btn" data-city="chuncheon" data-province="jeju_region">춘천시</button>
                 </div>
             </div>
 
@@ -213,6 +295,7 @@
                     <input id="ownerCafeOpeningHours" type="text" placeholder="Часы работы (JSON: {&quot;mon&quot;:&quot;09:00–18:00&quot;,&quot;sat&quot;:&quot;10:00–16:00&quot;})">
                     <input id="ownerCafeAverageCheck" type="number" placeholder="Средний чек (₩)">
                     <textarea id="ownerCafeDescription" placeholder="Описание" rows="2"></textarea>
+                    <textarea id="ownerCafeBookingInfo" placeholder="Информация о бронировании/доставке (как связаться, условия)" rows="2"></textarea>
                     <div class="owner-cafe-menu-block">
                         <div class="owner-cafe-menu-header">Меню</div>
                         <div id="ownerCafeMenuItems" class="owner-cafe-menu-items"></div>

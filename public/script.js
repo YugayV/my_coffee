@@ -68,7 +68,74 @@ const translations = {
             cheongju: "청주",
             jeonju: "전주",
             pohang: "포항",
-            gumi: "구미"
+            gumi: "구미",
+            andong: "안동시",
+            ansan: "안산시",
+            anseong: "안성시",
+            anyang: "안양시",
+            asan: "아산시",
+            wonju: "원주시",
+            iksan: "익산시",
+            icheon: "이천시",
+            yeongju: "영주시",
+            yeongcheon: "영천시",
+            yeosu: "여수시",
+            gangneung: "강릉시",
+            gwangju_gg: "광주시(경기도)",
+            gwangmyeong: "광명시",
+            gwangyang: "광양시",
+            gwacheon: "과천시",
+            gyeryong: "계룡시",
+            gyeongju: "경주시",
+            gyeongsan: "경산시",
+            gimje: "김제시",
+            gimpo: "김포시",
+            gimhae: "김해시",
+            gimcheon: "김천시",
+            geoje: "거제시",
+            gongju: "공주시",
+            gunpo: "군포시",
+            gunsan: "군산시",
+            guri: "구리시",
+            miryang: "밀양시",
+            mokpo: "목포시",
+            mungyeong: "문경시",
+            naju: "나주시",
+            namwon: "남원시",
+            namyangju: "남양주시",
+            nonsan: "논산시",
+            osan: "오산시",
+            boryeong: "보령시",
+            bucheon: "부천시",
+            paju: "파주시",
+            pyeongtaek: "평택시",
+            pocheon: "포천시",
+            samcheok: "삼척시",
+            sangju: "상주시",
+            sacheon: "사천시",
+            siheung: "시흥시",
+            seogwipo: "서귀포시",
+            sokcho: "속초시",
+            seosan: "서산시",
+            suncheon: "순천시",
+            dangjin: "당진시",
+            dongducheon: "동두천시",
+            donghae: "동해시",
+            tongyeong: "통영시",
+            taebaek: "태백시",
+            hanam: "하남시",
+            hwaseong: "화성시",
+            jecheon: "제천시",
+            jinju: "진주시",
+            jinhae: "진해시",
+            jeongeup: "정읍시",
+            cheonan: "천안시",
+            chungju: "충주시",
+            chuncheon: "춘천시",
+            uiwang: "의왕시",
+            uijeongbu: "의정부시",
+            yangju: "양주시",
+            yangsan: "양산시"
         },
         regions: {
             capital: "수도권",
@@ -150,7 +217,74 @@ const translations = {
             cheongju: "Cheongju",
             jeonju: "Jeonju",
             pohang: "Pohang",
-            gumi: "Gumi"
+            gumi: "Gumi",
+            andong: "Andong",
+            ansan: "Ansan",
+            anseong: "Anseong",
+            anyang: "Anyang",
+            asan: "Asan",
+            wonju: "Wonju",
+            iksan: "Iksan",
+            icheon: "Icheon",
+            yeongju: "Yeongju",
+            yeongcheon: "Yeongcheon",
+            yeosu: "Yeosu",
+            gangneung: "Gangneung",
+            gwangju_gg: "Gwangju (Gyeonggi)",
+            gwangmyeong: "Gwangmyeong",
+            gwangyang: "Gwangyang",
+            gwacheon: "Gwacheon",
+            gyeryong: "Gyeryong",
+            gyeongju: "Gyeongju",
+            gyeongsan: "Gyeongsan",
+            gimje: "Gimje",
+            gimpo: "Gimpo",
+            gimhae: "Gimhae",
+            gimcheon: "Gimcheon",
+            geoje: "Geoje",
+            gongju: "Gongju",
+            gunpo: "Gunpo",
+            gunsan: "Gunsan",
+            guri: "Guri",
+            miryang: "Miryang",
+            mokpo: "Mokpo",
+            mungyeong: "Mungyeong",
+            naju: "Naju",
+            namwon: "Namwon",
+            namyangju: "Namyangju",
+            nonsan: "Nonsan",
+            osan: "Osan",
+            boryeong: "Boryeong",
+            bucheon: "Bucheon",
+            paju: "Paju",
+            pyeongtaek: "Pyeongtaek",
+            pocheon: "Pocheon",
+            samcheok: "Samcheok",
+            sangju: "Sangju",
+            sacheon: "Sacheon",
+            siheung: "Siheung",
+            seogwipo: "Seogwipo",
+            sokcho: "Sokcho",
+            seosan: "Seosan",
+            suncheon: "Suncheon",
+            dangjin: "Dangjin",
+            dongducheon: "Dongducheon",
+            donghae: "Donghae",
+            tongyeong: "Tongyeong",
+            taebaek: "Taebaek",
+            hanam: "Hanam",
+            hwaseong: "Hwaseong",
+            jecheon: "Jecheon",
+            jinju: "Jinju",
+            jinhae: "Jinhae",
+            jeongeup: "Jeongeup",
+            cheonan: "Cheonan",
+            chungju: "Chungju",
+            chuncheon: "Chuncheon",
+            uiwang: "Uiwang",
+            uijeongbu: "Uijeongbu",
+            yangju: "Yangju",
+            yangsan: "Yangsan"
         },
         regions: {
             capital: "Capital area",
@@ -232,7 +366,74 @@ const translations = {
             cheongju: "Чхонджу",
             jeonju: "Чонджу",
             pohang: "Пхохан",
-            gumi: "Куми"
+            gumi: "Куми",
+            andong: "Андон",
+            ansan: "Ансан",
+            anseong: "Ансон",
+            anyang: "Анян",
+            asan: "Асан",
+            wonju: "Вонджу",
+            iksan: "Иксан",
+            icheon: "Ичхон",
+            yeongju: "Йонджу",
+            yeongcheon: "Йончхон",
+            yeosu: "Йосу",
+            gangneung: "Каннын",
+            gwangju_gg: "Кванджу (Кёнгидо)",
+            gwangmyeong: "Кванмён",
+            gwangyang: "Кванъян",
+            gwacheon: "Квачхон",
+            gyeryong: "Керён",
+            gyeongju: "Кёнджу",
+            gyeongsan: "Кёнсан",
+            gimje: "Кимдже",
+            gimpo: "Кимпхо",
+            gimhae: "Кимхэ",
+            gimcheon: "Кимчхон",
+            geoje: "Кодже",
+            gongju: "Конджу",
+            gunpo: "Кунпхо",
+            gunsan: "Кунсан",
+            guri: "Кури",
+            miryang: "Мирян",
+            mokpo: "Мокпхо",
+            mungyeong: "Мунгён",
+            naju: "Наджу",
+            namwon: "Намвон",
+            namyangju: "Намъянджу",
+            nonsan: "Нонсан",
+            osan: "Осан",
+            boryeong: "Порён",
+            bucheon: "Пучхон",
+            paju: "Пхаджу",
+            pyeongtaek: "Пхёнтхэк",
+            pocheon: "Пхочхон",
+            samcheok: "Самчхок",
+            sangju: "Санджу",
+            sacheon: "Сачхон",
+            siheung: "Сихын",
+            seogwipo: "Согвипхо",
+            sokcho: "Сокчхо",
+            seosan: "Сосан",
+            suncheon: "Сунчхон",
+            dangjin: "Танджин",
+            dongducheon: "Тондучхон",
+            donghae: "Тонхэ",
+            tongyeong: "Тхонъён",
+            taebaek: "Тхэбэк",
+            hanam: "Ханам",
+            hwaseong: "Хвасон",
+            jecheon: "Чечхон",
+            jinju: "Чинджу",
+            jinhae: "Чинхэ",
+            jeongeup: "Чонып",
+            cheonan: "Чхонан",
+            chungju: "Чхунджу",
+            chuncheon: "Чхунчхон",
+            uiwang: "Ыйван",
+            uijeongbu: "Ыйджонбу",
+            yangju: "Янджу",
+            yangsan: "Янсан"
         },
         regions: {
             capital: "Столичный регион",
@@ -580,8 +781,9 @@ async function loadNews() {
         }
         const data = await res.json();
         const items = data && data.news ? data.news : [];
+        const sliced = items.slice(0, 5);
         listEl.innerHTML = "";
-        items.forEach((item) => {
+        sliced.forEach((item) => {
             const li = document.createElement("li");
             const title = item.title || "";
             const text = item.text || "";
@@ -792,6 +994,7 @@ function renderProfile() {
     const profilePhoneEl = document.getElementById("profilePhone");
     const headerAuthBtn = document.getElementById("btnOpenAuth");
     const ownerDashboardBtn = document.getElementById("btnOwnerDashboard");
+    const adminToggleBtn = document.getElementById("btnAdminToggle");
     if (!statusEl) {
         return;
     }
@@ -815,6 +1018,9 @@ function renderProfile() {
         }
         if (ownerDashboardBtn) {
             ownerDashboardBtn.classList.add("hidden");
+        }
+        if (adminToggleBtn) {
+            adminToggleBtn.classList.add("hidden");
         }
         return;
     }
@@ -842,7 +1048,7 @@ function renderProfile() {
         }
     }
     if (adminPanel) {
-        if (currentUser.isAdmin) {
+        if (currentUser.isAdmin && window.location.pathname === "/") {
             adminPanel.classList.remove("hidden");
         } else {
             adminPanel.classList.add("hidden");
@@ -853,6 +1059,21 @@ function renderProfile() {
             ownerDashboardBtn.classList.remove("hidden");
         } else {
             ownerDashboardBtn.classList.add("hidden");
+        }
+    }
+    if (adminToggleBtn) {
+        if (currentUser.isAdmin) {
+            adminToggleBtn.classList.remove("hidden");
+            if (window.location.pathname === "/") {
+                adminToggleBtn.textContent =
+                    adminPanel && !adminPanel.classList.contains("hidden")
+                        ? "Обычный режим"
+                        : "Режим администратора";
+            } else {
+                adminToggleBtn.classList.add("hidden");
+            }
+        } else {
+            adminToggleBtn.classList.add("hidden");
         }
     }
     if (profilePhoneEl) {
@@ -959,11 +1180,100 @@ const cityCenters = {
 };
 
 const provinceCityMap = {
-    capital: ["seoul", "incheon", "suwon", "seongnam", "goyang", "yongin"],
-    yeongnam: ["busan", "daegu", "ulsan", "changwon", "pohang", "gumi"],
-    honam: ["gwangju", "jeonju"],
-    chungcheong: ["daejeon", "cheongju"],
-    jeju_region: ["jeju"]
+    capital: [
+        "seoul",
+        "incheon",
+        "suwon",
+        "seongnam",
+        "goyang",
+        "yongin",
+        "ansan",
+        "anseong",
+        "anyang",
+        "icheon",
+        "gwangju_gg",
+        "gwangmyeong",
+        "gwacheon",
+        "gimpo",
+        "gunpo",
+        "guri",
+        "namyangju",
+        "osan",
+        "bucheon",
+        "paju",
+        "pyeongtaek",
+        "pocheon",
+        "siheung",
+        "dongducheon",
+        "hanam",
+        "hwaseong",
+        "uiwang",
+        "uijeongbu",
+        "yangju"
+    ],
+    yeongnam: [
+        "busan",
+        "daegu",
+        "ulsan",
+        "changwon",
+        "pohang",
+        "gumi",
+        "andong",
+        "yeongju",
+        "yeongcheon",
+        "gyeongju",
+        "gyeongsan",
+        "gimcheon",
+        "mungyeong",
+        "sangju",
+        "miryang",
+        "sacheon",
+        "gimhae",
+        "geoje",
+        "jinju",
+        "jinhae",
+        "tongyeong",
+        "yangsan"
+    ],
+    honam: [
+        "gwangju",
+        "jeonju",
+        "iksan",
+        "gimje",
+        "gunsan",
+        "namwon",
+        "jeongeup",
+        "yeosu",
+        "gwangyang",
+        "mokpo",
+        "naju",
+        "suncheon"
+    ],
+    chungcheong: [
+        "daejeon",
+        "cheongju",
+        "asan",
+        "gyeryong",
+        "gongju",
+        "nonsan",
+        "boryeong",
+        "seosan",
+        "dangjin",
+        "cheonan",
+        "jecheon",
+        "chungju"
+    ],
+    jeju_region: [
+        "jeju",
+        "seogwipo",
+        "gangneung",
+        "wonju",
+        "samcheok",
+        "sokcho",
+        "donghae",
+        "taebaek",
+        "chuncheon"
+    ]
 };
 
 function resolveCityCodeFromInput(value) {
@@ -1447,6 +1757,18 @@ async function loadCafePosts(reset = true) {
             textEl.className = "cafe-post-text";
             textEl.textContent = post.text || "";
 
+            const photosWrap = document.createElement("div");
+            photosWrap.className = "cafe-post-photos";
+            const photos = Array.isArray(post.photos) ? post.photos : [];
+            photos.forEach((p) => {
+                if (p && p.url) {
+                    const img = document.createElement("img");
+                    img.src = p.url;
+                    img.alt = "";
+                    photosWrap.appendChild(img);
+                }
+            });
+
             const metaRow = document.createElement("div");
             metaRow.className = "cafe-post-meta";
             const parts = [];
@@ -1656,6 +1978,9 @@ async function loadCafePosts(reset = true) {
             });
 
             item.appendChild(textEl);
+            if (photosWrap.childNodes.length) {
+                item.appendChild(photosWrap);
+            }
             item.appendChild(metaRow);
             item.appendChild(actionsRow);
             item.appendChild(commentsList);
@@ -3036,6 +3361,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnKakaoLogin = document.getElementById("btnKakaoLogin");
     const btnProfileSettings = document.getElementById("btnProfileSettings");
     const btnOwnerDashboard = document.getElementById("btnOwnerDashboard");
+    const btnAdminToggle = document.getElementById("btnAdminToggle");
     if (btnOpenAuth) {
         btnOpenAuth.addEventListener("click", () => {
             if (currentUser) {
@@ -3051,6 +3377,24 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnOwnerDashboard) {
         btnOwnerDashboard.addEventListener("click", () => {
             window.location.href = "/owner";
+        });
+    }
+    if (btnAdminToggle) {
+        btnAdminToggle.addEventListener("click", () => {
+            const adminPanel = document.getElementById("adminPanel");
+            if (!adminPanel || !currentUser || !currentUser.isAdmin) {
+                adminLoginPrompt();
+                return;
+            }
+            const isVisible = !adminPanel.classList.contains("hidden");
+            if (isVisible) {
+                adminPanel.classList.add("hidden");
+                btnAdminToggle.textContent = "Режим администратора";
+            } else {
+                adminPanel.classList.remove("hidden");
+                btnAdminToggle.textContent = "Обычный режим";
+                reloadAdminData();
+            }
         });
     }
     if (btnKakaoLogin) {
@@ -3609,6 +3953,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const openingHoursInput = document.getElementById("ownerCafeOpeningHours");
             const averageCheckInput = document.getElementById("ownerCafeAverageCheck");
             const descInput = document.getElementById("ownerCafeDescription");
+            const bookingInfoInput = document.getElementById("ownerCafeBookingInfo");
             if (!nameInput || !citySelect) {
                 return;
             }
@@ -3666,6 +4011,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         openingHours: openingHoursValue,
                         averageCheck: averageCheckValue,
                         description: descInput ? descInput.value : "",
+                        bookingInfo: bookingInfoInput ? bookingInfoInput.value : "",
                         menu: menuItems
                     })
                 });
@@ -3680,6 +4026,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (openingHoursInput) openingHoursInput.value = "";
                 if (averageCheckInput) averageCheckInput.value = "";
                 if (descInput) descInput.value = "";
+                if (bookingInfoInput) bookingInfoInput.value = "";
                 if (menuContainer) {
                     menuContainer.innerHTML = "";
                     addOwnerMenuRow(menuContainer);
@@ -3983,11 +4330,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function handleCafeBookClick(targetId) {
         const infoEl = document.getElementById(targetId);
-        if (!infoEl) {
-            return;
-        }
-        if (!currentCafeContact) {
-            infoEl.textContent = "";
+        if (!infoEl || !currentCafeContact) {
             return;
         }
         const parts = [];
@@ -4004,6 +4347,82 @@ document.addEventListener("DOMContentLoaded", () => {
             parts.push(currentCafeContact.address);
         }
         infoEl.textContent = parts.join(" · ");
+
+        const emailLink = document.getElementById("contactEmailLink");
+        const telegramLink = document.getElementById("footerTelegramLink");
+        const instagramLink = document.getElementById("footerInstagramLink");
+        const emailText =
+            emailLink && emailLink.textContent
+                ? emailLink.textContent
+                : emailLink && emailLink.href && emailLink.href.startsWith("mailto:")
+                ? emailLink.href.slice("mailto:".length)
+                : "";
+        const telegramUrl =
+            telegramLink && !telegramLink.classList.contains("hidden")
+                ? telegramLink.href
+                : "";
+        const instagramUrl =
+            instagramLink && !instagramLink.classList.contains("hidden")
+                ? instagramLink.href
+                : "";
+
+        const modal = document.createElement("div");
+        modal.className = "modal";
+        const titleText =
+            currentLang === "ru"
+                ? "Информация о бронировании"
+                : currentLang === "en"
+                ? "Booking information"
+                : "예약 정보";
+        const cafeName = currentCafeContact.name || "";
+        const phoneText = currentCafeContact.phone || "";
+        const addressText = currentCafeContact.address || "";
+
+        let socialsHtml = "";
+        if (emailText) {
+            socialsHtml += "<p>Email: " + emailText + "</p>";
+        }
+        if (telegramUrl) {
+            socialsHtml +=
+                '<p>Telegram: <a href="' +
+                telegramUrl +
+                '" target="_blank" rel="noopener noreferrer">' +
+                telegramUrl +
+                "</a></p>";
+        }
+        if (instagramUrl) {
+            socialsHtml +=
+                '<p>Instagram: <a href="' +
+                instagramUrl +
+                '" target="_blank" rel="noopener noreferrer">' +
+                instagramUrl +
+                "</a></p>";
+        }
+
+        modal.innerHTML =
+            '<div class="modal-content">' +
+            '<span class="close" data-modal-id="dynamicBookingModal">&times;</span>' +
+            "<h2>" +
+            titleText +
+            "</h2>" +
+            (cafeName ? "<p>" + cafeName + "</p>" : "") +
+            (addressText ? "<p>" + addressText + "</p>" : "") +
+            (phoneText ? "<p>" + parts[0] + "</p>" : "") +
+            socialsHtml +
+            "</div>";
+        document.body.appendChild(modal);
+        modal.style.display = "block";
+        const closeEl = modal.querySelector(".close");
+        if (closeEl) {
+            closeEl.addEventListener("click", () => {
+                modal.remove();
+            });
+        }
+        modal.addEventListener("click", (event) => {
+            if (event.target === modal) {
+                modal.remove();
+            }
+        });
     }
     const btnCafeBook = document.getElementById("btnCafeBook");
     if (btnCafeBook) {
@@ -4020,11 +4439,83 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const ownerCafeDetailBook = document.getElementById("ownerCafeDetailBook");
     if (ownerCafeDetailBook) {
-        ownerCafeDetailBook.addEventListener("click", () => {
+        ownerCafeDetailBook.addEventListener("click", async () => {
+            const modal = document.getElementById("ownerCafeBookingModal");
+            const body = document.getElementById("ownerCafeBookingModalBody");
+            const title = document.getElementById("ownerCafeBookingModalTitle");
+            const nameEl = document.getElementById("ownerCafeDetailName");
+            const metaEl = document.getElementById("ownerCafeDetailMeta");
             const bookingInfoEl = document.getElementById("ownerCafeDetailBookingInfo");
-            if (bookingInfoEl) {
-                bookingInfoEl.scrollIntoView({ behavior: "smooth", block: "center" });
+            if (!modal || !body || !title) {
+                if (bookingInfoEl) {
+                    bookingInfoEl.scrollIntoView({ behavior: "smooth", block: "center" });
+                }
+                return;
             }
+            const cafeName = nameEl ? nameEl.textContent : "";
+            const metaText = metaEl ? metaEl.textContent : "";
+            const bookingText = bookingInfoEl ? bookingInfoEl.textContent : "";
+            const titleText =
+                currentLang === "ru"
+                    ? "Бронирование столика"
+                    : currentLang === "en"
+                    ? "Table booking"
+                    : "테이블 예약";
+            title.textContent = titleText;
+            body.innerHTML = "";
+            if (cafeName) {
+                const p = document.createElement("p");
+                p.textContent = cafeName;
+                body.appendChild(p);
+            }
+            if (metaText) {
+                const p = document.createElement("p");
+                p.textContent = metaText;
+                body.appendChild(p);
+            }
+            if (bookingText) {
+                const p = document.createElement("p");
+                p.textContent = bookingText;
+                body.appendChild(p);
+            }
+            try {
+                const res = await fetch("/api/site-config");
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.contactEmail) {
+                        const p = document.createElement("p");
+                        p.textContent =
+                            (currentLang === "ru"
+                                ? "Email для связи: "
+                                : currentLang === "en"
+                                ? "Contact email: "
+                                : "문의 이메일: ") + data.contactEmail;
+                        body.appendChild(p);
+                    }
+                    if (data.telegramUrl) {
+                        const p = document.createElement("p");
+                        const a = document.createElement("a");
+                        a.href = data.telegramUrl;
+                        a.target = "_blank";
+                        a.rel = "noopener noreferrer";
+                        a.textContent = currentLang === "ru" ? "Telegram" : "Telegram";
+                        p.appendChild(a);
+                        body.appendChild(p);
+                    }
+                    if (data.instagramUrl) {
+                        const p = document.createElement("p");
+                        const a = document.createElement("a");
+                        a.href = data.instagramUrl;
+                        a.target = "_blank";
+                        a.rel = "noopener noreferrer";
+                        a.textContent = "Instagram";
+                        p.appendChild(a);
+                        body.appendChild(p);
+                    }
+                }
+            } catch (e) {
+            }
+            modal.style.display = "block";
         });
     }
 
@@ -4069,6 +4560,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
+            const postPhotos = [];
+
             try {
                 if (imageInput.files && imageInput.files[0]) {
                     const formData = new FormData();
@@ -4093,6 +4586,25 @@ document.addEventListener("DOMContentLoaded", () => {
                         );
                         return;
                     }
+                    try {
+                        const uploaded = await uploadRes.json();
+                        const uploadedPhotos =
+                            uploaded && Array.isArray(uploaded.photos) ? uploaded.photos : [];
+                        if (uploadedPhotos.length) {
+                            const last = uploadedPhotos[uploadedPhotos.length - 1];
+                            if (last && last.url) {
+                                const photoPayload = { url: last.url };
+                                if (last.originalName) {
+                                    photoPayload.originalName = last.originalName;
+                                }
+                                if (last._id) {
+                                    photoPayload.cafePhotoId = last._id;
+                                }
+                                postPhotos.push(photoPayload);
+                            }
+                        }
+                    } catch (e) {
+                    }
                 }
 
                 const res = await fetch(
@@ -4103,7 +4615,9 @@ document.addEventListener("DOMContentLoaded", () => {
                             "Content-Type": "application/json",
                             Authorization: "Bearer " + authToken
                         },
-                        body: JSON.stringify({ text })
+                        body: JSON.stringify(
+                            postPhotos.length ? { text, photos: postPhotos } : { text }
+                        )
                     }
                 );
                 if (!res.ok) {

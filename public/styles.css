@@ -411,6 +411,27 @@ body {
     right: 14px;
 }
 
+.homepage-news-section {
+    margin-top: 16px;
+    margin-bottom: 16px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #ffffff;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+}
+
+.homepage-news-section h3 {
+    margin: 0 0 8px;
+    font-size: 16px;
+}
+
+.homepage-news-list {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 13px;
+    color: #4b5563;
+}
+
 .ad-banner {
     margin-top: 16px;
     padding: 10px 12px;
@@ -577,6 +598,74 @@ body {
     color: #6b7280;
 }
 
+.feed-cafes-block {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: #ffffff;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+}
+
+.feed-cafes-block h3 {
+    margin: 0 0 6px;
+    font-size: 15px;
+}
+
+.feed-recommend-text {
+    margin: 0 0 8px;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.feed-cafes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.feed-cafe-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 10px;
+    background: #f9fafb;
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.feed-cafe-item:hover {
+    background: #e5e7eb;
+    border-color: #f97316;
+}
+
+.feed-cafe-thumb img {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    object-fit: cover;
+}
+
+.feed-cafe-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 12px;
+}
+
+.feed-cafe-name {
+    font-weight: 600;
+}
+
+.feed-cafe-city {
+    color: #6b7280;
+}
+
+.feed-cafe-address {
+    color: #9ca3af;
+}
+
 .site-footer {
     margin-top: 16px;
     padding: 12px 20px;
@@ -711,6 +800,20 @@ body {
 .owner-cafe-photos img {
     width: 100%;
     max-height: 120px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.cafe-post-photos {
+    margin-top: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.cafe-post-photos img {
+    max-width: 100%;
+    max-height: 160px;
     border-radius: 8px;
     object-fit: cover;
 }
@@ -1267,5 +1370,88 @@ body {
         border-left: none;
         border-right: none;
         padding: 0;
+    }
+}
+
+@media (max-width: 640px) {
+    .left-sidebar,
+    .right-sidebar,
+    .main-content {
+        padding: 12px 14px;
+    }
+
+    .logo h1 {
+        font-size: 20px;
+        margin-bottom: 16px;
+    }
+
+    .header-auth-row {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        margin-left: 0;
+        gap: 8px;
+    }
+
+    .header-city-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        margin-left: 0;
+    }
+
+    .header-city-row select,
+    .header-city-row #headerCitySearch {
+        width: 100%;
+    }
+
+    .hero-slider {
+        height: 220px;
+        margin-top: 8px;
+        border-radius: 14px;
+    }
+
+    .map-container {
+        margin-top: 12px;
+        height: 220px;
+        border-radius: 12px;
+    }
+
+    .quick-info,
+    .profile-section,
+    .homepage-news-section,
+    .feed-cafes-block {
+        margin-top: 12px;
+        padding: 10px 10px;
+    }
+
+    .integration-ad-block {
+        min-height: 200px;
+    }
+
+    .feed-cafe-item {
+        padding: 6px;
+        gap: 6px;
+    }
+
+    .feed-cafe-thumb img {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+    }
+
+    .city-selector h3 {
+        font-size: 15px;
+    }
+
+    .province-btn {
+        padding: 4px 8px;
+        font-size: 11px;
+    }
+
+    .site-footer {
+        padding: 10px 14px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
     }
 }
