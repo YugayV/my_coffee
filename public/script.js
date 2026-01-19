@@ -1035,7 +1035,25 @@ function updateSearchResults(term) {
     });
     list.innerHTML = "";
     if (!matches.length) {
-        container.classList.add("hidden");
+        if (!tokens.length) {
+            container.classList.add("hidden");
+            return;
+        }
+        const query = raw.trim();
+        let message = "";
+        if (currentLang === "ru") {
+            message = 'Нет информации по запросу "' + query + '"';
+        } else if (currentLang === "en") {
+            message = 'No results for "' + query + '"';
+        } else {
+            message = '"' + query + '"에 대한 검색 결과가 없습니다.';
+        }
+        const item = document.createElement("div");
+        item.className = "search-result-item";
+        item.textContent = message;
+        item.style.cursor = "default";
+        list.appendChild(item);
+        container.classList.remove("hidden");
         return;
     }
     matches.slice(0, 10).forEach((cafe) => {
@@ -4016,23 +4034,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const searchInput = document.getElementById("searchInput");
     if (searchInput) {
-        searchInput.addEventListener("input", () => {
+        const siteSearchButton = document.getElementById("siteSearchButton");
+        const runSearch = (changeCity) => {
             const term = searchInput.value;
-            applyCitySearch(term);
-            updateSearchResults(term);
-        });
-        searchInput.addEventListener("keydown", (event) => {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                const term = searchInput.value;
+            if (changeCity) {
                 const cityCode = resolveCityCodeFromInput(term);
                 if (cityCode) {
                     setCurrentCity(cityCode);
                 }
-                applyCitySearch(term);
-                updateSearchResults(term);
+            }
+            applyCitySearch(term);
+            updateSearchResults(term);
+        };
+        searchInput.addEventListener("input", () => {
+            runSearch(false);
+        });
+        searchInput.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                runSearch(true);
             }
         });
+        if (siteSearchButton) {
+            siteSearchButton.addEventListener("click", () => {
+                runSearch(true);
+            });
+        }
     }
 
     const headerCitySearch = document.getElementById("headerCitySearch");

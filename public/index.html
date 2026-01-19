@@ -25,12 +25,6 @@
                     <button class="lang-btn" data-lang="en">EN</button>
                     <button class="lang-btn" data-lang="ru">RU</button>
                 </div>
-                <div class="header-city-row">
-                    <select id="headerProvinceSelect"></select>
-                    <select id="headerCitySelect"></select>
-                    <input id="headerCitySearch" type="text" placeholder="Поиск города">
-                    <button id="headerCitySearchButton" type="button" class="btn btn-secondary btn-small header-search-button">Поиск</button>
-                </div>
                 <div class="header-auth-row">
                     <button id="btnOwnerDashboard" class="btn btn-secondary btn-small hidden">Кабинет владельца</button>
                     <button id="btnAdminDashboard" class="btn btn-secondary btn-small hidden" onclick="window.location.href='/admin.html'">Админ панель</button>
@@ -59,22 +53,27 @@
         </div>
 
         <div class="main-content">
-            <div class="homepage-news-section">
-                <h3>Новое на сайте</h3>
-                <ul id="newsList" class="homepage-news-list"></ul>
-            </div>
             <div class="site-search-block">
                 <div class="site-search-header">
                     <h3>Поиск по сайту</h3>
                     <p>Найдите кафе и акции по названию и городу</p>
                 </div>
+                <div class="header-city-row">
+                    <select id="headerProvinceSelect"></select>
+                    <select id="headerCitySelect"></select>
+                </div>
                 <div class="search-bar">
                     <input id="searchInput" type="text" placeholder="Поиск по городу и кафе">
+                    <button id="siteSearchButton" type="button" class="btn btn-secondary btn-small">Поиск</button>
                 </div>
                 <div id="searchResults" class="search-results hidden">
                     <div class="search-results-title">Результаты поиска</div>
                     <div id="searchResultsList" class="search-results-list"></div>
                 </div>
+            </div>
+            <div class="homepage-news-section">
+                <h3>Новое на сайте</h3>
+                <ul id="newsList" class="homepage-news-list"></ul>
             </div>
             <div class="main-feed-header">
                 <h3>Рекламные предложения в выбранном городе</h3>
