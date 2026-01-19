@@ -202,7 +202,9 @@ const cafePostSchema = new mongoose.Schema(
         text: { type: String, required: true },
         createdAt: { type: Date, default: Date.now }
       }
-    ]
+    ],
+    priority: { type: Number, default: 0 },
+    isPromoted: { type: Boolean, default: false }
   },
   { timestamps: true }
 );
@@ -1073,6 +1075,59 @@ app.post("/api/profile/update", authMiddleware, async (req, res) => {
   }
 });
 
+app.delete("/api/profile/me", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "user not found" });
+    }
+
+    const cafes = await Cafe.find({ owner: userId }).select("_id").lean();
+    const cafeIds = cafes.map((c) => c._id);
+
+    if (cafeIds.length) {
+      await CafePost.deleteMany({
+        $or: [{ cafe: { $in: cafeIds } }, { author: userId }]
+      });
+      await CafeSubscription.deleteMany({
+        $or: [{ cafe: { $in: cafeIds } }, { user: userId }]
+      });
+      await Cafe.deleteMany({ owner: userId });
+    } else {
+      await CafePost.deleteMany({ author: userId });
+      await CafeSubscription.deleteMany({ user: userId });
+    }
+
+    const phoneConditions = [];
+    if (user.phone) {
+      phoneConditions.push({ phone: user.phone });
+    }
+    if (user.email) {
+      phoneConditions.push({ email: user.email });
+    }
+    if (phoneConditions.length) {
+      await PhoneVerification.deleteMany({ $or: phoneConditions });
+    }
+
+    await Payment.updateMany(
+      { user: userId },
+      {
+        $set: {
+          user: null
+        }
+      }
+    );
+
+    await User.deleteOne({ _id: userId });
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("profile-delete error", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
 app.post("/api/cafes/:id/subscribe", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
@@ -1203,7 +1258,7 @@ app.get("/api/cafes/:id/posts", async (req, res) => {
       return res.status(404).json({ error: "cafe not found" });
     }
     const rawPosts = await CafePost.find({ cafe: cafe._id })
-      .sort({ createdAt: -1 })
+      .sort({ isPromoted: -1, priority: -1, createdAt: -1 })
       .skip(offset)
       .limit(limit + 1)
       .lean();
@@ -1228,7 +1283,9 @@ app.get("/api/cafes/:id/posts", async (req, res) => {
         likesCount,
         rating,
         photos: Array.isArray(p.photos) ? p.photos : [],
-        comments: Array.isArray(p.comments) ? p.comments : []
+        comments: Array.isArray(p.comments) ? p.comments : [],
+        priority: typeof p.priority === "number" ? p.priority : 0,
+        isPromoted: !!p.isPromoted
       };
     });
     res.json({ posts: normalized, hasMore, limit, offset });
@@ -1331,6 +1388,69 @@ app.post(
   }
 );
 
+app.put(
+  "/api/cafes/:cafeId/posts/:postId",
+  authMiddleware,
+  ownerOnly,
+  async (req, res) => {
+    try {
+      const { cafeId, postId } = req.params;
+      const cafe = await Cafe.findOne({ _id: cafeId, owner: req.user.id })
+        .select("_id")
+        .lean();
+      if (!cafe) {
+        return res.status(404).json({ error: "cafe not found" });
+      }
+      const post = await CafePost.findOne({ _id: postId, cafe: cafe._id });
+      if (!post) {
+        return res.status(404).json({ error: "post not found" });
+      }
+      const { text, priority, isPromoted } = req.body || {};
+      if (typeof text === "string" && text.trim()) {
+        post.text = text.trim();
+      }
+      if (typeof priority !== "undefined") {
+        const numeric = Number(priority);
+        post.priority = Number.isFinite(numeric) ? numeric : 0;
+      }
+      if (typeof isPromoted !== "undefined") {
+        post.isPromoted = !!isPromoted;
+      }
+      await post.save();
+      res.json({ post });
+    } catch (err) {
+      console.error("update cafe post error", err);
+      res.status(500).json({ error: "server error" });
+    }
+  }
+);
+
+app.delete(
+  "/api/cafes/:cafeId/posts/:postId",
+  authMiddleware,
+  ownerOnly,
+  async (req, res) => {
+    try {
+      const { cafeId, postId } = req.params;
+      const cafe = await Cafe.findOne({ _id: cafeId, owner: req.user.id })
+        .select("_id")
+        .lean();
+      if (!cafe) {
+        return res.status(404).json({ error: "cafe not found" });
+      }
+      const post = await CafePost.findOne({ _id: postId, cafe: cafe._id });
+      if (!post) {
+        return res.status(404).json({ error: "post not found" });
+      }
+      await post.deleteOne();
+      res.json({ ok: true });
+    } catch (err) {
+      console.error("delete cafe post error", err);
+      res.status(500).json({ error: "server error" });
+    }
+  }
+);
+
 app.post("/api/profile/become-owner", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -1380,6 +1500,68 @@ app.get("/api/ads", async (req, res) => {
     res.json({ ads });
   } catch (err) {
     console.error("ads error", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+app.get("/api/promo-posts", async (req, res) => {
+  try {
+    const { city, limit: limitRaw } = req.query;
+    let limit = Number(limitRaw);
+    if (!Number.isFinite(limit) || limit <= 0) {
+      limit = 10;
+    }
+    if (limit > 50) {
+      limit = 50;
+    }
+    const cafeQuery = { isActive: true };
+    if (city) {
+      cafeQuery.cityCode = city;
+    }
+    const cafes = await Cafe.find(cafeQuery).select("_id cityCode name").lean();
+    if (!cafes.length) {
+      return res.json({ posts: [] });
+    }
+    const cafeIds = cafes.map((c) => c._id);
+    const posts = await CafePost.find({
+      cafe: { $in: cafeIds },
+      isPromoted: true
+    })
+      .sort({ priority: -1, createdAt: -1 })
+      .limit(limit)
+      .lean();
+    const cafesById = cafes.reduce((acc, cafe) => {
+      acc[String(cafe._id)] = cafe;
+      return acc;
+    }, {});
+    const normalized = posts.map((p) => {
+      const likesCount = Array.isArray(p.likes) ? p.likes.length : 0;
+      const ratingCount =
+        typeof p.ratingCount === "number" && p.ratingCount > 0
+          ? p.ratingCount
+          : 0;
+      const ratingSum =
+        typeof p.ratingSum === "number" && p.ratingSum > 0 ? p.ratingSum : 0;
+      const rating =
+        ratingCount > 0 ? Number((ratingSum / ratingCount).toFixed(2)) : 0;
+      const cafe = cafesById[String(p.cafe)];
+      return {
+        _id: p._id,
+        cafe: p.cafe,
+        cafeName: cafe ? cafe.name : null,
+        cafeCityCode: cafe ? cafe.cityCode : null,
+        text: p.text,
+        createdAt: p.createdAt,
+        likesCount,
+        rating,
+        photos: Array.isArray(p.photos) ? p.photos : [],
+        priority: typeof p.priority === "number" ? p.priority : 0,
+        isPromoted: !!p.isPromoted
+      };
+    });
+    res.json({ posts: normalized });
+  } catch (err) {
+    console.error("promo-posts error", err);
     res.status(500).json({ error: "server error" });
   }
 });
@@ -1931,6 +2113,90 @@ app.get("/api/admin/ads", authMiddleware, adminOnly, async (req, res) => {
     res.status(500).json({ error: "server error" });
   }
 });
+
+app.get(
+  "/api/admin/promo-stats",
+  authMiddleware,
+  adminOnly,
+  async (req, res) => {
+    try {
+      const { city } = req.query;
+      let cafeFilterIds = null;
+      if (city) {
+        const cafesForCity = await Cafe.find({ cityCode: city })
+          .select("_id")
+          .lean();
+        cafeFilterIds = cafesForCity.map((c) => c._id);
+        if (!cafeFilterIds.length) {
+          return res.json({ totalPromos: 0, byCity: [], topPosts: [] });
+        }
+      }
+
+      const totalQuery = { isPromoted: true };
+      if (cafeFilterIds) {
+        totalQuery.cafe = { $in: cafeFilterIds };
+      }
+      const totalPromos = await CafePost.countDocuments(totalQuery);
+
+      const matchStage = cafeFilterIds
+        ? { "posts.isPromoted": true, _id: { $in: cafeFilterIds } }
+        : { "posts.isPromoted": true };
+
+      const byCity = await Cafe.aggregate([
+        {
+          $lookup: {
+            from: "cafeposts",
+            localField: "_id",
+            foreignField: "cafe",
+            as: "posts"
+          }
+        },
+        { $unwind: "$posts" },
+        { $match: matchStage },
+        {
+          $group: {
+            _id: "$cityCode",
+            count: { $sum: 1 }
+          }
+        },
+        {
+          $sort: { count: -1 }
+        }
+      ]);
+
+      const topQuery = { isPromoted: true };
+      if (cafeFilterIds) {
+        topQuery.cafe = { $in: cafeFilterIds };
+      }
+      const topPosts = await CafePost.find(topQuery)
+        .sort({ likes: -1, ratingSum: -1, createdAt: -1 })
+        .limit(10)
+        .lean();
+      res.json({
+        totalPromos,
+        byCity,
+        topPosts: topPosts.map((p) => ({
+          _id: p._id,
+          cafe: p.cafe,
+          text: p.text,
+          likesCount: Array.isArray(p.likes) ? p.likes.length : 0,
+          ratingSum:
+            typeof p.ratingSum === "number" && p.ratingSum > 0
+              ? p.ratingSum
+              : 0,
+          ratingCount:
+            typeof p.ratingCount === "number" && p.ratingCount > 0
+              ? p.ratingCount
+              : 0,
+          createdAt: p.createdAt
+        }))
+      });
+    } catch (err) {
+      console.error("admin promo stats error", err);
+      res.status(500).json({ error: "server error" });
+    }
+  }
+);
 
 app.post("/api/admin/ads", authMiddleware, adminOnly, async (req, res) => {
   try {

@@ -536,6 +536,20 @@ function initOwnerProfileSummary() {
     if (!summaryEl) {
         return;
     }
+    const cafeForm = document.getElementById("ownerCafeForm");
+    const cafesList = document.getElementById("ownerCafesList");
+    const stickyBar = document.querySelector(".owner-mobile-sticky");
+    const controls = [cafeForm, cafesList, stickyBar];
+    function setOwnerControlsVisible(visible) {
+        controls.forEach((el) => {
+            if (!el) return;
+            if (visible) {
+                el.classList.remove("hidden");
+            } else {
+                el.classList.add("hidden");
+            }
+        });
+    }
     if (!currentUser) {
         summaryEl.textContent =
             currentLang === "ru"
@@ -543,6 +557,7 @@ function initOwnerProfileSummary() {
                 : currentLang === "en"
                 ? "Login as a cafe owner to manage your cafes."
                 : "카페 사장님 계정으로 로그인하면 카페를 관리할 수 있습니다.";
+        setOwnerControlsVisible(false);
         return;
     }
     const role = currentUser.role || "user";
@@ -556,6 +571,7 @@ function initOwnerProfileSummary() {
                 : currentLang === "en"
                 ? "Your account is not marked as a cafe owner yet."
                 : "현재 계정은 카페 사장님으로 등록되어 있지 않습니다.";
+        setOwnerControlsVisible(false);
         return;
     }
     const parts = [];
@@ -569,6 +585,7 @@ function initOwnerProfileSummary() {
         parts.push(phone);
     }
     summaryEl.textContent = parts.join(" · ");
+    setOwnerControlsVisible(true);
 }
 
 async function refreshProfileFromBackend() {
@@ -593,8 +610,9 @@ async function refreshProfileFromBackend() {
 }
 
 async function initAds() {
-    const adBanner = document.querySelector(".ad-banner");
-    if (!adBanner) {
+    const adBanners = document.querySelectorAll(".ad-banner");
+    const mainIntegration = document.getElementById("mainIntegrationAd");
+    if (!adBanners.length && !mainIntegration) {
         return;
     }
     try {
@@ -608,19 +626,31 @@ async function initAds() {
         }
         const data = await res.json();
         if (!data || data.showAds === false) {
-            adBanner.classList.add("hidden");
+            adBanners.forEach((banner) => banner.classList.add("hidden"));
+            if (mainIntegration) {
+                mainIntegration.innerHTML = "";
+            }
             return;
         }
         if (data.provider === "adsense" && data.adsenseClientId && data.adsenseSlotId) {
-            adBanner.innerHTML = "";
-            const ins = document.createElement("ins");
-            ins.className = "adsbygoogle";
-            ins.style.display = "block";
-            ins.setAttribute("data-ad-client", data.adsenseClientId);
-            ins.setAttribute("data-ad-slot", data.adsenseSlotId);
-            ins.setAttribute("data-ad-format", "auto");
-            ins.setAttribute("data-full-width-responsive", "true");
-            adBanner.appendChild(ins);
+            const adsenseContainers = [];
+            adBanners.forEach((banner) => {
+                adsenseContainers.push(banner);
+            });
+            if (mainIntegration) {
+                adsenseContainers.push(mainIntegration);
+            }
+            adsenseContainers.forEach((container) => {
+                container.innerHTML = "";
+                const ins = document.createElement("ins");
+                ins.className = "adsbygoogle";
+                ins.style.display = "block";
+                ins.setAttribute("data-ad-client", data.adsenseClientId);
+                ins.setAttribute("data-ad-slot", data.adsenseSlotId);
+                ins.setAttribute("data-ad-format", "auto");
+                ins.setAttribute("data-full-width-responsive", "true");
+                container.appendChild(ins);
+            });
             if (!window.adsbygoogle) {
                 const s = document.createElement("script");
                 s.async = true;
@@ -630,23 +660,30 @@ async function initAds() {
                 s.onload = () => {
                     try {
                         window.adsbygoogle = window.adsbygoogle || [];
-                        window.adsbygoogle.push({});
+                        adsenseContainers.forEach(() => {
+                            window.adsbygoogle.push({});
+                        });
                     } catch (e) {}
                 };
             } else {
                 try {
                     window.adsbygoogle = window.adsbygoogle || [];
-                    window.adsbygoogle.push({});
+                    adsenseContainers.forEach(() => {
+                        window.adsbygoogle.push({});
+                    });
                 } catch (e) {}
             }
             return;
         }
         const feedAdsContainer = document.getElementById("feedAdsContainer");
+        const firstBanner = adBanners[0];
         if (data.provider === "kakao" && data.kakaoUnitId && data.kakaoScriptUrl) {
-            adBanner.innerHTML = "";
-            const container = document.createElement("div");
-            container.id = data.kakaoUnitId;
-            adBanner.appendChild(container);
+            if (firstBanner) {
+                firstBanner.innerHTML = "";
+                const container = document.createElement("div");
+                container.id = data.kakaoUnitId;
+                firstBanner.appendChild(container);
+            }
             const s = document.createElement("script");
             s.async = true;
             s.src = data.kakaoScriptUrl;
@@ -654,10 +691,12 @@ async function initAds() {
             return;
         }
         if (data.provider === "naver" && data.naverUnitId && data.naverScriptUrl) {
-            adBanner.innerHTML = "";
-            const container = document.createElement("div");
-            container.id = data.naverUnitId;
-            adBanner.appendChild(container);
+            if (firstBanner) {
+                firstBanner.innerHTML = "";
+                const container = document.createElement("div");
+                container.id = data.naverUnitId;
+                firstBanner.appendChild(container);
+            }
             const s = document.createElement("script");
             s.async = true;
             s.src = data.naverScriptUrl;
@@ -675,9 +714,8 @@ async function initAds() {
                 }
                 const adsData = await adsRes.json();
                 const ads = adsData && adsData.ads ? adsData.ads : [];
-                const mainIntegration = document.getElementById("mainIntegrationAd");
                 if (!ads.length) {
-                    adBanner.classList.add("hidden");
+                    adBanners.forEach((banner) => banner.classList.add("hidden"));
                     if (feedAdsContainer) {
                         feedAdsContainer.innerHTML = "";
                     }
@@ -686,29 +724,32 @@ async function initAds() {
                     }
                     return;
                 }
-                adBanner.innerHTML = "";
-                const list = document.createElement("div");
-                list.className = "ad-local-list";
-                ads.forEach((ad) => {
-                    const item = document.createElement("div");
-                    item.className = "ad-local-item";
-                    const title = document.createElement("div");
-                    title.className = "ad-local-title";
-                    title.textContent = ad.title || "";
-                    const text = document.createElement("div");
-                    text.className = "ad-local-text";
-                    text.textContent = ad.text || "";
-                    item.appendChild(title);
-                    item.appendChild(text);
-                    if (ad.url) {
-                        item.addEventListener("click", () => {
-                            window.open(ad.url, "_blank");
-                        });
-                        item.classList.add("ad-local-clickable");
-                    }
-                    list.appendChild(item);
-                });
-                adBanner.appendChild(list);
+                const mainBanner = firstBanner || null;
+                if (mainBanner) {
+                    mainBanner.innerHTML = "";
+                    const list = document.createElement("div");
+                    list.className = "ad-local-list";
+                    ads.forEach((ad) => {
+                        const item = document.createElement("div");
+                        item.className = "ad-local-item";
+                        const title = document.createElement("div");
+                        title.className = "ad-local-title";
+                        title.textContent = ad.title || "";
+                        const text = document.createElement("div");
+                        text.className = "ad-local-text";
+                        text.textContent = ad.text || "";
+                        item.appendChild(title);
+                        item.appendChild(text);
+                        if (ad.url) {
+                            item.addEventListener("click", () => {
+                                window.open(ad.url, "_blank");
+                            });
+                            item.classList.add("ad-local-clickable");
+                        }
+                        list.appendChild(item);
+                    });
+                    mainBanner.appendChild(list);
+                }
                 if (feedAdsContainer) {
                     feedAdsContainer.innerHTML = "";
                     ads.slice(0, 3).forEach((ad) => {
@@ -897,6 +938,61 @@ async function loadFeedCafes() {
             listEl.appendChild(item);
         });
         updateSearchResults("");
+    } catch (e) {
+    }
+}
+
+async function loadPromoPosts() {
+    const block = document.getElementById("promoPostsBlock");
+    if (!block) {
+        return;
+    }
+    block.innerHTML = "";
+    try {
+        const res = await fetch(
+            "/api/promo-posts" +
+                (currentCityCode ? "?city=" + encodeURIComponent(currentCityCode) : "")
+        );
+        if (!res.ok) {
+            return;
+        }
+        const data = await res.json();
+        const posts = data && Array.isArray(data.posts) ? data.posts : [];
+        if (!posts.length) {
+            return;
+        }
+        posts.forEach((post) => {
+            const chip = document.createElement("button");
+            chip.type = "button";
+            chip.className = "promo-post-chip";
+            const cafeName = post.cafeName || "";
+            const text = post.text || "";
+            const shortText = text.length > 40 ? text.slice(0, 37) + "..." : text;
+            chip.textContent = cafeName ? cafeName + ": " + shortText : shortText;
+            chip.addEventListener("click", async () => {
+                if (!post.cafe) {
+                    return;
+                }
+                try {
+                    const resCafe = await fetch(
+                        "/api/cafes?id=" + encodeURIComponent(post.cafe)
+                    );
+                    if (!resCafe.ok) {
+                        return;
+                    }
+                    const cafeData = await resCafe.json();
+                    if (cafeData && cafeData.cafe) {
+                        const cafe = cafeData.cafe;
+                        if (cafe.cityCode) {
+                            setCurrentCity(cafe.cityCode);
+                        }
+                        openCafePage(cafe);
+                    }
+                } catch (e) {
+                }
+            });
+            block.appendChild(chip);
+        });
     } catch (e) {
     }
 }
@@ -1671,9 +1767,11 @@ async function openCafePage(cafe) {
         menuEl.innerHTML = "";
         const items = Array.isArray(cafe.menu) ? cafe.menu : [];
         if (items.length) {
+            const track = document.createElement("div");
+            track.className = "cafe-menu-carousel-track";
             items.forEach((item) => {
                 const row = document.createElement("div");
-                row.className = "cafe-detail-menu-item";
+                row.className = "cafe-detail-menu-item cafe-menu-card";
                 const title = document.createElement("div");
                 title.className = "cafe-detail-menu-title";
                 title.textContent = item.name || "";
@@ -1691,8 +1789,31 @@ async function openCafePage(cafe) {
                 if (meta.textContent) {
                     row.appendChild(meta);
                 }
-                menuEl.appendChild(row);
+                track.appendChild(row);
             });
+            menuEl.appendChild(track);
+            if (items.length > 1) {
+                const controls = document.createElement("div");
+                controls.className = "cafe-menu-carousel-controls";
+                const prevBtn = document.createElement("button");
+                prevBtn.type = "button";
+                prevBtn.className = "btn btn-outline btn-small cafe-menu-prev";
+                prevBtn.textContent = "‹";
+                const nextBtn = document.createElement("button");
+                nextBtn.type = "button";
+                nextBtn.className = "btn btn-outline btn-small cafe-menu-next";
+                nextBtn.textContent = "›";
+                const scrollAmount = 180;
+                prevBtn.addEventListener("click", () => {
+                    track.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+                });
+                nextBtn.addEventListener("click", () => {
+                    track.scrollBy({ left: scrollAmount, behavior: "smooth" });
+                });
+                controls.appendChild(prevBtn);
+                controls.appendChild(nextBtn);
+                menuEl.appendChild(controls);
+            }
         } else {
             if (currentLang === "ru") {
                 menuEl.textContent = "Меню этого кафе появится здесь. Попросите владельца заполнить его.";
@@ -1872,6 +1993,155 @@ async function loadCafePosts(reset = true) {
 
             const actionsRow = document.createElement("div");
             actionsRow.className = "cafe-post-actions";
+
+            if (currentUser && currentUser.role === "owner") {
+                const ownerControls = document.createElement("div");
+                ownerControls.className = "cafe-post-owner-controls";
+
+                const priorityLabel = document.createElement("span");
+                priorityLabel.textContent =
+                    currentLang === "ru"
+                        ? "Приоритет:"
+                        : currentLang === "en"
+                        ? "Priority:"
+                        : "우선순위:";
+
+                const priorityInput = document.createElement("input");
+                priorityInput.type = "number";
+                priorityInput.className = "cafe-post-priority-input";
+                priorityInput.value =
+                    typeof post.priority === "number" ? String(post.priority) : "0";
+
+                const promoteToggle = document.createElement("button");
+                promoteToggle.type = "button";
+                promoteToggle.className = "btn btn-outline btn-small";
+                const updatePromoteLabel = () => {
+                    promoteToggle.textContent =
+                        currentLang === "ru"
+                            ? post.isPromoted
+                                ? "Снять рекламу"
+                                : "Продвинуть"
+                            : currentLang === "en"
+                            ? post.isPromoted
+                                ? "Unpromote"
+                                : "Promote"
+                            : post.isPromoted
+                            ? "광고 해제"
+                            : "광고 승격";
+                };
+                updatePromoteLabel();
+
+                promoteToggle.addEventListener("click", async () => {
+                    if (!authToken || !currentCafeId) return;
+                    try {
+                        const resUpdate = await fetch(
+                            "/api/cafes/" +
+                                encodeURIComponent(currentCafeId) +
+                                "/posts/" +
+                                encodeURIComponent(post._id),
+                            {
+                                method: "PUT",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    Authorization: "Bearer " + authToken
+                                },
+                                body: JSON.stringify({ isPromoted: !post.isPromoted })
+                            }
+                        );
+                        if (!resUpdate.ok) {
+                            return;
+                        }
+                        await loadCafePosts(true);
+                    } catch (e) {
+                    }
+                });
+
+                const savePriorityBtn = document.createElement("button");
+                savePriorityBtn.type = "button";
+                savePriorityBtn.className = "btn btn-outline btn-small";
+                savePriorityBtn.textContent =
+                    currentLang === "ru"
+                        ? "Сохранить приоритет"
+                        : currentLang === "en"
+                        ? "Save priority"
+                        : "우선순위 저장";
+                savePriorityBtn.addEventListener("click", async () => {
+                    if (!authToken || !currentCafeId) return;
+                    const val = Number(priorityInput.value);
+                    if (!Number.isFinite(val)) {
+                        return;
+                    }
+                    try {
+                        const resUpdate = await fetch(
+                            "/api/cafes/" +
+                                encodeURIComponent(currentCafeId) +
+                                "/posts/" +
+                                encodeURIComponent(post._id),
+                            {
+                                method: "PUT",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    Authorization: "Bearer " + authToken
+                                },
+                                body: JSON.stringify({ priority: val })
+                            }
+                        );
+                        if (!resUpdate.ok) {
+                            return;
+                        }
+                        await loadCafePosts(true);
+                    } catch (e) {
+                    }
+                });
+
+                const deleteBtn = document.createElement("button");
+                deleteBtn.type = "button";
+                deleteBtn.className = "btn btn-outline btn-small";
+                deleteBtn.textContent =
+                    currentLang === "ru"
+                        ? "Удалить"
+                        : currentLang === "en"
+                        ? "Delete"
+                        : "삭제";
+                deleteBtn.addEventListener("click", async () => {
+                    if (!authToken || !currentCafeId) return;
+                    const confirmText =
+                        currentLang === "ru"
+                            ? "Удалить этот пост?"
+                            : currentLang === "en"
+                            ? "Delete this post?"
+                            : "이 게시글을 삭제하시겠습니까?";
+                    if (!window.confirm(confirmText)) {
+                        return;
+                    }
+                    try {
+                        const resDel = await fetch(
+                            "/api/cafes/" +
+                                encodeURIComponent(currentCafeId) +
+                                "/posts/" +
+                                encodeURIComponent(post._id),
+                            {
+                                method: "DELETE",
+                                headers: {
+                                    Authorization: "Bearer " + authToken
+                                }
+                            }
+                        );
+                        if (!resDel.ok) {
+                            return;
+                        }
+                        await loadCafePosts(true);
+                    } catch (e) {
+                    }
+                });
+
+                ownerControls.appendChild(priorityLabel);
+                ownerControls.appendChild(priorityInput);
+                ownerControls.appendChild(savePriorityBtn);
+                ownerControls.appendChild(promoteToggle);
+                ownerControls.appendChild(deleteBtn);
+                actionsRow.appendChild(ownerControls);
+            }
 
             const likeBtn = document.createElement("button");
             likeBtn.type = "button";
@@ -2315,6 +2585,7 @@ function setCurrentCity(code) {
     applyLanguage(currentLang);
     initKakaoMap(currentCityCode);
     loadFeedCafes();
+    loadPromoPosts();
 }
 
 async function loadOwnerCafes() {
@@ -2427,6 +2698,7 @@ async function loadOwnerCafes() {
                 const detailMetaEl = document.getElementById("ownerCafeDetailMeta");
                 const detailDescEl = document.getElementById("ownerCafeDetailDescription");
                 const detailBookingEl = document.getElementById("ownerCafeDetailBookingInfo");
+                const detailMenuEl = document.getElementById("ownerCafeDetailMenu");
                 const detailPhotosEl = document.getElementById("ownerCafeDetailPhotos");
                 const cafeName = cafe.name || "Кафе";
                 if (detailNameEl) {
@@ -2466,6 +2738,48 @@ async function loadOwnerCafes() {
                                 : currentLang === "en"
                                 ? "No booking or delivery info specified. Please contact the owner directly."
                                 : "예약 또는 배달 정보가 없습니다. 매장에 직접 문의하세요.";
+                    }
+                }
+                if (detailMenuEl) {
+                    detailMenuEl.innerHTML = "";
+                    const items = Array.isArray(cafe.menu) ? cafe.menu : [];
+                    if (items.length) {
+                        const track = document.createElement("div");
+                        track.className = "cafe-menu-carousel-track";
+                        items.forEach((item) => {
+                            const row = document.createElement("div");
+                            row.className = "cafe-detail-menu-item cafe-menu-card";
+                            const title = document.createElement("div");
+                            title.className = "cafe-detail-menu-title";
+                            title.textContent = item.name || "";
+                            const meta = document.createElement("div");
+                            meta.className = "owner-cafe-detail-menu-meta";
+                            const partsMenu = [];
+                            if (typeof item.price === "number") {
+                                partsMenu.push(item.price + "₩");
+                            }
+                            if (item.category) {
+                                partsMenu.push(item.category);
+                            }
+                            meta.textContent = partsMenu.join(" · ");
+                            row.appendChild(title);
+                            if (meta.textContent) {
+                                row.appendChild(meta);
+                            }
+                            track.appendChild(row);
+                        });
+                        detailMenuEl.appendChild(track);
+                    } else {
+                        if (currentLang === "ru") {
+                            detailMenuEl.textContent =
+                                "Здесь будет меню этого кафе. Добавьте позиции в форме слева.";
+                        } else if (currentLang === "en") {
+                            detailMenuEl.textContent =
+                                "Cafe menu will appear here after you add items on the left.";
+                        } else {
+                            detailMenuEl.textContent =
+                                "왼쪽 폼에서 메뉴를 추가하면 이곳에 표시됩니다.";
+                        }
                     }
                 }
                 if (detailPhotosEl) {
@@ -2844,6 +3158,117 @@ async function loadAdminAds() {
     }
 }
 
+async function loadAdminPromoStats(cityCode) {
+    const summaryEl = document.getElementById("adminPromoStatsSummary");
+    const byCityEl = document.getElementById("adminPromoStatsByCity");
+    const topPostsEl = document.getElementById("adminPromoStatsTopPosts");
+    const filterSelect = document.getElementById("adminPromoStatsCityFilter");
+    if (!summaryEl || !byCityEl || !topPostsEl || !authToken || !currentUser || !currentUser.isAdmin) {
+        return;
+    }
+    summaryEl.innerHTML = "";
+    byCityEl.innerHTML = "";
+    topPostsEl.innerHTML = "";
+    try {
+        const url =
+            "/api/admin/promo-stats" +
+            (cityCode ? "?city=" + encodeURIComponent(cityCode) : "");
+        const res = await fetch(url, {
+            headers: {
+                Authorization: "Bearer " + authToken
+            }
+        });
+        if (!res.ok) {
+            return;
+        }
+        const data = await res.json();
+        const totalPromos = typeof data.totalPromos === "number" ? data.totalPromos : 0;
+        const byCity = Array.isArray(data.byCity) ? data.byCity : [];
+        const topPosts = Array.isArray(data.topPosts) ? data.topPosts : [];
+
+        const summaryRow = document.createElement("div");
+        summaryRow.className = "admin-list-item";
+        summaryRow.textContent = "Всего активных промо-постов: " + totalPromos;
+        summaryEl.appendChild(summaryRow);
+
+        if (filterSelect && !filterSelect.dataset.initialized) {
+            const selectedValue = cityCode || "";
+            filterSelect.innerHTML = "";
+            const optionAll = document.createElement("option");
+            optionAll.value = "";
+            optionAll.textContent = "Все города";
+            filterSelect.appendChild(optionAll);
+            byCity.forEach((item) => {
+                const code = item._id || "";
+                if (!code) {
+                    return;
+                }
+                const option = document.createElement("option");
+                option.value = code;
+                option.textContent = code;
+                filterSelect.appendChild(option);
+            });
+            filterSelect.value = selectedValue;
+            filterSelect.dataset.initialized = "1";
+        }
+
+        if (byCity.length) {
+            const maxCount = byCity.reduce((max, item) => {
+                const value =
+                    typeof item.count === "number" && item.count > 0
+                        ? item.count
+                        : 0;
+                return value > max ? value : max;
+            }, 0);
+            byCity.forEach((item) => {
+                const row = document.createElement("div");
+                row.className = "admin-list-item admin-promo-bar-row";
+                const city = item._id || "(без города)";
+                const label = document.createElement("div");
+                label.className = "admin-promo-bar-label";
+                label.textContent = city;
+                const outer = document.createElement("div");
+                outer.className = "admin-promo-bar-outer";
+                const inner = document.createElement("div");
+                inner.className = "admin-promo-bar-inner";
+                const countValue =
+                    typeof item.count === "number" && item.count > 0
+                        ? item.count
+                        : 0;
+                const width =
+                    maxCount > 0 ? Math.max(4, (countValue / maxCount) * 100) : 0;
+                inner.style.width = width + "%";
+                outer.appendChild(inner);
+                const valueEl = document.createElement("div");
+                valueEl.className = "admin-promo-bar-value";
+                valueEl.textContent = String(countValue);
+                row.appendChild(label);
+                row.appendChild(outer);
+                row.appendChild(valueEl);
+                byCityEl.appendChild(row);
+            });
+        }
+
+        if (topPosts.length) {
+            topPosts.forEach((post) => {
+                const row = document.createElement("div");
+                row.className = "admin-list-item";
+                const likesCount = typeof post.likesCount === "number" ? post.likesCount : 0;
+                const ratingCount = typeof post.ratingCount === "number" ? post.ratingCount : 0;
+                const ratingSum = typeof post.ratingSum === "number" ? post.ratingSum : 0;
+                const rating =
+                    ratingCount > 0 ? (ratingSum / ratingCount).toFixed(2) : "0";
+                const text = post.text || "";
+                const shortText = text.length > 60 ? text.slice(0, 57) + "..." : text;
+                row.textContent =
+                    "Лайков: " + likesCount + ", рейтинг: " + rating + " — " + shortText;
+                topPostsEl.appendChild(row);
+            });
+        }
+    } catch (e) {
+    }
+}
+
 async function loadAdminNews() {
     const listEl = document.getElementById("adminNewsList");
     if (!listEl || !authToken || !currentUser || !currentUser.isAdmin) {
@@ -3108,6 +3533,7 @@ async function reloadAdminData() {
     await loadAdminAds();
     await loadAdminNews();
     await loadAdminVerifications();
+    await loadAdminPromoStats();
 }
 
 async function adminLoginPrompt() {
@@ -3194,6 +3620,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (pathName === "/owner") {
         initOwnerProfileSummary();
+    }
+    if (pathName === "/admin.html") {
+        const cityFilter = document.getElementById("adminPromoStatsCityFilter");
+        if (cityFilter) {
+            cityFilter.addEventListener("change", () => {
+                const value = cityFilter.value || "";
+                loadAdminPromoStats(value || undefined);
+            });
+        }
     }
 
     const cityButtons = document.querySelectorAll(".city-btn");
@@ -3540,6 +3975,39 @@ document.addEventListener("DOMContentLoaded", () => {
                         ? "Network error"
                         : "네트워크 오류"
                 );
+            }
+        });
+    }
+
+    const btnProfileDeleteAccount = document.getElementById("btnProfileDeleteAccount");
+    if (btnProfileDeleteAccount) {
+        btnProfileDeleteAccount.addEventListener("click", async () => {
+            if (!authToken || !currentUser) {
+                showLoginModal();
+                return;
+            }
+            const message =
+                currentLang === "ru"
+                    ? "Удалить аккаунт и все связанные данные? Это действие необратимо."
+                    : currentLang === "en"
+                    ? "Delete your account and all related data? This action cannot be undone."
+                    : "계정과 모든 관련 데이터를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.";
+            if (!window.confirm(message)) {
+                return;
+            }
+            try {
+                const res = await fetch("/api/profile/me", {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: "Bearer " + authToken
+                    }
+                });
+                if (!res.ok) {
+                    return;
+                }
+                setAuth(null, null);
+                window.location.href = "/";
+            } catch (e) {
             }
         });
     }

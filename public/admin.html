@@ -79,7 +79,22 @@
                             <button type="submit" class="btn btn-primary">Сохранить контакты</button>
                         </form>
                     </div>
+                    <div id="adminPromoStatsTab" class="admin-extra-panel">
+                        <h3>Статистика по промо-постам</h3>
+                        <div class="admin-promo-filters">
+                            <label for="adminPromoStatsCityFilter">Город:</label>
+                            <select id="adminPromoStatsCityFilter">
+                                <option value="">Все города</option>
+                            </select>
+                        </div>
+                        <div id="adminPromoStatsSummary" class="admin-list"></div>
+                        <div id="adminPromoStatsByCity" class="admin-list"></div>
+                        <div id="adminPromoStatsTopPosts" class="admin-list"></div>
+                    </div>
                 </section>
+            </div>
+            <div class="owner-layout-right">
+                <aside class="ad-banner admin-ad-banner"></aside>
             </div>
         </section>
     </main>
