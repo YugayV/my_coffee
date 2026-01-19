@@ -4949,7 +4949,14 @@ document.addEventListener("DOMContentLoaded", () => {
             const tab = btn.getAttribute("data-tab");
             adminTabButtons.forEach((b) => b.classList.remove("active"));
             btn.classList.add("active");
-            if (adminUsersTab && adminCafesTab && adminAdsTab && adminNewsTab && adminVerificationsTab && adminConfigTab) {
+            if (
+                adminUsersTab &&
+                adminCafesTab &&
+                adminAdsTab &&
+                adminNewsTab &&
+                adminVerificationsTab &&
+                adminConfigTab
+            ) {
                 adminUsersTab.classList.remove("active");
                 adminCafesTab.classList.remove("active");
                 adminAdsTab.classList.remove("active");
@@ -4976,7 +4983,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
         });
-    }
+    });
 
     const btnAdminResetDb = document.getElementById("btnAdminResetDb");
     if (btnAdminResetDb) {
