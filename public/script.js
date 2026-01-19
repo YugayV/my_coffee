@@ -4017,8 +4017,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const searchInput = document.getElementById("searchInput");
     if (searchInput) {
         searchInput.addEventListener("input", () => {
-            applyCitySearch(searchInput.value);
-            updateSearchResults(searchInput.value);
+            const term = searchInput.value;
+            applyCitySearch(term);
+            updateSearchResults(term);
+        });
+        searchInput.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                const term = searchInput.value;
+                const cityCode = resolveCityCodeFromInput(term);
+                if (cityCode) {
+                    setCurrentCity(cityCode);
+                }
+                applyCitySearch(term);
+                updateSearchResults(term);
+            }
         });
     }
 
