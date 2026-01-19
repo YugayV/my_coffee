@@ -863,6 +863,13 @@ async function loadFeedCafes() {
             }
             const item = document.createElement("div");
             item.className = "feed-cafe-item";
+            item.addEventListener("click", () => {
+                if (cafe && cafe._id) {
+                    window.location.href = "/cafe/" + encodeURIComponent(cafe._id);
+                } else {
+                    openCafePage(cafe);
+                }
+            });
 
             const thumbWrap = document.createElement("div");
             thumbWrap.className = "feed-cafe-thumb";

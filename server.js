@@ -100,7 +100,7 @@ const cafeSchema = new mongoose.Schema(
   {
     owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     name: { type: String, required: true },
-    cityCode: { type: String, required: true },
+    cityCode: { type: String },
     address: { type: String },
     description: { type: String },
     bookingInfo: { type: String },
@@ -2588,6 +2588,11 @@ app.post(
     }
   }
 );
+
+// SPA fallback
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "public", "index.html"));
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
