@@ -1,90 +1,123 @@
-const mongoose = require("mongoose");
+const http = require("http");
+const https = require("https");
 require("dotenv").config();
 
-const MONGODB_URI = process.env.MONGODB_URI;
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const PORT = process.env.PORT || 3000;
+const ADMIN_API_BASE_URL =
+  process.env.ADMIN_API_BASE_URL || `http://localhost:${PORT}`;
 
-if (!MONGODB_URI) {
-  console.error("MONGODB_URI is required");
-  process.exit(1);
+function httpRequest(method, path, body, extraHeaders) {
+  return new Promise((resolve, reject) => {
+    const url = new URL(ADMIN_API_BASE_URL);
+    const isHttps = url.protocol === "https:";
+    const data = body ? JSON.stringify(body) : null;
+
+    const options = {
+      protocol: url.protocol,
+      hostname: url.hostname,
+      port: url.port || (isHttps ? 443 : 80),
+      path,
+      method,
+      headers: Object.assign(
+        {},
+        extraHeaders || {},
+        data
+          ? {
+              "Content-Type": "application/json",
+              "Content-Length": Buffer.byteLength(data)
+            }
+          : {}
+      )
+    };
+
+    const client = isHttps ? https : http;
+    const req = client.request(options, (res) => {
+      let raw = "";
+      res.on("data", (chunk) => {
+        raw += chunk;
+      });
+      res.on("end", () => {
+        let parsed = null;
+        if (raw) {
+          try {
+            parsed = JSON.parse(raw);
+          } catch {
+            parsed = raw;
+          }
+        }
+        resolve({ status: res.statusCode, data: parsed });
+      });
+    });
+
+    req.on("error", (err) => {
+      reject(err);
+    });
+
+    if (data) {
+      req.write(data);
+    }
+    req.end();
+  });
 }
 
-mongoose.set("strictQuery", true);
+async function main() {
+  if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+    console.error("ADMIN_EMAIL and ADMIN_PASSWORD are required");
+    process.exit(1);
+  }
 
-const userSchema = new mongoose.Schema(
-  {
-    phone: { type: String, unique: true, sparse: true },
-    kakaoId: { type: String, unique: true, sparse: true },
-    email: { type: String, unique: true, sparse: true },
-    name: { type: String, required: true },
-    role: { type: String, enum: ["user", "owner"], default: "user" },
-    cityCode: { type: String },
-    preferredLang: { type: String, enum: ["ko", "en", "ru"], default: "ko" },
-    passwordHash: { type: String },
-    marketingOptIn: { type: Boolean, default: false },
-    isAdmin: { type: Boolean, default: false },
-    isInvestor: { type: Boolean, default: false },
-    subscriptionPlan: {
-      type: String,
-      enum: ["none", "client", "coffee", "invest"],
-      default: "none"
-    },
-    subscriptionExpiresAt: { type: Date }
-  },
-  { timestamps: true }
-);
-const User = mongoose.model("User", userSchema);
-
-const cafeSchema = new mongoose.Schema({}, { strict: false });
-const Cafe = mongoose.model("Cafe", cafeSchema);
-
-const paymentSchema = new mongoose.Schema({}, { strict: false });
-const Payment = mongoose.model("Payment", paymentSchema);
-
-const cafeSubscriptionSchema = new mongoose.Schema({}, { strict: false });
-const CafeSubscription = mongoose.model("CafeSubscription", cafeSubscriptionSchema);
-
-const cafePostSchema = new mongoose.Schema({}, { strict: false });
-const CafePost = mongoose.model("CafePost", cafePostSchema);
-
-const phoneVerificationSchema = new mongoose.Schema({}, { strict: false });
-const PhoneVerification = mongoose.model("PhoneVerification", phoneVerificationSchema);
-
-async function resetDb() {
   try {
-    await mongoose.connect(MONGODB_URI);
-    console.log("Connected to MongoDB");
+    console.log("Logging in as admin to", ADMIN_API_BASE_URL);
+    const loginRes = await httpRequest("POST", "/api/auth/login-admin", {
+      email: ADMIN_EMAIL,
+      password: ADMIN_PASSWORD
+    });
 
-    // 1. Delete all cafes
-    const cafes = await Cafe.deleteMany({});
-    console.log(`Deleted ${cafes.deletedCount} cafes.`);
+    if (
+      !loginRes.status ||
+      loginRes.status < 200 ||
+      loginRes.status >= 300 ||
+      !loginRes.data ||
+      !loginRes.data.token
+    ) {
+      console.error("Admin login failed:", loginRes.status, loginRes.data);
+      process.exit(1);
+    }
 
-    // 2. Delete all cafe subscriptions
-    const subs = await CafeSubscription.deleteMany({});
-    console.log(`Deleted ${subs.deletedCount} subscriptions.`);
+    const token = loginRes.data.token;
+    console.log("Admin login OK, resetting database...");
 
-    // 3. Delete all cafe posts
-    const posts = await CafePost.deleteMany({});
-    console.log(`Deleted ${posts.deletedCount} posts.`);
+    const resetRes = await httpRequest(
+      "POST",
+      "/api/admin/reset-db",
+      null,
+      {
+        Authorization: "Bearer " + token
+      }
+    );
 
-    // 4. Delete all payments
-    const payments = await Payment.deleteMany({});
-    console.log(`Deleted ${payments.deletedCount} payments.`);
-    
-    // 5. Delete all phone verifications
-    const verifications = await PhoneVerification.deleteMany({});
-    console.log(`Deleted ${verifications.deletedCount} phone verifications.`);
+    console.log("Reset response status:", resetRes.status);
+    console.log("Reset response body:", resetRes.data);
 
-    // 6. Delete all users EXCEPT admin
-    // We assume admins have isAdmin: true.
-    const users = await User.deleteMany({ isAdmin: { $ne: true } });
-    console.log(`Deleted ${users.deletedCount} users (kept admins).`);
-
-    console.log("Database reset complete.");
-    process.exit(0);
+    if (
+      resetRes.status &&
+      resetRes.status >= 200 &&
+      resetRes.status < 300 &&
+      resetRes.data &&
+      resetRes.data.ok
+    ) {
+      console.log("Database reset completed successfully via admin API");
+      process.exit(0);
+    } else {
+      console.error("Database reset failed");
+      process.exit(1);
+    }
   } catch (err) {
-    console.error("Error resetting database:", err);
+    console.error("Error calling admin reset API:", err);
     process.exit(1);
   }
 }
 
-resetDb();
+main();

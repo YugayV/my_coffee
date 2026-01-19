@@ -2174,17 +2174,35 @@ app.patch(
   async (req, res) => {
     try {
       const { id } = req.params;
-      const { isActive, isPromoted } = req.body;
+      const updateData = req.body || {};
       const cafe = await Cafe.findById(id);
       if (!cafe) {
         return res.status(404).json({ error: "cafe not found" });
       }
-      if (isActive !== undefined) {
-        cafe.isActive = !!isActive;
-      }
-      if (isPromoted !== undefined) {
-        cafe.isPromoted = !!isPromoted;
-      }
+
+      const allowed = [
+        "name",
+        "cityCode",
+        "address",
+        "description",
+        "bookingInfo",
+        "phone",
+        "openingHours",
+        "averageCheck",
+        "isActive",
+        "isPromoted"
+      ];
+
+      allowed.forEach((field) => {
+        if (updateData[field] !== undefined) {
+          if (field === "isActive" || field === "isPromoted") {
+            cafe[field] = !!updateData[field];
+          } else {
+            cafe[field] = updateData[field];
+          }
+        }
+      });
+
       await cafe.save();
       res.json({ cafe });
     } catch (err) {

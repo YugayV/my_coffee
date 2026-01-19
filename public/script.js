@@ -2908,13 +2908,13 @@ async function loadAdminUsers() {
             actionsDiv.style.marginLeft = "10px";
 
             const editBtn = document.createElement("button");
-            editBtn.textContent = "Edit";
+            editBtn.textContent = "Изменить";
             editBtn.className = "btn btn-small";
             editBtn.style.marginRight = "5px";
             editBtn.onclick = (e) => { e.stopPropagation(); editAdminUser(user); };
 
             const deleteBtn = document.createElement("button");
-            deleteBtn.textContent = "Del";
+            deleteBtn.textContent = "Удалить";
             deleteBtn.className = "btn btn-small btn-danger";
             deleteBtn.onclick = (e) => { e.stopPropagation(); deleteAdminUser(user._id); };
 
@@ -2949,6 +2949,34 @@ async function loadAdminUsers() {
             bodyWrap.className = "admin-list-body";
             bodyWrap.appendChild(buttonsWrap);
 
+            const flagsWrap = document.createElement("div");
+            flagsWrap.className = "admin-user-flags";
+
+            const adminToggle = document.createElement("button");
+            adminToggle.type = "button";
+            adminToggle.className =
+                "admin-user-flag-btn" + (user.isAdmin ? " admin-user-flag-btn-active" : "");
+            adminToggle.textContent = user.isAdmin ? "Админ: вкл" : "Админ: выкл";
+            adminToggle.addEventListener("click", async (e) => {
+                e.stopPropagation();
+                await toggleUserAdmin(user);
+            });
+
+            const investorToggle = document.createElement("button");
+            investorToggle.type = "button";
+            investorToggle.className =
+                "admin-user-flag-btn" +
+                (user.isInvestor ? " admin-user-flag-btn-active" : "");
+            investorToggle.textContent = user.isInvestor ? "Инвестор: вкл" : "Инвестор: выкл";
+            investorToggle.addEventListener("click", async (e) => {
+                e.stopPropagation();
+                await toggleUserInvestor(user);
+            });
+
+            flagsWrap.appendChild(adminToggle);
+            flagsWrap.appendChild(investorToggle);
+            bodyWrap.appendChild(flagsWrap);
+
             const toggleHint = document.createElement("div");
             toggleHint.className = "admin-list-item-toggle";
             toggleHint.textContent = "Нажмите, чтобы развернуть";
@@ -2977,7 +3005,7 @@ async function loadAdminUsers() {
 async function deleteAdminUser(id) {
     if(!confirm("Удалить пользователя?")) return;
     try {
-        const res = await fetch("/api/admin/users/" + id, {
+        const res = await fetch("/api/admin/users/" + encodeURIComponent(id), {
             method: "DELETE",
             headers: { Authorization: "Bearer " + authToken }
         });
@@ -2992,8 +3020,8 @@ async function editAdminUser(user) {
     const newRole = prompt("Role (user/owner):", user.role);
     if(newRole === null) return;
     try {
-        const res = await fetch("/api/admin/users/" + user._id, {
-            method: "PUT",
+        const res = await fetch("/api/admin/users/" + encodeURIComponent(user._id), {
+            method: "PATCH",
             headers: { 
                 "Content-Type": "application/json",
                 Authorization: "Bearer " + authToken 
@@ -3022,6 +3050,56 @@ async function updateUserPlan(userId, plan) {
             },
             body: JSON.stringify(body)
         });
+        if (!res.ok) {
+            return;
+        }
+        await loadAdminUsers();
+    } catch (e) {
+    }
+}
+
+async function toggleUserAdmin(user) {
+    if (!authToken || !currentUser || !currentUser.isAdmin) {
+        return;
+    }
+    const body = { isAdmin: !user.isAdmin };
+    try {
+        const res = await fetch(
+            "/api/admin/users/" + encodeURIComponent(user._id) + "/subscription",
+            {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + authToken
+                },
+                body: JSON.stringify(body)
+            }
+        );
+        if (!res.ok) {
+            return;
+        }
+        await loadAdminUsers();
+    } catch (e) {
+    }
+}
+
+async function toggleUserInvestor(user) {
+    if (!authToken || !currentUser || !currentUser.isAdmin) {
+        return;
+    }
+    const body = { isInvestor: !user.isInvestor };
+    try {
+        const res = await fetch(
+            "/api/admin/users/" + encodeURIComponent(user._id) + "/subscription",
+            {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + authToken
+                },
+                body: JSON.stringify(body)
+            }
+        );
         if (!res.ok) {
             return;
         }
@@ -3089,19 +3167,19 @@ async function loadAdminCafes() {
             actionsDiv.style.marginLeft = "10px";
 
             const promoBtn = document.createElement("button");
-            promoBtn.textContent = cafe.isPromoted ? "Un-Promo" : "Promo";
+            promoBtn.textContent = cafe.isPromoted ? "Снять промо" : "Продвигать";
             promoBtn.className = "btn btn-small " + (cafe.isPromoted ? "btn-warning" : "btn-success");
             promoBtn.style.marginRight = "5px";
             promoBtn.onclick = (e) => { e.stopPropagation(); togglePromoteCafe(cafe._id, cafe.isPromoted); };
 
             const editBtn = document.createElement("button");
-            editBtn.textContent = "Edit";
+            editBtn.textContent = "Изменить";
             editBtn.className = "btn btn-small";
             editBtn.style.marginRight = "5px";
             editBtn.onclick = (e) => { e.stopPropagation(); editAdminCafe(cafe); };
 
             const deleteBtn = document.createElement("button");
-            deleteBtn.textContent = "Del";
+            deleteBtn.textContent = "Удалить";
             deleteBtn.className = "btn btn-small btn-danger";
             deleteBtn.onclick = (e) => { e.stopPropagation(); deleteAdminCafe(cafe._id); };
 
@@ -3154,7 +3232,7 @@ async function loadAdminCafes() {
 async function deleteAdminCafe(id) {
     if(!confirm("Удалить кафе?")) return;
     try {
-        const res = await fetch("/api/admin/cafes/" + id, {
+        const res = await fetch("/api/admin/cafes/" + encodeURIComponent(id), {
             method: "DELETE",
             headers: { Authorization: "Bearer " + authToken }
         });
@@ -3169,8 +3247,8 @@ async function editAdminCafe(cafe) {
     const newCity = prompt("Код города:", cafe.cityCode);
     if(newCity === null) return;
     try {
-        const res = await fetch("/api/admin/cafes/" + cafe._id, {
-            method: "PUT",
+        const res = await fetch("/api/admin/cafes/" + encodeURIComponent(cafe._id), {
+            method: "PATCH",
             headers: { 
                 "Content-Type": "application/json",
                 Authorization: "Bearer " + authToken 
@@ -3184,8 +3262,8 @@ async function editAdminCafe(cafe) {
 
 async function togglePromoteCafe(id, currentStatus) {
     try {
-        const res = await fetch("/api/admin/cafes/" + id, {
-            method: "PUT",
+        const res = await fetch("/api/admin/cafes/" + encodeURIComponent(id), {
+            method: "PATCH",
             headers: { 
                 "Content-Type": "application/json",
                 Authorization: "Bearer " + authToken 
@@ -4175,6 +4253,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const adminDashboardBtn = document.getElementById("btnAdminDashboard");
     if (btnOpenAuth) {
         btnOpenAuth.addEventListener("click", () => {
+            const pathName = window.location.pathname;
+            if (pathName === "/admin.html") {
+                adminLoginPrompt();
+                return;
+            }
             if (currentUser) {
                 const profileSection = document.getElementById("profileSection");
                 if (profileSection && profileSection.scrollIntoView) {
