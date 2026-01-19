@@ -56,16 +56,25 @@
                 <h3 id="quickTitle">빠른 예약</h3>
                 <p id="quickText">회원가입 후 바로 예약 가능!</p>
             </div>
-            <div id="searchResults" class="search-results hidden">
-                <div class="search-results-title">Результаты поиска</div>
-                <div id="searchResultsList" class="search-results-list"></div>
-            </div>
         </div>
 
         <div class="main-content">
             <div class="homepage-news-section">
                 <h3>Новое на сайте</h3>
                 <ul id="newsList" class="homepage-news-list"></ul>
+            </div>
+            <div class="site-search-block">
+                <div class="site-search-header">
+                    <h3>Поиск по сайту</h3>
+                    <p>Найдите кафе и акции по названию и городу</p>
+                </div>
+                <div class="search-bar">
+                    <input id="searchInput" type="text" placeholder="Поиск по городу и кафе">
+                </div>
+                <div id="searchResults" class="search-results hidden">
+                    <div class="search-results-title">Результаты поиска</div>
+                    <div id="searchResultsList" class="search-results-list"></div>
+                </div>
             </div>
             <div class="main-feed-header">
                 <h3>Рекламные предложения в выбранном городе</h3>
@@ -214,10 +223,6 @@
                     <button class="city-btn" data-city="taebaek" data-province="jeju_region">태백시</button>
                     <button class="city-btn" data-city="chuncheon" data-province="jeju_region">춘천시</button>
                 </div>
-            </div>
-
-            <div class="search-bar">
-                <input id="searchInput" type="text" placeholder="Поиск по городу и кафе">
             </div>
 
             <div id="ownerPanel" class="owner-panel hidden">

@@ -296,6 +296,33 @@ body {
     border: 1px solid rgba(30, 64, 175, 0.5);
 }
 
+.site-search-block {
+    margin-top: 14px;
+    margin-bottom: 10px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #020617;
+    border: 1px solid rgba(30, 64, 175, 0.5);
+}
+
+.site-search-header {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 8px;
+}
+
+.site-search-header h3 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.site-search-header p {
+    margin: 0;
+    font-size: 12px;
+    color: #9ca3af;
+}
+
 .search-results-title {
     margin: 0 0 6px;
     font-size: 13px;
