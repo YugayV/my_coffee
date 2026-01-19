@@ -132,7 +132,8 @@ const cafeSchema = new mongoose.Schema(
         }
       }
     ],
-    isActive: { type: Boolean, default: true }
+    isActive: { type: Boolean, default: true },
+    isPromoted: { type: Boolean, default: false }
   },
   { timestamps: true }
 );
@@ -1993,6 +1994,77 @@ app.get("/api/admin/users", authMiddleware, adminOnly, async (req, res) => {
   }
 });
 
+app.delete("/api/admin/users/:id", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ error: "user not found" });
+    }
+
+    const cafes = await Cafe.find({ owner: id }).select("_id");
+    const cafeIds = cafes.map((c) => c._id);
+
+    if (cafeIds.length) {
+      await CafePost.deleteMany({ cafe: { $in: cafeIds } });
+      await CafeSubscription.deleteMany({ cafe: { $in: cafeIds } });
+      await Cafe.deleteMany({ owner: id });
+    }
+
+    await CafePost.deleteMany({ author: id });
+    await CafeSubscription.deleteMany({ user: id });
+    await Payment.deleteMany({ user: id });
+
+    if (user.email) {
+      await PhoneVerification.deleteMany({ email: user.email });
+    }
+    if (user.phone) {
+      await PhoneVerification.deleteMany({ phone: user.phone });
+    }
+
+    await user.deleteOne();
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("admin delete user error", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+app.patch("/api/admin/users/:id", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ error: "user not found" });
+    }
+
+    const allowed = [
+      "name",
+      "email",
+      "role",
+      "cityCode",
+      "preferredLang",
+      "isAdmin",
+      "isInvestor",
+      "subscriptionPlan",
+      "subscriptionExpiresAt"
+    ];
+
+    allowed.forEach((field) => {
+      if (updateData[field] !== undefined) {
+        user[field] = updateData[field];
+      }
+    });
+
+    await user.save();
+    res.json({ user });
+  } catch (err) {
+    console.error("admin update user error", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
 app.patch(
   "/api/admin/users/:id/subscription",
   authMiddleware,
@@ -2078,6 +2150,23 @@ app.get("/api/admin/cafes", authMiddleware, adminOnly, async (req, res) => {
   }
 });
 
+app.delete("/api/admin/cafes/:id", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const cafe = await Cafe.findById(id);
+    if (!cafe) {
+      return res.status(404).json({ error: "cafe not found" });
+    }
+    await CafePost.deleteMany({ cafe: id });
+    await CafeSubscription.deleteMany({ cafe: id });
+    await cafe.deleteOne();
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("admin delete cafe error", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
 app.patch(
   "/api/admin/cafes/:id",
   authMiddleware,
@@ -2085,13 +2174,16 @@ app.patch(
   async (req, res) => {
     try {
       const { id } = req.params;
-      const { isActive } = req.body;
+      const { isActive, isPromoted } = req.body;
       const cafe = await Cafe.findById(id);
       if (!cafe) {
         return res.status(404).json({ error: "cafe not found" });
       }
       if (isActive !== undefined) {
         cafe.isActive = !!isActive;
+      }
+      if (isPromoted !== undefined) {
+        cafe.isPromoted = !!isPromoted;
       }
       await cafe.save();
       res.json({ cafe });
@@ -2197,6 +2289,45 @@ app.get(
     }
   }
 );
+
+app.post("/api/admin/reset-db", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    // 1. Delete all cafes
+    const cafes = await Cafe.deleteMany({});
+    
+    // 2. Delete all cafe subscriptions
+    const subs = await CafeSubscription.deleteMany({});
+    
+    // 3. Delete all cafe posts
+    const posts = await CafePost.deleteMany({});
+    
+    // 4. Delete all payments
+    const payments = await Payment.deleteMany({});
+    
+    // 5. Delete all phone verifications
+    const verifications = await PhoneVerification.deleteMany({});
+
+    // 6. Delete all users EXCEPT admin (isAdmin: true)
+    const users = await User.deleteMany({ isAdmin: { $ne: true } });
+
+    console.log(`Database reset by admin: Deleted ${cafes.deletedCount} cafes, ${subs.deletedCount} subs, ${posts.deletedCount} posts, ${payments.deletedCount} payments, ${verifications.deletedCount} verifications, ${users.deletedCount} users.`);
+
+    res.json({ 
+      ok: true, 
+      deleted: {
+        cafes: cafes.deletedCount,
+        subscriptions: subs.deletedCount,
+        posts: posts.deletedCount,
+        payments: payments.deletedCount,
+        verifications: verifications.deletedCount,
+        users: users.deletedCount
+      }
+    });
+  } catch (err) {
+    console.error("admin reset db error", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
 
 app.post("/api/admin/ads", authMiddleware, adminOnly, async (req, res) => {
   try {

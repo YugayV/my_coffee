@@ -2884,6 +2884,14 @@ async function loadAdminUsers() {
                 flags.push("investor");
             }
             const flagsText = flags.length ? " [" + flags.join(", ") + "]" : "";
+            
+            // Header Row
+            const headerRow = document.createElement("div");
+            headerRow.style.display = "flex";
+            headerRow.style.justifyContent = "space-between";
+            headerRow.style.alignItems = "center";
+            headerRow.style.width = "100%";
+
             const mainText = document.createElement("div");
             mainText.textContent =
                 name +
@@ -2894,6 +2902,28 @@ async function loadAdminUsers() {
                 " - plan: " +
                 plan +
                 flagsText;
+            
+            const actionsDiv = document.createElement("div");
+            actionsDiv.className = "admin-actions";
+            actionsDiv.style.marginLeft = "10px";
+
+            const editBtn = document.createElement("button");
+            editBtn.textContent = "Edit";
+            editBtn.className = "btn btn-small";
+            editBtn.style.marginRight = "5px";
+            editBtn.onclick = (e) => { e.stopPropagation(); editAdminUser(user); };
+
+            const deleteBtn = document.createElement("button");
+            deleteBtn.textContent = "Del";
+            deleteBtn.className = "btn btn-small btn-danger";
+            deleteBtn.onclick = (e) => { e.stopPropagation(); deleteAdminUser(user._id); };
+
+            actionsDiv.appendChild(editBtn);
+            actionsDiv.appendChild(deleteBtn);
+
+            headerRow.appendChild(mainText);
+            headerRow.appendChild(actionsDiv);
+
             const buttonsWrap = document.createElement("div");
             buttonsWrap.className = "admin-user-plan-buttons";
             const plans = [
@@ -2923,7 +2953,7 @@ async function loadAdminUsers() {
             toggleHint.className = "admin-list-item-toggle";
             toggleHint.textContent = "Нажмите, чтобы развернуть";
 
-            div.appendChild(mainText);
+            div.appendChild(headerRow);
             div.appendChild(toggleHint);
             div.appendChild(bodyWrap);
 
@@ -2942,6 +2972,37 @@ async function loadAdminUsers() {
         });
     } catch (e) {
     }
+}
+
+async function deleteAdminUser(id) {
+    if(!confirm("Удалить пользователя?")) return;
+    try {
+        const res = await fetch("/api/admin/users/" + id, {
+            method: "DELETE",
+            headers: { Authorization: "Bearer " + authToken }
+        });
+        if(res.ok) loadAdminUsers();
+        else alert("Ошибка удаления");
+    } catch(e) { console.error(e); }
+}
+
+async function editAdminUser(user) {
+    const newName = prompt("Имя:", user.name);
+    if(newName === null) return;
+    const newRole = prompt("Role (user/owner):", user.role);
+    if(newRole === null) return;
+    try {
+        const res = await fetch("/api/admin/users/" + user._id, {
+            method: "PUT",
+            headers: { 
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + authToken 
+            },
+            body: JSON.stringify({ name: newName, role: newRole })
+        });
+        if(res.ok) loadAdminUsers();
+        else alert("Ошибка изменения");
+    } catch(e) { console.error(e); }
 }
 
 async function updateUserPlan(userId, plan) {
@@ -2991,12 +3052,23 @@ async function loadAdminCafes() {
             div.className =
                 "admin-list-item admin-list-item-collapsible admin-list-item-collapsed " +
                 (cafe.isActive ? "admin-list-item-active" : "admin-list-item-inactive");
+            
             const rowTop = document.createElement("div");
             rowTop.className = "admin-list-row-top";
+            
+            // Info wrapper
+            const infoWrap = document.createElement("div");
+            infoWrap.style.flex = "1";
+            infoWrap.style.display = "flex";
+            infoWrap.style.alignItems = "center";
+
             const mainText = document.createElement("div");
             const name = cafe.name || "";
             const cityCode = cafe.cityCode || "";
-            mainText.textContent = name + (cityCode ? " (" + cityCode + ")" : "");
+            const promotedText = cafe.isPromoted ? " [PROMO]" : "";
+            mainText.textContent = name + (cityCode ? " (" + cityCode + ")" : "") + promotedText;
+            if(cafe.isPromoted) mainText.style.fontWeight = "bold";
+
             const statusPill = document.createElement("div");
             statusPill.className = "admin-status-pill";
             const dot = document.createElement("span");
@@ -3007,8 +3079,38 @@ async function loadAdminCafes() {
             statusText.textContent = cafe.isActive ? "ON" : "OFF";
             statusPill.appendChild(dot);
             statusPill.appendChild(statusText);
-            rowTop.appendChild(mainText);
-            rowTop.appendChild(statusPill);
+            
+            infoWrap.appendChild(mainText);
+            infoWrap.appendChild(statusPill);
+
+            // Actions wrapper
+            const actionsDiv = document.createElement("div");
+            actionsDiv.className = "admin-actions";
+            actionsDiv.style.marginLeft = "10px";
+
+            const promoBtn = document.createElement("button");
+            promoBtn.textContent = cafe.isPromoted ? "Un-Promo" : "Promo";
+            promoBtn.className = "btn btn-small " + (cafe.isPromoted ? "btn-warning" : "btn-success");
+            promoBtn.style.marginRight = "5px";
+            promoBtn.onclick = (e) => { e.stopPropagation(); togglePromoteCafe(cafe._id, cafe.isPromoted); };
+
+            const editBtn = document.createElement("button");
+            editBtn.textContent = "Edit";
+            editBtn.className = "btn btn-small";
+            editBtn.style.marginRight = "5px";
+            editBtn.onclick = (e) => { e.stopPropagation(); editAdminCafe(cafe); };
+
+            const deleteBtn = document.createElement("button");
+            deleteBtn.textContent = "Del";
+            deleteBtn.className = "btn btn-small btn-danger";
+            deleteBtn.onclick = (e) => { e.stopPropagation(); deleteAdminCafe(cafe._id); };
+
+            actionsDiv.appendChild(promoBtn);
+            actionsDiv.appendChild(editBtn);
+            actionsDiv.appendChild(deleteBtn);
+
+            rowTop.appendChild(infoWrap);
+            rowTop.appendChild(actionsDiv);
 
             const bodyWrap = document.createElement("div");
             bodyWrap.className = "admin-list-body";
@@ -3047,6 +3149,52 @@ async function loadAdminCafes() {
         });
     } catch (e) {
     }
+}
+
+async function deleteAdminCafe(id) {
+    if(!confirm("Удалить кафе?")) return;
+    try {
+        const res = await fetch("/api/admin/cafes/" + id, {
+            method: "DELETE",
+            headers: { Authorization: "Bearer " + authToken }
+        });
+        if(res.ok) loadAdminCafes();
+        else alert("Ошибка удаления");
+    } catch(e) { console.error(e); }
+}
+
+async function editAdminCafe(cafe) {
+    const newName = prompt("Название:", cafe.name);
+    if(newName === null) return;
+    const newCity = prompt("Код города:", cafe.cityCode);
+    if(newCity === null) return;
+    try {
+        const res = await fetch("/api/admin/cafes/" + cafe._id, {
+            method: "PUT",
+            headers: { 
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + authToken 
+            },
+            body: JSON.stringify({ name: newName, cityCode: newCity })
+        });
+        if(res.ok) loadAdminCafes();
+        else alert("Ошибка изменения");
+    } catch(e) { console.error(e); }
+}
+
+async function togglePromoteCafe(id, currentStatus) {
+    try {
+        const res = await fetch("/api/admin/cafes/" + id, {
+            method: "PUT",
+            headers: { 
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + authToken 
+            },
+            body: JSON.stringify({ isPromoted: !currentStatus })
+        });
+        if(res.ok) loadAdminCafes();
+        else alert("Ошибка обновления промо статуса");
+    } catch(e) { console.error(e); }
 }
 
 async function toggleCafeActive(cafeId, current) {
@@ -4745,7 +4893,33 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
         });
-    });
+    }
+
+    const btnAdminResetDb = document.getElementById("btnAdminResetDb");
+    if (btnAdminResetDb) {
+        btnAdminResetDb.addEventListener("click", async () => {
+            if (!confirm("ВНИМАНИЕ! Вы уверены, что хотите удалить ВСЕ данные (кафе, пользователей, посты), кроме администраторов? Это действие необратимо.")) {
+                return;
+            }
+            if (!authToken) return;
+            try {
+                const res = await fetch("/api/admin/reset-db", {
+                    method: "POST",
+                    headers: { Authorization: "Bearer " + authToken }
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    alert(`База данных очищена.\nУдалено:\nКафе: ${data.deleted.cafes}\nПользователи: ${data.deleted.users}\nПосты: ${data.deleted.posts}`);
+                    window.location.reload();
+                } else {
+                    alert("Ошибка при сбросе БД");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Ошибка сети");
+            }
+        });
+    }
 
     const adminAdForm = document.getElementById("adminAdForm");
     if (adminAdForm) {

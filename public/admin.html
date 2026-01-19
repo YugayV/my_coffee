@@ -77,9 +77,15 @@
                             <input id="adminTelegramUrl" type="text" placeholder="Ссылка на Telegram">
                             <input id="adminInstagramUrl" type="text" placeholder="Ссылка на Instagram">
                             <button type="submit" class="btn btn-primary">Сохранить контакты</button>
-                        </form>
+                    </form>
+                    
+                    <div style="margin-top: 40px; border-top: 2px solid #eee; padding-top: 20px;">
+                        <h3 style="color: red;">Опасная зона</h3>
+                        <p>Удаление всех данных пользователей и кафе (кроме админов).</p>
+                        <button id="btnAdminResetDb" class="btn" style="background-color: #ff4444; color: white;">Сбросить базу данных</button>
                     </div>
-                    <div id="adminPromoStatsTab" class="admin-extra-panel">
+                </div>
+                <div id="adminPromoStatsTab" class="admin-extra-panel">
                         <h3>Статистика по промо-постам</h3>
                         <div class="admin-promo-filters">
                             <label for="adminPromoStatsCityFilter">Город:</label>
