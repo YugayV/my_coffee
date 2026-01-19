@@ -1473,7 +1473,7 @@ function resolveCityCodeFromInput(value) {
     if (currentCfg && currentCfg.cities && currentCfg.cities[trimmed]) {
         return trimmed;
     }
-    return "";
+    return trimmed;
 }
 
 function showSlide(index) {
