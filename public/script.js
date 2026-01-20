@@ -838,7 +838,11 @@ async function loadNews() {
                 li.style.textDecoration = "underline";
                 // Add hover effect via class if needed, but inline style works for now
                 li.onclick = () => {
-                    openCafePage(item);
+                    if (item && item._id) {
+                        window.location.href = "/cafe/" + encodeURIComponent(item._id);
+                    } else {
+                        openCafePage(item);
+                    }
                 };
             } else {
                 const title = item.title || "";
@@ -880,8 +884,6 @@ async function loadFeedCafes() {
             item.className = "feed-cafe-item";
             item.addEventListener("click", () => {
                 if (cafe && cafe._id) {
-                    window.location.href = "/cafe/" + encodeURIComponent(cafe._id);
-                } else {
                     openCafePage(cafe);
                 }
             });
@@ -1620,6 +1622,9 @@ async function openCafeModal(cafe) {
     const cafeId = cafe && cafe._id ? cafe._id : null;
     if (!cafeId) {
         return;
+    }
+    if (window.location.pathname !== "/cafe/" + encodeURIComponent(cafeId)) {
+        history.pushState({ cafeId: cafeId }, "", "/cafe/" + encodeURIComponent(cafeId));
     }
     currentCafeId = cafeId;
     currentCafeContact = {
@@ -5656,6 +5661,10 @@ document.addEventListener("DOMContentLoaded", () => {
             const panel = document.getElementById("cafeDetailPanel");
             if (panel) {
                 panel.classList.add("hidden");
+                if (window.location.pathname.startsWith("/cafe/")) {
+                    history.pushState(null, "", "/");
+                    document.title = "CoffeBooking";
+                }
             }
         });
     }
@@ -5670,4 +5679,44 @@ document.addEventListener("DOMContentLoaded", () => {
     initStats();
     loadSiteConfig();
     loadNews();
+
+    const path = window.location.pathname;
+    if (path.startsWith("/cafe/")) {
+        const parts = path.split("/");
+        // path is /cafe/ID -> ["", "cafe", "ID"]
+        const cId = parts[2];
+        if (cId) {
+            fetch("/api/cafes?id=" + encodeURIComponent(cId))
+                .then((res) => res.json())
+                .then((data) => {
+                    if (data && data.cafe) {
+                        openCafePage(data.cafe);
+                    }
+                })
+                .catch((e) => {});
+        }
+    }
+
+    window.addEventListener("popstate", () => {
+        const p = window.location.pathname;
+        if (p.startsWith("/cafe/")) {
+            const parts = p.split("/");
+            const cId = parts[2];
+            if (cId) {
+                fetch("/api/cafes?id=" + encodeURIComponent(cId))
+                    .then((res) => res.json())
+                    .then((data) => {
+                        if (data && data.cafe) {
+                            openCafePage(data.cafe);
+                        }
+                    })
+                    .catch((e) => {});
+            }
+        } else {
+            const panel = document.getElementById("cafeDetailPanel");
+            if (panel) {
+                panel.classList.add("hidden");
+            }
+        }
+    });
 });

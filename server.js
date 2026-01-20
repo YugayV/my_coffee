@@ -504,7 +504,11 @@ async function sendFacebook(recipient, text) {
 async function registerVisit() {
   try {
     const now = new Date();
-    const key = now.toISOString().slice(0, 10);
+    // Use Korea Standard Time (UTC+9)
+    const kstOffset = 9 * 60 * 60 * 1000;
+    const kstDate = new Date(now.getTime() + kstOffset);
+    const key = kstDate.toISOString().slice(0, 10);
+    
     await Stats.findOneAndUpdate(
       { date: key },
       { $inc: { visits: 1 } },
@@ -1662,7 +1666,12 @@ app.get("/api/ads/config", async (req, res) => {
 
 app.get("/api/stats/visits", async (req, res) => {
   try {
-    const today = new Date().toISOString().slice(0, 10);
+    const now = new Date();
+    // Use Korea Standard Time (UTC+9)
+    const kstOffset = 9 * 60 * 60 * 1000;
+    const kstDate = new Date(now.getTime() + kstOffset);
+    const today = kstDate.toISOString().slice(0, 10);
+
     const todayDoc = await Stats.findOne({ date: today }).lean();
     const agg = await Stats.aggregate([
       {
