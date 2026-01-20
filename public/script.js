@@ -823,16 +823,31 @@ async function loadNews() {
         }
         const data = await res.json();
         const items = data && data.news ? data.news : [];
-        const sliced = items.slice(0, 5);
+        
         listEl.innerHTML = "";
-        sliced.forEach((item) => {
+        items.forEach((item) => {
             const li = document.createElement("li");
-            const title = item.title || "";
-            const text = item.text || "";
-            if (title && text) {
-                li.textContent = title + " — " + text;
+            
+            if (item.type === "cafe") {
+                let prefix = "New Cafe: ";
+                if (currentLang === "ru") prefix = "Новое кафе: ";
+                else if (currentLang === "ko") prefix = "새로운 카페: ";
+                
+                li.textContent = prefix + (item.name || "");
+                li.style.cursor = "pointer";
+                li.style.textDecoration = "underline";
+                // Add hover effect via class if needed, but inline style works for now
+                li.onclick = () => {
+                    openCafePage(item);
+                };
             } else {
-                li.textContent = title || text || "";
+                const title = item.title || "";
+                const text = item.text || "";
+                if (title && text) {
+                    li.textContent = title + " — " + text;
+                } else {
+                    li.textContent = title || text || "";
+                }
             }
             listEl.appendChild(li);
         });

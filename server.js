@@ -48,7 +48,7 @@ if (!MONGODB_URI) {
 mongoose.set("strictQuery", true);
 mongoose
   .connect(MONGODB_URI, {
-    autoIndex: true
+    autoIndex: true,
   })
   .then(() => {
     console.log("MongoDB connected");
@@ -73,11 +73,11 @@ const userSchema = new mongoose.Schema(
     subscriptionPlan: {
       type: String,
       enum: ["none", "client", "coffee", "invest"],
-      default: "none"
+      default: "none",
     },
-    subscriptionExpiresAt: { type: Date }
+    subscriptionExpiresAt: { type: Date },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const User = mongoose.model("User", userSchema);
@@ -89,16 +89,20 @@ const adSchema = new mongoose.Schema(
     cityCode: String,
     url: String,
     active: { type: Boolean, default: true },
-    weight: { type: Number, default: 1 }
+    weight: { type: Number, default: 1 },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const Ad = mongoose.model("Ad", adSchema);
 
 const cafeSchema = new mongoose.Schema(
   {
-    owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     name: { type: String, required: true },
     cityCode: { type: String },
     address: { type: String },
@@ -112,15 +116,15 @@ const cafeSchema = new mongoose.Schema(
         name: { type: String, required: true },
         price: { type: Number },
         category: { type: String },
-        description: { type: String }
-      }
+        description: { type: String },
+      },
     ],
     photos: [
       {
         url: String,
         originalName: String,
-        createdAt: { type: Date, default: Date.now }
-      }
+        createdAt: { type: Date, default: Date.now },
+      },
     ],
     tables: [
       {
@@ -128,14 +132,14 @@ const cafeSchema = new mongoose.Schema(
         capacity: Number,
         position: {
           x: Number,
-          y: Number
-        }
-      }
+          y: Number,
+        },
+      },
     ],
     isActive: { type: Boolean, default: true },
-    isPromoted: { type: Boolean, default: false }
+    isPromoted: { type: Boolean, default: false },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const Cafe = mongoose.model("Cafe", cafeSchema);
@@ -146,21 +150,21 @@ const paymentSchema = new mongoose.Schema(
     plan: {
       type: String,
       enum: ["client", "coffee", "invest"],
-      required: true
+      required: true,
     },
     amountWon: { type: Number, required: true },
     currency: { type: String, default: "KRW" },
     status: {
       type: String,
       enum: ["pending", "paid", "failed", "refunded"],
-      default: "pending"
+      default: "pending",
     },
     provider: { type: String },
     providerPaymentId: { type: String },
     paidAt: { type: Date },
-    metadata: { type: Object }
+    metadata: { type: Object },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const Payment = mongoose.model("Payment", paymentSchema);
@@ -168,46 +172,58 @@ const Payment = mongoose.model("Payment", paymentSchema);
 const cafeSubscriptionSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-    cafe: { type: mongoose.Schema.Types.ObjectId, ref: "Cafe", required: true }
+    cafe: { type: mongoose.Schema.Types.ObjectId, ref: "Cafe", required: true },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const CafeSubscription = mongoose.model(
   "CafeSubscription",
-  cafeSubscriptionSchema
+  cafeSubscriptionSchema,
 );
 
 const cafePostSchema = new mongoose.Schema(
   {
     cafe: { type: mongoose.Schema.Types.ObjectId, ref: "Cafe", required: true },
-    author: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    author: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     text: { type: String, required: true },
     photos: [
       {
         url: String,
         originalName: String,
-        cafePhotoId: { type: mongoose.Schema.Types.ObjectId }
-      }
+        cafePhotoId: { type: mongoose.Schema.Types.ObjectId },
+      },
     ],
     likes: [
       {
-        user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }
-      }
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+      },
     ],
     ratingSum: { type: Number, default: 0 },
     ratingCount: { type: Number, default: 0 },
     comments: [
       {
-        user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
         text: { type: String, required: true },
-        createdAt: { type: Date, default: Date.now }
-      }
+        createdAt: { type: Date, default: Date.now },
+      },
     ],
     priority: { type: Number, default: 0 },
-    isPromoted: { type: Boolean, default: false }
+    isPromoted: { type: Boolean, default: false },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const CafePost = mongoose.model("CafePost", cafePostSchema);
@@ -219,23 +235,26 @@ const phoneVerificationSchema = new mongoose.Schema(
     channel: {
       type: String,
       enum: ["sms", "email", "kakao", "facebook"],
-      default: "sms"
+      default: "sms",
     },
     code: { type: String, required: true },
     expiresAt: { type: Date, required: true },
-    attempts: { type: Number, default: 0 }
+    attempts: { type: Number, default: 0 },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-const PhoneVerification = mongoose.model("PhoneVerification", phoneVerificationSchema);
+const PhoneVerification = mongoose.model(
+  "PhoneVerification",
+  phoneVerificationSchema,
+);
 
 const statsSchema = new mongoose.Schema(
   {
     date: { type: String, unique: true, required: true },
-    visits: { type: Number, default: 0 }
+    visits: { type: Number, default: 0 },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const Stats = mongoose.model("Stats", statsSchema);
@@ -245,9 +264,9 @@ const siteConfigSchema = new mongoose.Schema(
     key: { type: String, unique: true, required: true },
     contactEmail: { type: String },
     telegramUrl: { type: String },
-    instagramUrl: { type: String }
+    instagramUrl: { type: String },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const SiteConfig = mongoose.model("SiteConfig", siteConfigSchema);
@@ -257,9 +276,9 @@ const newsSchema = new mongoose.Schema(
     title: { type: String, required: true },
     text: { type: String, required: true },
     lang: { type: String, enum: ["ko", "en", "ru"], default: "ru" },
-    isActive: { type: Boolean, default: true }
+    isActive: { type: Boolean, default: true },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const News = mongoose.model("News", newsSchema);
@@ -278,8 +297,8 @@ function callTossPayments(pathname, body) {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Basic ${auth}`,
-      "Content-Length": Buffer.byteLength(data)
-    }
+      "Content-Length": Buffer.byteLength(data),
+    },
   };
   return new Promise((resolve, reject) => {
     const req = https.request(options, (res) => {
@@ -354,20 +373,20 @@ async function sendSms(phone, text) {
       bodyParams.append("Body", text);
       const payload = bodyParams.toString();
       const auth = Buffer.from(
-        `${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`
+        `${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`,
       ).toString("base64");
       const options = {
         hostname: "api.twilio.com",
         port: 443,
         path: `/2010-04-01/Accounts/${encodeURIComponent(
-          TWILIO_ACCOUNT_SID
+          TWILIO_ACCOUNT_SID,
         )}/Messages.json`,
         method: "POST",
         headers: {
           Authorization: `Basic ${auth}`,
           "Content-Type": "application/x-www-form-urlencoded",
-          "Content-Length": Buffer.byteLength(payload)
-        }
+          "Content-Length": Buffer.byteLength(payload),
+        },
       };
       await new Promise((resolve, reject) => {
         const req = https.request(options, (res) => {
@@ -401,14 +420,14 @@ async function sendEmail(to, subject, text) {
         secure: Number(SMTP_PORT) === 465,
         auth: {
           user: SMTP_USER,
-          pass: SMTP_PASS
-        }
+          pass: SMTP_PASS,
+        },
       });
       await transport.sendMail({
         from: SMTP_FROM_EMAIL,
         to,
         subject,
-        text
+        text,
       });
       return;
     } catch (err) {
@@ -468,7 +487,7 @@ async function sendPostNotifications(cafeId, post) {
             `Открыть страницу кафе: /cafe/${cafeId}\n`;
         }
         await sendEmail(user.email, subject, text);
-      })
+      }),
     );
   } catch (err) {
     console.error("send post notifications error", err.message);
@@ -489,10 +508,9 @@ async function registerVisit() {
     await Stats.findOneAndUpdate(
       { date: key },
       { $inc: { visits: 1 } },
-      { upsert: true, new: true, setDefaultsOnInsert: true }
+      { upsert: true, new: true, setDefaultsOnInsert: true },
     );
-  } catch (e) {
-  }
+  } catch (e) {}
 }
 
 const uploadsDir = path.join(__dirname, "uploads");
@@ -509,25 +527,25 @@ const storage = multer.diskStorage({
     const base = path.basename(file.originalname, ext);
     const safeBase = base.replace(/[^a-zA-Z0-9-_]/g, "_");
     cb(null, `${safeBase}_${Date.now()}${ext}`);
-  }
+  },
 });
 
 const upload = multer({
   storage,
   limits: {
-    fileSize: 5 * 1024 * 1024
+    fileSize: 5 * 1024 * 1024,
   },
   fileFilter(req, file, cb) {
     if (!file.mimetype || !file.mimetype.startsWith("image/")) {
       return cb(new Error("only image uploads allowed"));
     }
     cb(null, true);
-  }
+  },
 });
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 20
+  max: 20,
 });
 
 app.set("trust proxy", 1);
@@ -591,7 +609,10 @@ function sendHtmlWithKakao(fileName, res) {
       res.status(500).send("server error");
       return;
     }
-    const replaced = content.replace(/YOUR_KAKAO_JAVASCRIPT_KEY/g, KAKAO_JS_KEY);
+    const replaced = content.replace(
+      /YOUR_KAKAO_JAVASCRIPT_KEY/g,
+      KAKAO_JS_KEY,
+    );
     res.send(replaced);
   });
 }
@@ -635,14 +656,14 @@ app.post("/api/auth/request-phone-code", authLimiter, async (req, res) => {
       await PhoneVerification.findOneAndUpdate(
         { email: trimmedEmail, channel: "email" },
         { code, expiresAt, attempts: 0 },
-        { upsert: true, new: true, setDefaultsOnInsert: true }
+        { upsert: true, new: true, setDefaultsOnInsert: true },
       );
       const hasSmtp =
         SMTP_HOST && SMTP_PORT && SMTP_USER && SMTP_PASS && SMTP_FROM_EMAIL;
       await sendEmail(
         trimmedEmail,
         "Kafe Booking verification code",
-        "Ваш код для Kafe Booking: " + code
+        "Ваш код для Kafe Booking: " + code,
       );
       const payload = { ok: true };
       if (!hasSmtp && !isProd) {
@@ -666,7 +687,7 @@ app.post("/api/auth/request-phone-code", authLimiter, async (req, res) => {
     await PhoneVerification.findOneAndUpdate(
       { phone: normalizedPhone, channel: channelValue },
       { code, expiresAt, attempts: 0 },
-      { upsert: true, new: true, setDefaultsOnInsert: true }
+      { upsert: true, new: true, setDefaultsOnInsert: true },
     );
     const hasTwilio =
       TWILIO_ACCOUNT_SID && TWILIO_AUTH_TOKEN && TWILIO_FROM_NUMBER;
@@ -696,7 +717,7 @@ app.post("/api/auth/register-phone", authLimiter, async (req, res) => {
       role,
       cityCode,
       preferredLang,
-      marketingOptIn
+      marketingOptIn,
     } = req.body;
     if (!email || !password || !name) {
       return res
@@ -734,13 +755,13 @@ app.post("/api/auth/register-phone", authLimiter, async (req, res) => {
       role: role === "owner" ? "owner" : "user",
       cityCode: cityCode || null,
       preferredLang: preferredLang || "ko",
-      marketingOptIn: !!marketingOptIn
+      marketingOptIn: !!marketingOptIn,
     });
     const tokenPayload = {
       id: user._id,
       role: user.role,
       isAdmin: user.isAdmin,
-      subscriptionPlan: user.subscriptionPlan
+      subscriptionPlan: user.subscriptionPlan,
     };
     const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: "7d" });
     res.json({
@@ -755,8 +776,8 @@ app.post("/api/auth/register-phone", authLimiter, async (req, res) => {
         preferredLang: user.preferredLang,
         isAdmin: user.isAdmin,
         subscriptionPlan: user.subscriptionPlan,
-        subscriptionExpiresAt: user.subscriptionExpiresAt
-      }
+        subscriptionExpiresAt: user.subscriptionExpiresAt,
+      },
     });
   } catch (err) {
     console.error("register-phone error", err);
@@ -783,7 +804,7 @@ app.post("/api/auth/login-admin", authLimiter, async (req, res) => {
         name: "Admin",
         role: "owner",
         preferredLang: "ko",
-        isAdmin: true
+        isAdmin: true,
       });
     } else if (!user.isAdmin) {
       user.isAdmin = true;
@@ -793,7 +814,7 @@ app.post("/api/auth/login-admin", authLimiter, async (req, res) => {
       id: user._id,
       role: user.role,
       isAdmin: user.isAdmin,
-      subscriptionPlan: user.subscriptionPlan
+      subscriptionPlan: user.subscriptionPlan,
     };
     const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: "7d" });
     res.json({
@@ -809,8 +830,8 @@ app.post("/api/auth/login-admin", authLimiter, async (req, res) => {
         preferredLang: user.preferredLang,
         isAdmin: user.isAdmin,
         subscriptionPlan: user.subscriptionPlan,
-        subscriptionExpiresAt: user.subscriptionExpiresAt
-      }
+        subscriptionExpiresAt: user.subscriptionExpiresAt,
+      },
     });
   } catch (err) {
     console.error("login-admin error", err);
@@ -850,7 +871,7 @@ app.post("/api/auth/login", authLimiter, async (req, res) => {
       id: user._id,
       role: user.role,
       isAdmin: user.isAdmin,
-      subscriptionPlan: user.subscriptionPlan
+      subscriptionPlan: user.subscriptionPlan,
     };
     const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: "7d" });
     res.json({
@@ -866,8 +887,8 @@ app.post("/api/auth/login", authLimiter, async (req, res) => {
         preferredLang: user.preferredLang,
         isAdmin: user.isAdmin,
         subscriptionPlan: user.subscriptionPlan,
-        subscriptionExpiresAt: user.subscriptionExpiresAt
-      }
+        subscriptionExpiresAt: user.subscriptionExpiresAt,
+      },
     });
   } catch (err) {
     console.error("login error", err);
@@ -897,7 +918,7 @@ app.post("/api/auth/login-phone", authLimiter, async (req, res) => {
       id: user._id,
       role: user.role,
       isAdmin: user.isAdmin,
-      subscriptionPlan: user.subscriptionPlan
+      subscriptionPlan: user.subscriptionPlan,
     };
     const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: "7d" });
     res.json({
@@ -911,8 +932,8 @@ app.post("/api/auth/login-phone", authLimiter, async (req, res) => {
         preferredLang: user.preferredLang,
         isAdmin: user.isAdmin,
         subscriptionPlan: user.subscriptionPlan,
-        subscriptionExpiresAt: user.subscriptionExpiresAt
-      }
+        subscriptionExpiresAt: user.subscriptionExpiresAt,
+      },
     });
   } catch (err) {
     console.error("login-phone error", err);
@@ -936,7 +957,7 @@ app.post("/api/auth/login-kakao", authLimiter, async (req, res) => {
         email: email || undefined,
         name: name || "Kakao user",
         role: "user",
-        preferredLang: "ko"
+        preferredLang: "ko",
       });
       user = userDoc;
     } else {
@@ -961,7 +982,7 @@ app.post("/api/auth/login-kakao", authLimiter, async (req, res) => {
       id: user._id,
       role: user.role,
       isAdmin: user.isAdmin,
-      subscriptionPlan: user.subscriptionPlan
+      subscriptionPlan: user.subscriptionPlan,
     };
     const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: "7d" });
     res.json({
@@ -977,8 +998,8 @@ app.post("/api/auth/login-kakao", authLimiter, async (req, res) => {
         preferredLang: user.preferredLang,
         isAdmin: user.isAdmin,
         subscriptionPlan: user.subscriptionPlan,
-        subscriptionExpiresAt: user.subscriptionExpiresAt
-      }
+        subscriptionExpiresAt: user.subscriptionExpiresAt,
+      },
     });
   } catch (err) {
     console.error("login-kakao error", err);
@@ -989,7 +1010,9 @@ app.post("/api/auth/login-kakao", authLimiter, async (req, res) => {
 app.get("/api/profile/me", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.user.id)
-      .select("phone name role cityCode preferredLang marketingOptIn isAdmin isInvestor subscriptionPlan subscriptionExpiresAt")
+      .select(
+        "phone name role cityCode preferredLang marketingOptIn isAdmin isInvestor subscriptionPlan subscriptionExpiresAt",
+      )
       .lean();
     if (!user) {
       return res.status(404).json({ error: "user not found" });
@@ -1003,7 +1026,8 @@ app.get("/api/profile/me", authMiddleware, async (req, res) => {
 
 app.post("/api/profile/update", authMiddleware, async (req, res) => {
   try {
-    const { preferredLang, cityCode, currentPassword, newPassword } = req.body || {};
+    const { preferredLang, cityCode, currentPassword, newPassword } =
+      req.body || {};
     const user = await User.findById(req.user.id);
     if (!user) {
       return res.status(404).json({ error: "user not found" });
@@ -1029,7 +1053,8 @@ app.post("/api/profile/update", authMiddleware, async (req, res) => {
       }
     }
 
-    const hasCurrentPassword = typeof currentPassword === "string" && currentPassword;
+    const hasCurrentPassword =
+      typeof currentPassword === "string" && currentPassword;
     const hasNewPassword = typeof newPassword === "string" && newPassword;
 
     if (hasCurrentPassword !== hasNewPassword) {
@@ -1067,8 +1092,8 @@ app.post("/api/profile/update", authMiddleware, async (req, res) => {
         preferredLang: user.preferredLang,
         isAdmin: user.isAdmin,
         subscriptionPlan: user.subscriptionPlan,
-        subscriptionExpiresAt: user.subscriptionExpiresAt
-      }
+        subscriptionExpiresAt: user.subscriptionExpiresAt,
+      },
     });
   } catch (err) {
     console.error("profile-update error", err);
@@ -1089,10 +1114,10 @@ app.delete("/api/profile/me", authMiddleware, async (req, res) => {
 
     if (cafeIds.length) {
       await CafePost.deleteMany({
-        $or: [{ cafe: { $in: cafeIds } }, { author: userId }]
+        $or: [{ cafe: { $in: cafeIds } }, { author: userId }],
       });
       await CafeSubscription.deleteMany({
-        $or: [{ cafe: { $in: cafeIds } }, { user: userId }]
+        $or: [{ cafe: { $in: cafeIds } }, { user: userId }],
       });
       await Cafe.deleteMany({ owner: userId });
     } else {
@@ -1115,9 +1140,9 @@ app.delete("/api/profile/me", authMiddleware, async (req, res) => {
       { user: userId },
       {
         $set: {
-          user: null
-        }
-      }
+          user: null,
+        },
+      },
     );
 
     await User.deleteOne({ _id: userId });
@@ -1138,7 +1163,7 @@ app.post("/api/cafes/:id/subscribe", authMiddleware, async (req, res) => {
     }
     const existing = await CafeSubscription.findOne({
       user: req.user.id,
-      cafe: cafe._id
+      cafe: cafe._id,
     }).lean();
     if (existing) {
       await CafeSubscription.deleteOne({ _id: existing._id });
@@ -1146,7 +1171,7 @@ app.post("/api/cafes/:id/subscribe", authMiddleware, async (req, res) => {
     }
     await CafeSubscription.create({
       user: req.user.id,
-      cafe: cafe._id
+      cafe: cafe._id,
     });
     res.json({ subscribed: true });
   } catch (err) {
@@ -1173,7 +1198,7 @@ app.get("/api/cafes/:id/subscribers", async (req, res) => {
 app.get("/api/my/subscriptions", authMiddleware, async (req, res) => {
   try {
     const subscriptions = await CafeSubscription.find({
-      user: req.user.id
+      user: req.user.id,
     })
       .select("cafe createdAt")
       .populate("cafe", "name cityCode address")
@@ -1185,58 +1210,63 @@ app.get("/api/my/subscriptions", authMiddleware, async (req, res) => {
   }
 });
 
-app.post("/api/cafes/:id/posts", authMiddleware, ownerOnly, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { text, photos } = req.body;
-    if (!text || typeof text !== "string") {
-      return res.status(400).json({ error: "text required" });
-    }
-    const cafe = await Cafe.findOne({ _id: id, owner: req.user.id })
-      .select("_id isActive name")
-      .lean();
-    if (!cafe || !cafe.isActive) {
-      return res.status(404).json({ error: "cafe not found" });
-    }
-    const normalizedPhotos =
-      photos && Array.isArray(photos)
-        ? photos
-            .map((p) => {
-              if (!p || typeof p !== "object") return null;
-              const url = typeof p.url === "string" ? p.url : "";
-              const originalName =
-                typeof p.originalName === "string" ? p.originalName : "";
-              const cafePhotoId =
-                p.cafePhotoId && typeof p.cafePhotoId === "string"
-                  ? p.cafePhotoId
-                  : undefined;
-              if (!url) return null;
-              const base = { url };
-              if (originalName) base.originalName = originalName;
-              if (cafePhotoId) base.cafePhotoId = cafePhotoId;
-              return base;
-            })
-            .filter(Boolean)
-        : [];
+app.post(
+  "/api/cafes/:id/posts",
+  authMiddleware,
+  ownerOnly,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { text, photos } = req.body;
+      if (!text || typeof text !== "string") {
+        return res.status(400).json({ error: "text required" });
+      }
+      const cafe = await Cafe.findOne({ _id: id, owner: req.user.id })
+        .select("_id isActive name")
+        .lean();
+      if (!cafe || !cafe.isActive) {
+        return res.status(404).json({ error: "cafe not found" });
+      }
+      const normalizedPhotos =
+        photos && Array.isArray(photos)
+          ? photos
+              .map((p) => {
+                if (!p || typeof p !== "object") return null;
+                const url = typeof p.url === "string" ? p.url : "";
+                const originalName =
+                  typeof p.originalName === "string" ? p.originalName : "";
+                const cafePhotoId =
+                  p.cafePhotoId && typeof p.cafePhotoId === "string"
+                    ? p.cafePhotoId
+                    : undefined;
+                if (!url) return null;
+                const base = { url };
+                if (originalName) base.originalName = originalName;
+                if (cafePhotoId) base.cafePhotoId = cafePhotoId;
+                return base;
+              })
+              .filter(Boolean)
+          : [];
 
-    const post = await CafePost.create({
-      cafe: cafe._id,
-      author: req.user.id,
-      text: text.trim(),
-      photos: normalizedPhotos
-    });
-    sendPostNotifications(cafe._id, {
-      _id: post._id,
-      text: post.text
-    }).catch((err) => {
-      console.error("schedule post notifications error", err.message);
-    });
-    res.status(201).json({ post });
-  } catch (err) {
-    console.error("create cafe post error", err);
-    res.status(500).json({ error: "server error" });
-  }
-});
+      const post = await CafePost.create({
+        cafe: cafe._id,
+        author: req.user.id,
+        text: text.trim(),
+        photos: normalizedPhotos,
+      });
+      sendPostNotifications(cafe._id, {
+        _id: post._id,
+        text: post.text,
+      }).catch((err) => {
+        console.error("schedule post notifications error", err.message);
+      });
+      res.status(201).json({ post });
+    } catch (err) {
+      console.error("create cafe post error", err);
+      res.status(500).json({ error: "server error" });
+    }
+  },
+);
 
 app.get("/api/cafes/:id/posts", async (req, res) => {
   try {
@@ -1286,7 +1316,7 @@ app.get("/api/cafes/:id/posts", async (req, res) => {
         photos: Array.isArray(p.photos) ? p.photos : [],
         comments: Array.isArray(p.comments) ? p.comments : [],
         priority: typeof p.priority === "number" ? p.priority : 0,
-        isPromoted: !!p.isPromoted
+        isPromoted: !!p.isPromoted,
       };
     });
     res.json({ posts: normalized, hasMore, limit, offset });
@@ -1304,7 +1334,7 @@ app.post(
       const { cafeId, postId } = req.params;
       const post = await CafePost.findOne({
         _id: postId,
-        cafe: cafeId
+        cafe: cafeId,
       });
       if (!post) {
         return res.status(404).json({ error: "post not found" });
@@ -1323,7 +1353,7 @@ app.post(
       console.error("post like error", err);
       res.status(500).json({ error: "server error" });
     }
-  }
+  },
 );
 
 app.post(
@@ -1338,7 +1368,7 @@ app.post(
       }
       const post = await CafePost.findOne({
         _id: postId,
-        cafe: cafeId
+        cafe: cafeId,
       });
       if (!post) {
         return res.status(404).json({ error: "post not found" });
@@ -1347,7 +1377,7 @@ app.post(
       post.comments.push({
         user: req.user.id,
         text: text.trim(),
-        createdAt: new Date()
+        createdAt: new Date(),
       });
       await post.save();
       res.json({ ok: true });
@@ -1355,7 +1385,7 @@ app.post(
       console.error("post comment error", err);
       res.status(500).json({ error: "server error" });
     }
-  }
+  },
 );
 
 app.post(
@@ -1371,7 +1401,7 @@ app.post(
       }
       const post = await CafePost.findOne({
         _id: postId,
-        cafe: cafeId
+        cafe: cafeId,
       });
       if (!post) {
         return res.status(404).json({ error: "post not found" });
@@ -1386,7 +1416,7 @@ app.post(
       console.error("post rate error", err);
       res.status(500).json({ error: "server error" });
     }
-  }
+  },
 );
 
 app.put(
@@ -1423,7 +1453,7 @@ app.put(
       console.error("update cafe post error", err);
       res.status(500).json({ error: "server error" });
     }
-  }
+  },
 );
 
 app.delete(
@@ -1449,7 +1479,7 @@ app.delete(
       console.error("delete cafe post error", err);
       res.status(500).json({ error: "server error" });
     }
-  }
+  },
 );
 
 app.post("/api/profile/become-owner", authMiddleware, async (req, res) => {
@@ -1466,7 +1496,7 @@ app.post("/api/profile/become-owner", authMiddleware, async (req, res) => {
       id: user._id,
       role: user.role,
       isAdmin: user.isAdmin,
-      subscriptionPlan: user.subscriptionPlan
+      subscriptionPlan: user.subscriptionPlan,
     };
     const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: "7d" });
     res.json({
@@ -1480,8 +1510,8 @@ app.post("/api/profile/become-owner", authMiddleware, async (req, res) => {
         preferredLang: user.preferredLang,
         isAdmin: user.isAdmin,
         subscriptionPlan: user.subscriptionPlan,
-        subscriptionExpiresAt: user.subscriptionExpiresAt
-      }
+        subscriptionExpiresAt: user.subscriptionExpiresAt,
+      },
     });
   } catch (err) {
     console.error("profile-become-owner error", err);
@@ -1497,7 +1527,10 @@ app.get("/api/ads", async (req, res) => {
     if (cityCode) {
       query.cityCode = { $in: [cityCode, "all"] };
     }
-    const ads = await Ad.find(query).sort({ weight: -1, createdAt: -1 }).limit(5).lean();
+    const ads = await Ad.find(query)
+      .sort({ weight: -1, createdAt: -1 })
+      .limit(5)
+      .lean();
     res.json({ ads });
   } catch (err) {
     console.error("ads error", err);
@@ -1526,7 +1559,7 @@ app.get("/api/promo-posts", async (req, res) => {
     const cafeIds = cafes.map((c) => c._id);
     const posts = await CafePost.find({
       cafe: { $in: cafeIds },
-      isPromoted: true
+      isPromoted: true,
     })
       .sort({ priority: -1, createdAt: -1 })
       .limit(limit)
@@ -1557,7 +1590,7 @@ app.get("/api/promo-posts", async (req, res) => {
         rating,
         photos: Array.isArray(p.photos) ? p.photos : [],
         priority: typeof p.priority === "number" ? p.priority : 0,
-        isPromoted: !!p.isPromoted
+        isPromoted: !!p.isPromoted,
       };
     });
     res.json({ posts: normalized });
@@ -1590,7 +1623,7 @@ app.get("/api/ads/config", async (req, res) => {
     if (subscriptionPlan === "client" || subscriptionPlan === "coffee") {
       return res.json({
         showAds: true,
-        provider: "local"
+        provider: "local",
       });
     }
     if (provider === "adsense" && ADSENSE_CLIENT_ID && ADSENSE_SLOT_ID) {
@@ -1598,7 +1631,7 @@ app.get("/api/ads/config", async (req, res) => {
         showAds: true,
         provider: "adsense",
         adsenseClientId: ADSENSE_CLIENT_ID,
-        adsenseSlotId: ADSENSE_SLOT_ID
+        adsenseSlotId: ADSENSE_SLOT_ID,
       });
     }
     if (provider === "kakao" && KAKAO_AD_UNIT_ID && KAKAO_AD_SCRIPT_URL) {
@@ -1606,7 +1639,7 @@ app.get("/api/ads/config", async (req, res) => {
         showAds: true,
         provider: "kakao",
         kakaoUnitId: KAKAO_AD_UNIT_ID,
-        kakaoScriptUrl: KAKAO_AD_SCRIPT_URL
+        kakaoScriptUrl: KAKAO_AD_SCRIPT_URL,
       });
     }
     if (provider === "naver" && NAVER_AD_UNIT_ID && NAVER_AD_SCRIPT_URL) {
@@ -1614,12 +1647,12 @@ app.get("/api/ads/config", async (req, res) => {
         showAds: true,
         provider: "naver",
         naverUnitId: NAVER_AD_UNIT_ID,
-        naverScriptUrl: NAVER_AD_SCRIPT_URL
+        naverScriptUrl: NAVER_AD_SCRIPT_URL,
       });
     }
     res.json({
       showAds: true,
-      provider: "local"
+      provider: "local",
     });
   } catch (err) {
     console.error("ads-config error", err);
@@ -1635,9 +1668,9 @@ app.get("/api/stats/visits", async (req, res) => {
       {
         $group: {
           _id: null,
-          total: { $sum: "$visits" }
-        }
-      }
+          total: { $sum: "$visits" },
+        },
+      },
     ]);
     const totalVisits = agg.length ? agg[0].total : 0;
     const dailyVisits = todayDoc ? todayDoc.visits : 0;
@@ -1654,7 +1687,7 @@ app.get("/api/site-config", async (req, res) => {
     res.json({
       contactEmail: (cfg && cfg.contactEmail) || ADMIN_EMAIL || "",
       telegramUrl: cfg && cfg.telegramUrl ? cfg.telegramUrl : "",
-      instagramUrl: cfg && cfg.instagramUrl ? cfg.instagramUrl : ""
+      instagramUrl: cfg && cfg.instagramUrl ? cfg.instagramUrl : "",
     });
   } catch (err) {
     console.error("site-config error", err);
@@ -1672,67 +1705,85 @@ app.get("/api/news", async (req, res) => {
     if (lang) {
       query.$or = [{ lang }, { lang: { $exists: false } }, { lang: "" }];
     }
-    const items = await News.find(query)
+    const newsItems = await News.find(query)
       .sort({ createdAt: -1 })
       .limit(20)
       .lean();
-    res.json({ news: items });
+
+    const recentCafes = await Cafe.find({ isActive: true })
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .lean();
+
+    const combined = [
+      ...newsItems.map((item) => ({ ...item, type: "news" })),
+      ...recentCafes.map((cafe) => ({ ...cafe, type: "cafe" })),
+    ];
+
+    combined.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    const finalItems = combined.slice(0, 30);
+
+    res.json({ news: finalItems });
   } catch (err) {
     console.error("news list error", err);
     res.status(500).json({ error: "server error" });
   }
 });
 
-app.put("/api/admin/site-config", authMiddleware, adminOnly, async (req, res) => {
-  try {
-    const { contactEmail, telegramUrl, instagramUrl } = req.body;
-    const update = {};
-    if (contactEmail !== undefined) {
-      update.contactEmail = contactEmail;
-    }
-    if (telegramUrl !== undefined) {
-      if (telegramUrl) {
-        const value = String(telegramUrl).trim();
-        if (value && !/^https?:\/\//i.test(value)) {
-          return res.status(400).json({ error: "invalid telegramUrl" });
-        }
-        update.telegramUrl = value;
-      } else {
-        update.telegramUrl = "";
+app.put(
+  "/api/admin/site-config",
+  authMiddleware,
+  adminOnly,
+  async (req, res) => {
+    try {
+      const { contactEmail, telegramUrl, instagramUrl } = req.body;
+      const update = {};
+      if (contactEmail !== undefined) {
+        update.contactEmail = contactEmail;
       }
-    }
-    if (instagramUrl !== undefined) {
-      if (instagramUrl) {
-        const value = String(instagramUrl).trim();
-        if (value && !/^https?:\/\//i.test(value)) {
-          return res.status(400).json({ error: "invalid instagramUrl" });
+      if (telegramUrl !== undefined) {
+        if (telegramUrl) {
+          const value = String(telegramUrl).trim();
+          if (value && !/^https?:\/\//i.test(value)) {
+            return res.status(400).json({ error: "invalid telegramUrl" });
+          }
+          update.telegramUrl = value;
+        } else {
+          update.telegramUrl = "";
         }
-        update.instagramUrl = value;
-      } else {
-        update.instagramUrl = "";
       }
+      if (instagramUrl !== undefined) {
+        if (instagramUrl) {
+          const value = String(instagramUrl).trim();
+          if (value && !/^https?:\/\//i.test(value)) {
+            return res.status(400).json({ error: "invalid instagramUrl" });
+          }
+          update.instagramUrl = value;
+        } else {
+          update.instagramUrl = "";
+        }
+      }
+      const cfg = await SiteConfig.findOneAndUpdate(
+        { key: "default" },
+        update,
+        { upsert: true, new: true, setDefaultsOnInsert: true },
+      );
+      res.json({
+        contactEmail: cfg.contactEmail || "",
+        telegramUrl: cfg.telegramUrl || "",
+        instagramUrl: cfg.instagramUrl || "",
+      });
+    } catch (err) {
+      console.error("admin-site-config error", err);
+      res.status(500).json({ error: "server error" });
     }
-    const cfg = await SiteConfig.findOneAndUpdate(
-      { key: "default" },
-      update,
-      { upsert: true, new: true, setDefaultsOnInsert: true }
-    );
-    res.json({
-      contactEmail: cfg.contactEmail || "",
-      telegramUrl: cfg.telegramUrl || "",
-      instagramUrl: cfg.instagramUrl || ""
-    });
-  } catch (err) {
-    console.error("admin-site-config error", err);
-    res.status(500).json({ error: "server error" });
-  }
-});
+  },
+);
 
 app.get("/api/admin/news", authMiddleware, adminOnly, async (req, res) => {
   try {
-    const items = await News.find({})
-      .sort({ createdAt: -1 })
-      .lean();
+    const items = await News.find({}).sort({ createdAt: -1 }).lean();
     res.json({ news: items });
   } catch (err) {
     console.error("admin news list error", err);
@@ -1740,18 +1791,23 @@ app.get("/api/admin/news", authMiddleware, adminOnly, async (req, res) => {
   }
 });
 
-app.get("/api/admin/verifications", authMiddleware, adminOnly, async (req, res) => {
-  try {
-    const items = await PhoneVerification.find({})
-      .sort({ createdAt: -1 })
-      .limit(200)
-      .lean();
-    res.json({ verifications: items });
-  } catch (err) {
-    console.error("admin verifications list error", err);
-    res.status(500).json({ error: "server error" });
-  }
-});
+app.get(
+  "/api/admin/verifications",
+  authMiddleware,
+  adminOnly,
+  async (req, res) => {
+    try {
+      const items = await PhoneVerification.find({})
+        .sort({ createdAt: -1 })
+        .limit(200)
+        .lean();
+      res.json({ verifications: items });
+    } catch (err) {
+      console.error("admin verifications list error", err);
+      res.status(500).json({ error: "server error" });
+    }
+  },
+);
 
 app.delete(
   "/api/admin/verifications/:id",
@@ -1770,7 +1826,7 @@ app.delete(
       console.error("admin verifications delete error", err);
       res.status(500).json({ error: "server error" });
     }
-  }
+  },
 );
 
 app.post("/api/admin/news", authMiddleware, adminOnly, async (req, res) => {
@@ -1783,7 +1839,7 @@ app.post("/api/admin/news", authMiddleware, adminOnly, async (req, res) => {
       title,
       text,
       lang: lang && typeof lang === "string" ? lang : "ru",
-      isActive: isActive !== undefined ? !!isActive : true
+      isActive: isActive !== undefined ? !!isActive : true,
     });
     res.status(201).json({ news: doc });
   } catch (err) {
@@ -1792,48 +1848,58 @@ app.post("/api/admin/news", authMiddleware, adminOnly, async (req, res) => {
   }
 });
 
-app.patch("/api/admin/news/:id", authMiddleware, adminOnly, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { title, text, lang, isActive } = req.body;
-    const doc = await News.findById(id);
-    if (!doc) {
-      return res.status(404).json({ error: "news not found" });
+app.patch(
+  "/api/admin/news/:id",
+  authMiddleware,
+  adminOnly,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { title, text, lang, isActive } = req.body;
+      const doc = await News.findById(id);
+      if (!doc) {
+        return res.status(404).json({ error: "news not found" });
+      }
+      if (title !== undefined) {
+        doc.title = title;
+      }
+      if (text !== undefined) {
+        doc.text = text;
+      }
+      if (lang !== undefined && typeof lang === "string" && lang) {
+        doc.lang = lang;
+      }
+      if (isActive !== undefined) {
+        doc.isActive = !!isActive;
+      }
+      await doc.save();
+      res.json({ news: doc });
+    } catch (err) {
+      console.error("admin news update error", err);
+      res.status(500).json({ error: "server error" });
     }
-    if (title !== undefined) {
-      doc.title = title;
-    }
-    if (text !== undefined) {
-      doc.text = text;
-    }
-    if (lang !== undefined && typeof lang === "string" && lang) {
-      doc.lang = lang;
-    }
-    if (isActive !== undefined) {
-      doc.isActive = !!isActive;
-    }
-    await doc.save();
-    res.json({ news: doc });
-  } catch (err) {
-    console.error("admin news update error", err);
-    res.status(500).json({ error: "server error" });
-  }
-});
+  },
+);
 
-app.delete("/api/admin/news/:id", authMiddleware, adminOnly, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const doc = await News.findById(id);
-    if (!doc) {
-      return res.status(404).json({ error: "news not found" });
+app.delete(
+  "/api/admin/news/:id",
+  authMiddleware,
+  adminOnly,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const doc = await News.findById(id);
+      if (!doc) {
+        return res.status(404).json({ error: "news not found" });
+      }
+      await doc.deleteOne();
+      res.json({ ok: true });
+    } catch (err) {
+      console.error("admin news delete error", err);
+      res.status(500).json({ error: "server error" });
     }
-    await doc.deleteOne();
-    res.json({ ok: true });
-  } catch (err) {
-    console.error("admin news delete error", err);
-    res.status(500).json({ error: "server error" });
-  }
-});
+  },
+);
 
 app.post("/api/payments/subscribe", authMiddleware, async (req, res) => {
   try {
@@ -1854,7 +1920,7 @@ app.post("/api/payments/subscribe", authMiddleware, async (req, res) => {
       plan,
       amountWon,
       currency: "KRW",
-      status: "pending"
+      status: "pending",
     });
     if (
       plan === "invest" ||
@@ -1869,19 +1935,18 @@ app.post("/api/payments/subscribe", authMiddleware, async (req, res) => {
           plan: payment.plan,
           amountWon: payment.amountWon,
           currency: payment.currency,
-          status: payment.status
-        }
+          status: payment.status,
+        },
       });
     }
     const orderId = `payment_${payment._id.toString()}`;
-    const orderName =
-      plan === "coffee" ? "Coffee Premium" : "Client Premium";
+    const orderName = plan === "coffee" ? "Coffee Premium" : "Client Premium";
     const tossBody = {
       amount: amountWon,
       orderId,
       orderName,
       successUrl: TOSS_SUCCESS_URL,
-      failUrl: TOSS_FAIL_URL
+      failUrl: TOSS_FAIL_URL,
     };
     const tossPayment = await callTossPayments("/v1/payments", tossBody);
     const checkoutUrl =
@@ -1892,8 +1957,9 @@ app.post("/api/payments/subscribe", authMiddleware, async (req, res) => {
         : null;
     payment.provider = "toss";
     payment.metadata = Object.assign({}, payment.metadata || {}, {
-      orderId: tossPayment && tossPayment.orderId ? tossPayment.orderId : orderId,
-      checkoutUrl
+      orderId:
+        tossPayment && tossPayment.orderId ? tossPayment.orderId : orderId,
+      checkoutUrl,
     });
     await payment.save();
     res.status(201).json({
@@ -1902,10 +1968,11 @@ app.post("/api/payments/subscribe", authMiddleware, async (req, res) => {
         plan: payment.plan,
         amountWon: payment.amountWon,
         currency: payment.currency,
-        status: payment.status
+        status: payment.status,
       },
       checkoutUrl,
-      orderId: tossPayment && tossPayment.orderId ? tossPayment.orderId : orderId
+      orderId:
+        tossPayment && tossPayment.orderId ? tossPayment.orderId : orderId,
     });
   } catch (err) {
     console.error("subscribe error", err);
@@ -1927,11 +1994,11 @@ app.post("/api/payments/toss/confirm", authMiddleware, async (req, res) => {
     const confirmBody = {
       paymentKey,
       orderId,
-      amount
+      amount,
     };
     const tossResult = await callTossPayments(
       "/v1/payments/confirm",
-      confirmBody
+      confirmBody,
     );
     let paymentId = null;
     if (orderId.startsWith("payment_")) {
@@ -1948,7 +2015,7 @@ app.post("/api/payments/toss/confirm", authMiddleware, async (req, res) => {
     payment.metadata = Object.assign({}, payment.metadata || {}, {
       tossPaymentKey: paymentKey,
       tossOrderId: orderId,
-      tossResult
+      tossResult,
     });
     await payment.save();
     const user = await User.findById(payment.user);
@@ -1970,8 +2037,8 @@ app.post("/api/payments/toss/confirm", authMiddleware, async (req, res) => {
         amountWon: payment.amountWon,
         currency: payment.currency,
         status: payment.status,
-        provider: payment.provider
-      }
+        provider: payment.provider,
+      },
     });
   } catch (err) {
     console.error("toss confirm error", err);
@@ -1983,7 +2050,7 @@ app.get("/api/admin/users", authMiddleware, adminOnly, async (req, res) => {
   try {
     const users = await User.find({})
       .select(
-        "phone kakaoId email name role cityCode preferredLang marketingOptIn isAdmin isInvestor subscriptionPlan subscriptionExpiresAt createdAt"
+        "phone kakaoId email name role cityCode preferredLang marketingOptIn isAdmin isInvestor subscriptionPlan subscriptionExpiresAt createdAt",
       )
       .sort({ createdAt: -1 })
       .lean();
@@ -1994,76 +2061,86 @@ app.get("/api/admin/users", authMiddleware, adminOnly, async (req, res) => {
   }
 });
 
-app.delete("/api/admin/users/:id", authMiddleware, adminOnly, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const user = await User.findById(id);
-    if (!user) {
-      return res.status(404).json({ error: "user not found" });
-    }
-
-    const cafes = await Cafe.find({ owner: id }).select("_id");
-    const cafeIds = cafes.map((c) => c._id);
-
-    if (cafeIds.length) {
-      await CafePost.deleteMany({ cafe: { $in: cafeIds } });
-      await CafeSubscription.deleteMany({ cafe: { $in: cafeIds } });
-      await Cafe.deleteMany({ owner: id });
-    }
-
-    await CafePost.deleteMany({ author: id });
-    await CafeSubscription.deleteMany({ user: id });
-    await Payment.deleteMany({ user: id });
-
-    if (user.email) {
-      await PhoneVerification.deleteMany({ email: user.email });
-    }
-    if (user.phone) {
-      await PhoneVerification.deleteMany({ phone: user.phone });
-    }
-
-    await user.deleteOne();
-    res.json({ ok: true });
-  } catch (err) {
-    console.error("admin delete user error", err);
-    res.status(500).json({ error: "server error" });
-  }
-});
-
-app.patch("/api/admin/users/:id", authMiddleware, adminOnly, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const updateData = req.body;
-    const user = await User.findById(id);
-    if (!user) {
-      return res.status(404).json({ error: "user not found" });
-    }
-
-    const allowed = [
-      "name",
-      "email",
-      "role",
-      "cityCode",
-      "preferredLang",
-      "isAdmin",
-      "isInvestor",
-      "subscriptionPlan",
-      "subscriptionExpiresAt"
-    ];
-
-    allowed.forEach((field) => {
-      if (updateData[field] !== undefined) {
-        user[field] = updateData[field];
+app.delete(
+  "/api/admin/users/:id",
+  authMiddleware,
+  adminOnly,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const user = await User.findById(id);
+      if (!user) {
+        return res.status(404).json({ error: "user not found" });
       }
-    });
 
-    await user.save();
-    res.json({ user });
-  } catch (err) {
-    console.error("admin update user error", err);
-    res.status(500).json({ error: "server error" });
-  }
-});
+      const cafes = await Cafe.find({ owner: id }).select("_id");
+      const cafeIds = cafes.map((c) => c._id);
+
+      if (cafeIds.length) {
+        await CafePost.deleteMany({ cafe: { $in: cafeIds } });
+        await CafeSubscription.deleteMany({ cafe: { $in: cafeIds } });
+        await Cafe.deleteMany({ owner: id });
+      }
+
+      await CafePost.deleteMany({ author: id });
+      await CafeSubscription.deleteMany({ user: id });
+      await Payment.deleteMany({ user: id });
+
+      if (user.email) {
+        await PhoneVerification.deleteMany({ email: user.email });
+      }
+      if (user.phone) {
+        await PhoneVerification.deleteMany({ phone: user.phone });
+      }
+
+      await user.deleteOne();
+      res.json({ ok: true });
+    } catch (err) {
+      console.error("admin delete user error", err);
+      res.status(500).json({ error: "server error" });
+    }
+  },
+);
+
+app.patch(
+  "/api/admin/users/:id",
+  authMiddleware,
+  adminOnly,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updateData = req.body;
+      const user = await User.findById(id);
+      if (!user) {
+        return res.status(404).json({ error: "user not found" });
+      }
+
+      const allowed = [
+        "name",
+        "email",
+        "role",
+        "cityCode",
+        "preferredLang",
+        "isAdmin",
+        "isInvestor",
+        "subscriptionPlan",
+        "subscriptionExpiresAt",
+      ];
+
+      allowed.forEach((field) => {
+        if (updateData[field] !== undefined) {
+          user[field] = updateData[field];
+        }
+      });
+
+      await user.save();
+      res.json({ user });
+    } catch (err) {
+      console.error("admin update user error", err);
+      res.status(500).json({ error: "server error" });
+    }
+  },
+);
 
 app.patch(
   "/api/admin/users/:id/subscription",
@@ -2072,12 +2149,8 @@ app.patch(
   async (req, res) => {
     try {
       const { id } = req.params;
-      const {
-        subscriptionPlan,
-        subscriptionExpiresAt,
-        isAdmin,
-        isInvestor
-      } = req.body;
+      const { subscriptionPlan, subscriptionExpiresAt, isAdmin, isInvestor } =
+        req.body;
       const user = await User.findById(id);
       if (!user) {
         return res.status(404).json({ error: "user not found" });
@@ -2123,14 +2196,14 @@ app.patch(
           isAdmin: user.isAdmin,
           isInvestor: user.isInvestor,
           subscriptionPlan: user.subscriptionPlan,
-          subscriptionExpiresAt: user.subscriptionExpiresAt
-        }
+          subscriptionExpiresAt: user.subscriptionExpiresAt,
+        },
       });
     } catch (err) {
       console.error("admin user subscription update error", err);
       res.status(500).json({ error: "server error" });
     }
-  }
+  },
 );
 
 app.get("/api/admin/cafes", authMiddleware, adminOnly, async (req, res) => {
@@ -2139,7 +2212,7 @@ app.get("/api/admin/cafes", authMiddleware, adminOnly, async (req, res) => {
       .populate({
         path: "owner",
         select:
-          "phone kakaoId email name role cityCode preferredLang isAdmin isInvestor"
+          "phone kakaoId email name role cityCode preferredLang isAdmin isInvestor",
       })
       .sort({ createdAt: -1 })
       .lean();
@@ -2150,22 +2223,27 @@ app.get("/api/admin/cafes", authMiddleware, adminOnly, async (req, res) => {
   }
 });
 
-app.delete("/api/admin/cafes/:id", authMiddleware, adminOnly, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const cafe = await Cafe.findById(id);
-    if (!cafe) {
-      return res.status(404).json({ error: "cafe not found" });
+app.delete(
+  "/api/admin/cafes/:id",
+  authMiddleware,
+  adminOnly,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const cafe = await Cafe.findById(id);
+      if (!cafe) {
+        return res.status(404).json({ error: "cafe not found" });
+      }
+      await CafePost.deleteMany({ cafe: id });
+      await CafeSubscription.deleteMany({ cafe: id });
+      await cafe.deleteOne();
+      res.json({ ok: true });
+    } catch (err) {
+      console.error("admin delete cafe error", err);
+      res.status(500).json({ error: "server error" });
     }
-    await CafePost.deleteMany({ cafe: id });
-    await CafeSubscription.deleteMany({ cafe: id });
-    await cafe.deleteOne();
-    res.json({ ok: true });
-  } catch (err) {
-    console.error("admin delete cafe error", err);
-    res.status(500).json({ error: "server error" });
-  }
-});
+  },
+);
 
 app.patch(
   "/api/admin/cafes/:id",
@@ -2190,7 +2268,7 @@ app.patch(
         "openingHours",
         "averageCheck",
         "isActive",
-        "isPromoted"
+        "isPromoted",
       ];
 
       allowed.forEach((field) => {
@@ -2209,14 +2287,12 @@ app.patch(
       console.error("admin cafe update error", err);
       res.status(500).json({ error: "server error" });
     }
-  }
+  },
 );
 
 app.get("/api/admin/ads", authMiddleware, adminOnly, async (req, res) => {
   try {
-    const ads = await Ad.find({})
-      .sort({ createdAt: -1 })
-      .lean();
+    const ads = await Ad.find({}).sort({ createdAt: -1 }).lean();
     res.json({ ads });
   } catch (err) {
     console.error("admin ads list error", err);
@@ -2258,20 +2334,20 @@ app.get(
             from: "cafeposts",
             localField: "_id",
             foreignField: "cafe",
-            as: "posts"
-          }
+            as: "posts",
+          },
         },
         { $unwind: "$posts" },
         { $match: matchStage },
         {
           $group: {
             _id: "$cityCode",
-            count: { $sum: 1 }
-          }
+            count: { $sum: 1 },
+          },
         },
         {
-          $sort: { count: -1 }
-        }
+          $sort: { count: -1 },
+        },
       ]);
 
       const topQuery = { isPromoted: true };
@@ -2298,48 +2374,50 @@ app.get(
             typeof p.ratingCount === "number" && p.ratingCount > 0
               ? p.ratingCount
               : 0,
-          createdAt: p.createdAt
-        }))
+          createdAt: p.createdAt,
+        })),
       });
     } catch (err) {
       console.error("admin promo stats error", err);
       res.status(500).json({ error: "server error" });
     }
-  }
+  },
 );
 
 app.post("/api/admin/reset-db", authMiddleware, adminOnly, async (req, res) => {
   try {
     // 1. Delete all cafes
     const cafes = await Cafe.deleteMany({});
-    
+
     // 2. Delete all cafe subscriptions
     const subs = await CafeSubscription.deleteMany({});
-    
+
     // 3. Delete all cafe posts
     const posts = await CafePost.deleteMany({});
-    
+
     // 4. Delete all payments
     const payments = await Payment.deleteMany({});
-    
+
     // 5. Delete all phone verifications
     const verifications = await PhoneVerification.deleteMany({});
 
     // 6. Delete all users EXCEPT admin (isAdmin: true)
     const users = await User.deleteMany({ isAdmin: { $ne: true } });
 
-    console.log(`Database reset by admin: Deleted ${cafes.deletedCount} cafes, ${subs.deletedCount} subs, ${posts.deletedCount} posts, ${payments.deletedCount} payments, ${verifications.deletedCount} verifications, ${users.deletedCount} users.`);
+    console.log(
+      `Database reset by admin: Deleted ${cafes.deletedCount} cafes, ${subs.deletedCount} subs, ${posts.deletedCount} posts, ${payments.deletedCount} payments, ${verifications.deletedCount} verifications, ${users.deletedCount} users.`,
+    );
 
-    res.json({ 
-      ok: true, 
+    res.json({
+      ok: true,
       deleted: {
         cafes: cafes.deletedCount,
         subscriptions: subs.deletedCount,
         posts: posts.deletedCount,
         payments: payments.deletedCount,
         verifications: verifications.deletedCount,
-        users: users.deletedCount
-      }
+        users: users.deletedCount,
+      },
     });
   } catch (err) {
     console.error("admin reset db error", err);
@@ -2360,7 +2438,7 @@ app.post("/api/admin/ads", authMiddleware, adminOnly, async (req, res) => {
       url: url || "",
       active: active !== undefined ? !!active : true,
       weight:
-        typeof weight === "number" && Number.isFinite(weight) ? weight : 1
+        typeof weight === "number" && Number.isFinite(weight) ? weight : 1,
     });
     res.status(201).json({ ad });
   } catch (err) {
@@ -2416,7 +2494,7 @@ app.post("/api/cafes", authMiddleware, ownerOnly, async (req, res) => {
       openingHours,
       averageCheck,
       tables,
-      menu
+      menu,
     } = req.body;
     if (!name || !cityCode) {
       return res.status(400).json({ error: "name and cityCode required" });
@@ -2435,7 +2513,7 @@ app.post("/api/cafes", authMiddleware, ownerOnly, async (req, res) => {
           ? averageCheck
           : Number(averageCheck) || 0,
       tables: Array.isArray(tables) ? tables : [],
-      menu: Array.isArray(menu) ? menu : []
+      menu: Array.isArray(menu) ? menu : [],
     });
     res.status(201).json({ cafe });
   } catch (err) {
@@ -2448,7 +2526,7 @@ app.get("/api/my/cafes", authMiddleware, ownerOnly, async (req, res) => {
   try {
     const cafes = await Cafe.find({ owner: req.user.id })
       .select(
-        "name cityCode address description bookingInfo phone openingHours averageCheck isActive photos createdAt menu"
+        "name cityCode address description bookingInfo phone openingHours averageCheck isActive photos createdAt menu",
       )
       .sort({ createdAt: -1 })
       .lean();
@@ -2473,7 +2551,7 @@ app.put("/api/cafes/:id", authMiddleware, ownerOnly, async (req, res) => {
       averageCheck,
       tables,
       menu,
-      isActive
+      isActive,
     } = req.body;
     const cafe = await Cafe.findOne({ _id: id, owner: req.user.id });
     if (!cafe) {
@@ -2488,9 +2566,7 @@ app.put("/api/cafes/:id", authMiddleware, ownerOnly, async (req, res) => {
     if (openingHours !== undefined) cafe.openingHours = openingHours;
     if (averageCheck !== undefined) {
       const numeric =
-        typeof averageCheck === "number"
-          ? averageCheck
-          : Number(averageCheck);
+        typeof averageCheck === "number" ? averageCheck : Number(averageCheck);
       cafe.averageCheck = Number.isFinite(numeric) ? numeric : 0;
     }
     if (tables !== undefined && Array.isArray(tables)) cafe.tables = tables;
@@ -2510,7 +2586,7 @@ app.get("/api/cafes", async (req, res) => {
     if (id) {
       const cafe = await Cafe.findOne({ _id: id, isActive: true })
         .select(
-          "name cityCode address description bookingInfo phone openingHours averageCheck photos menu"
+          "name cityCode address description bookingInfo phone openingHours averageCheck photos menu",
         )
         .lean();
       if (!cafe) {
@@ -2524,7 +2600,7 @@ app.get("/api/cafes", async (req, res) => {
     }
     const cafes = await Cafe.find(query)
       .select(
-        "name cityCode address description bookingInfo phone openingHours averageCheck photos menu"
+        "name cityCode address description bookingInfo phone openingHours averageCheck photos menu",
       )
       .sort({ createdAt: -1 })
       .lean();
@@ -2536,9 +2612,9 @@ app.get("/api/cafes", async (req, res) => {
         {
           $group: {
             _id: "$cafe",
-            count: { $sum: 1 }
-          }
-        }
+            count: { $sum: 1 },
+          },
+        },
       ]);
       countsByCafe = counts.reduce((acc, item) => {
         acc[String(item._id)] = item.count;
@@ -2550,7 +2626,7 @@ app.get("/api/cafes", async (req, res) => {
       return {
         ...cafe,
         subscribersCount:
-          typeof countsByCafe[id] === "number" ? countsByCafe[id] : 0
+          typeof countsByCafe[id] === "number" ? countsByCafe[id] : 0,
       };
     });
     res.json({ cafes: cafesWithCounts });
@@ -2578,7 +2654,7 @@ app.post(
       const publicUrl = `/uploads/${req.file.filename}`;
       cafe.photos.push({
         url: publicUrl,
-        originalName: req.file.originalname
+        originalName: req.file.originalname,
       });
       await cafe.save();
       res.status(201).json({ photos: cafe.photos });
@@ -2586,7 +2662,7 @@ app.post(
       console.error("upload cafe photo error", err);
       res.status(500).json({ error: "server error" });
     }
-  }
+  },
 );
 
 // SPA fallback
