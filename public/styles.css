@@ -82,6 +82,17 @@ body {
     border-color: #cbd5e1;
 }
 
+.btn-kakao {
+    background-color: #FEE500;
+    color: #191919;
+    border: none;
+    font-weight: 600;
+}
+
+.btn-kakao:hover {
+    background-color: #FDD835;
+}
+
 .btn-outline {
     background-color: transparent;
     border-color: var(--border-color);
@@ -302,3 +313,364 @@ input:focus, textarea:focus, select:focus {
     }
 }
 
+/* Admin & Owner Page Layout */
+.site-header {
+    background-color: var(--bg-surface);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.site-header .logo {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.site-footer {
+    background-color: var(--bg-surface);
+    border-top: 1px solid var(--border-color);
+    padding: 2rem;
+    margin-top: auto;
+}
+
+.site-footer-contact {
+    margin-top: 1rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.owner-page-main {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem;
+    min-height: calc(100vh - 160px);
+}
+
+.owner-header-section {
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.owner-layout {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 2rem;
+}
+
+.owner-layout-left {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.owner-layout-right {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.admin-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+}
+
+.admin-tab-btn {
+    background: transparent;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.admin-tab-btn:hover {
+    background-color: var(--bg-surface-hover);
+    color: var(--text-main);
+}
+
+.admin-tab-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.danger-zone {
+    margin-top: 2.5rem;
+    border-top: 1px solid var(--border-color);
+    padding-top: 1.5rem;
+}
+
+.danger-zone h3 {
+    color: #ef4444; /* Red 500 */
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem;
+}
+
+.btn-danger {
+    background-color: #ef4444;
+    color: white;
+    border: none;
+}
+
+.btn-danger:hover {
+    background-color: #dc2626; /* Red 600 */
+}
+
+.admin-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: var(--bg-body);
+    border-radius: var(--radius-md);
+    margin-bottom: 0.5rem;
+}
+
+.admin-ad-form, .admin-news-form, .admin-config-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+/* Owner Stats */
+.owner-stats {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.owner-stat-item {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    text-align: center;
+}
+
+.owner-stat-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.owner-stat-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+/* Cafe Detail View */
+.cafe-detail {
+    background-color: var(--bg-surface);
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+    box-shadow: var(--shadow-lg);
+    margin-bottom: 2rem;
+}
+
+.cafe-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+}
+
+.cafe-detail-header h2 {
+    font-size: 1.875rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin: 0 0 0.5rem 0;
+}
+
+.cafe-modal-meta {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.cafe-detail-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.cafe-modal-subscribers {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.cafe-booking-info {
+    background-color: #eff6ff; /* Blue 50 */
+    border: 1px solid #dbeafe; /* Blue 100 */
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    margin-bottom: 2rem;
+    color: var(--text-main);
+    font-size: 0.875rem;
+    line-height: 1.6;
+}
+
+.cafe-detail-body {
+    display: grid;
+    grid-template-columns: 300px 1fr 250px;
+    gap: 2rem;
+}
+
+.cafe-detail-left, .cafe-detail-right {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.cafe-modal-description {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.cafe-detail-extra {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    background-color: var(--bg-body);
+    padding: 1rem;
+    border-radius: var(--radius-md);
+}
+
+/* Cafe Feed Posts */
+.cafe-post-item {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s;
+}
+
+.cafe-post-item:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.cafe-post-text {
+    font-size: 1rem;
+    color: var(--text-main);
+    margin-bottom: 1rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+.cafe-post-meta {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border-color);
+    padding-top: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Cafe Menu */
+.cafe-menu-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.cafe-detail-menu-item {
+    padding: 0.75rem;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    transition: all 0.2s;
+}
+
+.cafe-detail-menu-item:hover {
+    border-color: var(--primary-color);
+    transform: translateX(2px);
+}
+
+.cafe-detail-menu-title {
+    font-weight: 600;
+    color: var(--text-main);
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+}
+
+.cafe-detail-menu-meta {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+/* Cafe Photos Grid */
+.cafe-detail-photos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.cafe-detail-photos-grid img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    transition: transform 0.2s;
+}
+
+.cafe-detail-photos-grid img:hover {
+    transform: scale(1.05);
+}
+
+/* Responsive for Owner/Admin */
+@media (max-width: 1024px) {
+    .owner-layout {
+        grid-template-columns: 1fr;
+    }
+    .site-header {
+        padding: 1rem;
+    }
+    .owner-page-main {
+        padding: 1rem;
+    }
+    .cafe-detail-body {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .cafe-detail-left, .cafe-detail-right {
+        order: 2;
+    }
+    
+    .cafe-detail-center {
+        order: 1;
+    }
+}
+
+.hidden {
+    display: none !important;
+}
