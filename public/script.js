@@ -919,17 +919,17 @@ async function loadNews() {
                 if (currentLang === "ru") prefix = "Новое кафе: ";
                 else if (currentLang === "ko") prefix = "새로운 카페: ";
                 
-                li.textContent = prefix + (item.name || "");
-                li.style.cursor = "pointer";
-                li.style.textDecoration = "underline";
-                // Add hover effect via class if needed, but inline style works for now
-                li.onclick = () => {
-                    if (item && item._id) {
-                        window.location.href = "/cafe/" + encodeURIComponent(item._id);
-                    } else {
-                        openCafePage(item);
-                    }
-                };
+                let cityName = "";
+                if (item.cityCode && translations[currentLang] && translations[currentLang].cities) {
+                    cityName = translations[currentLang].cities[item.cityCode] || item.cityCode;
+                }
+                
+                let text = prefix + (item.name || "");
+                if (cityName) {
+                    text += " (" + cityName + ")";
+                }
+                
+                li.textContent = text;
             } else {
                 const title = item.title || "";
                 const text = item.text || "";
@@ -2977,6 +2977,7 @@ async function loadOwnerCafes() {
 
             controls.appendChild(fileInput);
             controls.appendChild(uploadBtn);
+            controls.appendChild(editBtn);
 
             item.appendChild(title);
             item.appendChild(photosWrap);
