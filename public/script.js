@@ -2023,6 +2023,29 @@ function formatCafeOpeningHours(raw) {
     return "";
 }
 
+function updateCafeStatsUI(total, today) {
+    const totalEl = document.getElementById("cafeStatTotal");
+    const todayEl = document.getElementById("cafeStatToday");
+    const totalLabel = document.getElementById("cafeStatTotalLabel");
+    const todayLabel = document.getElementById("cafeStatTodayLabel");
+
+    if (totalEl) totalEl.textContent = total;
+    if (todayEl) todayEl.textContent = today;
+
+    if (totalLabel && todayLabel) {
+        if (currentLang === 'ru') {
+            totalLabel.textContent = "Всего визитов";
+            todayLabel.textContent = "Визитов сегодня";
+        } else if (currentLang === 'en') {
+            totalLabel.textContent = "Total Visits";
+            todayLabel.textContent = "Visits Today";
+        } else {
+            totalLabel.textContent = "총 방문자";
+            todayLabel.textContent = "오늘 방문자";
+        }
+    }
+}
+
 async function updateCafeSubscribersCount() {
     const modalEl = document.getElementById("cafeSubscribersCount");
     const pageEl = document.getElementById("cafePageSubscribersCount");

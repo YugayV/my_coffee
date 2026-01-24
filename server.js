@@ -2595,15 +2595,38 @@ app.get("/api/cafes", async (req, res) => {
   try {
     const { city, id } = req.query;
     if (id) {
-      const cafe = await Cafe.findOne({ _id: id, isActive: true })
-        .select(
-          "name cityCode address description bookingInfo phone openingHours averageCheck photos menu",
-        )
-        .lean();
+      const cafe = await Cafe.findOne({ _id: id, isActive: true });
       if (!cafe) {
         return res.status(404).json({ error: "cafe not found" });
       }
-      return res.json({ cafe });
+      
+      // Increment visits
+      cafe.visitsCount = (cafe.visitsCount || 0) + 1;
+      
+      // Increment daily visits
+      const today = new Date().toISOString().split("T")[0];
+      if (!cafe.dailyVisits) {
+        cafe.dailyVisits = new Map();
+      }
+      const dailyCount = cafe.dailyVisits.get(today) || 0;
+      cafe.dailyVisits.set(today, dailyCount + 1);
+      
+      // Optional: Cleanup old daily stats (keep last 30 days) to prevent unlimited growth
+      if (cafe.dailyVisits.size > 60) {
+        const keys = Array.from(cafe.dailyVisits.keys()).sort();
+        while (keys.length > 30) {
+          const k = keys.shift();
+          cafe.dailyVisits.delete(k);
+        }
+      }
+
+      await cafe.save();
+
+      // Convert to object for response
+      const cafeObj = cafe.toObject();
+      cafeObj.todayVisits = cafe.dailyVisits.get(today) || 0;
+      
+      return res.json({ cafe: cafeObj });
     }
     const query = { isActive: true };
     if (city) {
