@@ -1687,10 +1687,22 @@ async function openCafeModal(cafe) {
 }
 
 function toggleCafeMode(showCafe) {
+    const closeBtn = document.getElementById("btnCafeDetailClose");
     if (showCafe) {
         document.body.classList.add("cafe-mode");
+        if (closeBtn) {
+            closeBtn.textContent =
+                currentLang === "ru"
+                    ? "На главную"
+                    : currentLang === "en"
+                    ? "Home"
+                    : "홈으로";
+        }
     } else {
         document.body.classList.remove("cafe-mode");
+        if (closeBtn) {
+            closeBtn.textContent = "×";
+        }
     }
 }
 
@@ -5705,6 +5717,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const path = window.location.pathname;
     if (path.startsWith("/cafe/")) {
+        toggleCafeMode(true);
         const parts = path.split("/");
         // path is /cafe/ID -> ["", "cafe", "ID"]
         const cId = parts[2];
@@ -5716,13 +5729,16 @@ document.addEventListener("DOMContentLoaded", () => {
                         openCafePage(data.cafe);
                     }
                 })
-                .catch((e) => {});
+                .catch((e) => {
+                    toggleCafeMode(false);
+                });
         }
     }
 
     window.addEventListener("popstate", () => {
         const p = window.location.pathname;
         if (p.startsWith("/cafe/")) {
+            toggleCafeMode(true);
             const parts = p.split("/");
             const cId = parts[2];
             if (cId) {
@@ -5733,7 +5749,9 @@ document.addEventListener("DOMContentLoaded", () => {
                             openCafePage(data.cafe);
                         }
                     })
-                    .catch((e) => {});
+                    .catch((e) => {
+                        toggleCafeMode(false);
+                    });
             }
         } else {
             toggleCafeMode(false);

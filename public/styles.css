@@ -2000,6 +2000,83 @@ body.cafe-mode .quick-info {
 @media (min-width: 961px) {
     body.cafe-mode .container {
         grid-template-columns: 1fr !important;
-        max-width: 800px !important; /* Limit width for readability */
+        max-width: 1000px !important; /* Slightly wider for better content distribution */
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+    
+    body.cafe-mode .cafe-detail {
+        margin-top: 0;
+        border: none;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        padding: 50px;
+        background: #fff;
+        border-radius: 16px;
+    }
+
+    body.cafe-mode .cafe-detail-body {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        max-width: none;
+    }
+
+    body.cafe-mode .cafe-detail-left {
+        grid-column: 1 / -1;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    body.cafe-mode .cafe-detail-center {
+        grid-column: 1;
+    }
+
+    body.cafe-mode .cafe-detail-right {
+        grid-column: 2;
     }
 }
+
+body.cafe-mode .cafe-detail-header {
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 24px;
+    margin-bottom: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+body.cafe-mode #cafeDetailName {
+    font-size: 36px;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.025em;
+    margin: 0;
+}
+
+body.cafe-mode #btnCafeDetailClose {
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+body.cafe-mode #btnCafeDetailClose:hover {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    color: #0f172a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+body.cafe-mode #btnCafeDetailClose:active {
+    transform: translateY(0);
+}
+
+/* Re-label the close button as "Back" or "Home" if needed via JS or just keep the 'x' but styled well */
+
