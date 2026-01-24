@@ -1,7 +1,9 @@
 :root {
     /* Modern Color Palette */
     --primary-color: #4f46e5; /* Indigo 600 */
+    --primary-rgb: 79, 70, 229;
     --primary-hover: #4338ca; /* Indigo 700 */
+    --primary-light: #818cf8; /* Indigo 400 */
     --secondary-color: #64748b; /* Slate 500 */
     --accent-color: #f97316; /* Orange 500 */
     
@@ -555,14 +557,30 @@ input:focus, textarea:focus, select:focus {
     align-items: center;
     justify-content: center;
     text-align: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
 .cafe-stat-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.1);
     border-color: var(--primary-light);
+}
+
+.cafe-stat-icon {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+    background: rgba(var(--primary-rgb), 0.1); /* Assuming variable exists, else use hardcoded */
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: #f0f7ff;
 }
 
 .cafe-stat-value {
