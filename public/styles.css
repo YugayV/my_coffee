@@ -1585,7 +1585,7 @@ body {
 }
 
 .cafe-post-comments {
-  border-top: 1px dashed rgba(203, 213, 225, 0.8);
+  border-top: 1px solid rgba(203, 213, 225, 0.8);
   margin-top: 4px;
   padding-top: 4px;
   display: flex;
@@ -1601,10 +1601,7 @@ body {
 .cafe-detail {
   margin-top: 18px;
   padding: 16px 18px;
-  border-radius: 16px;
   background: #ffffff;
-  border: 1px solid rgba(203, 213, 225, 0.8);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .cafe-detail-header {
@@ -1658,8 +1655,8 @@ body {
 }
 
 .cafe-detail-center {
-  border-left: 1px dashed rgba(203, 213, 225, 0.8);
-  border-right: 1px dashed rgba(203, 213, 225, 0.8);
+  border-left: 1px solid rgba(203, 213, 225, 0.8);
+  border-right: 1px solid rgba(203, 213, 225, 0.8);
   padding: 0 12px;
 }
 
@@ -1676,7 +1673,7 @@ body {
 
 .cafe-detail-menu-item {
   padding: 4px 0;
-  border-bottom: 1px dotted rgba(203, 213, 225, 0.8);
+  border-bottom: 1px solid rgba(203, 213, 225, 0.8);
   color: #334155;
 }
 
@@ -1703,7 +1700,6 @@ body {
   min-width: 140px;
   max-width: 200px;
   padding: 8px 10px;
-  border-radius: 10px;
   background: #ffffff;
   border: 1px solid rgba(203, 213, 225, 0.8);
   scroll-snap-align: center;
@@ -1778,7 +1774,7 @@ body {
 
   .cafe-detail-body {
     grid-template-columns: 1fr;
-    border-top: 1px dashed rgba(203, 213, 225, 0.8);
+    border-top: 1px solid rgba(203, 213, 225, 0.8);
     padding-top: 8px;
   }
 

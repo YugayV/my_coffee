@@ -2660,6 +2660,12 @@ async function loadOwnerCafes() {
         if (statCafesEl) {
             statCafesEl.textContent = String(cafes.length);
         }
+        if (statSubsEl) {
+            statSubsEl.textContent = "0";
+        }
+        if (statPostsEl) {
+            statPostsEl.textContent = "0";
+        }
 
         let totalSubscribers = 0;
         let totalPosts = 0;
