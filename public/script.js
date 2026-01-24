@@ -59,7 +59,13 @@ const translations = {
             btnCafePageBook: "예약하기",
             footerRights: "© Kafe Booking, 모든 권리 보유.",
             footerContact: "문의하기:",
-            btnBackToHome: "홈으로"
+            btnBackToHome: "홈으로",
+            cafeAboutTitle: "카페 소개",
+            cafeFeedTitle: "카페 소식",
+            cafeMenuTitle: "메뉴",
+            loadMore: "더 보기",
+            ownerDashboard: "사장님 페이지",
+            adminDashboard: "관리자 패널"
         },
         days: {
             mon: "월",
@@ -226,7 +232,13 @@ const translations = {
             btnCafePageBook: "Book a table",
             footerRights: "© Kafe Booking, all rights reserved.",
             footerContact: "Contact:",
-            btnBackToHome: "Home"
+            btnBackToHome: "Home",
+            cafeAboutTitle: "About Cafe",
+            cafeFeedTitle: "Cafe Feed",
+            cafeMenuTitle: "Our Menu",
+            loadMore: "Show more",
+            ownerDashboard: "Owner Dashboard",
+            adminDashboard: "Admin Dashboard"
         },
         days: {
             mon: "Mon",
@@ -393,7 +405,13 @@ const translations = {
             btnCafePageBook: "Забронировать столик",
             footerRights: "© Kafe Booking, все права защищены.",
             footerContact: "Связаться:",
-            btnBackToHome: "На главную"
+            btnBackToHome: "На главную",
+            cafeAboutTitle: "О кафе",
+            cafeFeedTitle: "Лента кафе",
+            cafeMenuTitle: "Наше меню",
+            loadMore: "Показать ещё",
+            ownerDashboard: "Кабинет владельца",
+            adminDashboard: "Админ панель"
         },
         days: {
             mon: "Пн",
@@ -2496,6 +2514,16 @@ function applyLanguage(lang) {
     const btnCafePageSubscribe = document.getElementById("btnCafePageSubscribe");
     const btnCafePageBook = document.getElementById("btnCafePageBook");
     const btnCafeDetailClose = document.getElementById("btnCafeDetailClose");
+    const cafeDetailAboutTitle = document.getElementById("cafeDetailAboutTitle");
+    const cafeDetailFeedTitle = document.getElementById("cafeDetailFeedTitle");
+    const cafeDetailMenuTitle = document.getElementById("cafeDetailMenuTitle");
+    const btnCafePagePostsLoadMore = document.getElementById("btnCafePagePostsLoadMore");
+    const btnCafePostsLoadMore = document.getElementById("btnCafePostsLoadMore");
+    const btnOwnerDashboard = document.getElementById("btnOwnerDashboard");
+    const btnAdminDashboard = document.getElementById("btnAdminDashboard");
+    const btnCafeSubscribe = document.getElementById("btnCafeSubscribe");
+    const btnCafeBook = document.getElementById("btnCafeBook");
+    const cafeModalPostsTitle = document.getElementById("cafeModalPostsTitle");
     const footerRights = document.querySelector(".site-footer-rights");
     const footerContact = document.getElementById("footerContactLabel");
 
@@ -2504,6 +2532,16 @@ function applyLanguage(lang) {
     const headerCitySearch = document.getElementById("headerCitySearch");
 
     if (btnOpenAuth) btnOpenAuth.textContent = config.ui.login;
+    if (btnOwnerDashboard) btnOwnerDashboard.textContent = config.ui.ownerDashboard;
+    if (btnAdminDashboard) btnAdminDashboard.textContent = config.ui.adminDashboard;
+    if (cafeDetailAboutTitle) cafeDetailAboutTitle.textContent = config.ui.cafeAboutTitle;
+    if (cafeDetailFeedTitle) cafeDetailFeedTitle.textContent = config.ui.cafeFeedTitle;
+    if (cafeDetailMenuTitle) cafeDetailMenuTitle.textContent = config.ui.cafeMenuTitle;
+    if (btnCafePagePostsLoadMore) btnCafePagePostsLoadMore.textContent = config.ui.loadMore;
+    if (btnCafePostsLoadMore) btnCafePostsLoadMore.textContent = config.ui.loadMore;
+    if (btnCafeSubscribe) btnCafeSubscribe.textContent = config.ui.btnCafePageSubscribe;
+    if (btnCafeBook) btnCafeBook.textContent = config.ui.btnCafePageBook;
+    if (cafeModalPostsTitle) cafeModalPostsTitle.textContent = config.ui.cafeFeedTitle;
     if (quickTitle) quickTitle.textContent = config.ui.quickTitle;
     if (quickText) quickText.textContent = config.ui.quickText;
     if (citySelectTitle) citySelectTitle.textContent = config.ui.citySelectTitle;
@@ -5411,6 +5449,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const btnCafeSubscribe = document.getElementById("btnCafeSubscribe");
+    const btnCafeBook = document.getElementById("btnCafeBook");
+    const cafeModalPostsTitle = document.getElementById("cafeModalPostsTitle");
     async function handleCafeSubscribeClick() {
         if (!currentCafeId) {
             return;
