@@ -678,16 +678,30 @@ async function initAds() {
         const feedAdsContainer = document.getElementById("feedAdsContainer");
         const firstBanner = adBanners[0];
         if (data.provider === "kakao" && data.kakaoUnitId && data.kakaoScriptUrl) {
-            if (firstBanner) {
-                firstBanner.innerHTML = "";
-                const container = document.createElement("div");
-                container.id = data.kakaoUnitId;
-                firstBanner.appendChild(container);
+            const kakaoContainers = [];
+            adBanners.forEach((banner) => {
+                kakaoContainers.push(banner);
+            });
+            if (mainIntegration) {
+                kakaoContainers.push(mainIntegration);
             }
-            const s = document.createElement("script");
-            s.async = true;
-            s.src = data.kakaoScriptUrl;
-            document.head.appendChild(s);
+            kakaoContainers.forEach((container) => {
+                container.innerHTML = "";
+                const ins = document.createElement("ins");
+                ins.className = "kakao_ad_area";
+                ins.style.display = "none";
+                ins.setAttribute("data-ad-unit", data.kakaoUnitId);
+                ins.setAttribute("data-ad-width", "320");
+                ins.setAttribute("data-ad-height", "100");
+                container.appendChild(ins);
+            });
+
+            if (!document.querySelector(`script[src="${data.kakaoScriptUrl}"]`)) {
+                const s = document.createElement("script");
+                s.async = true;
+                s.src = data.kakaoScriptUrl;
+                document.head.appendChild(s);
+            }
             return;
         }
         if (data.provider === "naver" && data.naverUnitId && data.naverScriptUrl) {
@@ -1812,11 +1826,11 @@ async function openCafePage(cafe) {
         menuEl.innerHTML = "";
         const items = Array.isArray(cafe.menu) ? cafe.menu : [];
         if (items.length) {
-            const track = document.createElement("div");
-            track.className = "cafe-menu-carousel-track";
+            const grid = document.createElement("div");
+            grid.className = "cafe-menu-grid";
             items.forEach((item) => {
                 const row = document.createElement("div");
-                row.className = "cafe-detail-menu-item cafe-menu-card";
+                row.className = "cafe-detail-menu-item cafe-menu-card-simple";
                 const title = document.createElement("div");
                 title.className = "cafe-detail-menu-title";
                 title.textContent = item.name || "";
@@ -1834,31 +1848,9 @@ async function openCafePage(cafe) {
                 if (meta.textContent) {
                     row.appendChild(meta);
                 }
-                track.appendChild(row);
+                grid.appendChild(row);
             });
-            menuEl.appendChild(track);
-            if (items.length > 1) {
-                const controls = document.createElement("div");
-                controls.className = "cafe-menu-carousel-controls";
-                const prevBtn = document.createElement("button");
-                prevBtn.type = "button";
-                prevBtn.className = "btn btn-outline btn-small cafe-menu-prev";
-                prevBtn.textContent = "‹";
-                const nextBtn = document.createElement("button");
-                nextBtn.type = "button";
-                nextBtn.className = "btn btn-outline btn-small cafe-menu-next";
-                nextBtn.textContent = "›";
-                const scrollAmount = 180;
-                prevBtn.addEventListener("click", () => {
-                    track.scrollBy({ left: -scrollAmount, behavior: "smooth" });
-                });
-                nextBtn.addEventListener("click", () => {
-                    track.scrollBy({ left: scrollAmount, behavior: "smooth" });
-                });
-                controls.appendChild(prevBtn);
-                controls.appendChild(nextBtn);
-                menuEl.appendChild(controls);
-            }
+            menuEl.appendChild(grid);
         } else {
             if (currentLang === "ru") {
                 menuEl.textContent = "Меню этого кафе появится здесь. Попросите владельца заполнить его.";

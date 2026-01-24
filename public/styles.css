@@ -1696,6 +1696,22 @@ body {
   scroll-snap-align: center;
 }
 
+.cafe-menu-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cafe-menu-card-simple {
+  padding: 8px 10px;
+  background: #ffffff;
+  border: 1px solid rgba(203, 213, 225, 0.6);
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .cafe-menu-carousel-controls {
   margin-top: 6px;
   display: flex;
