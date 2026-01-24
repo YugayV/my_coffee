@@ -633,7 +633,6 @@ function initOwnerProfileSummary() {
         return;
     }
     const role = currentUser.role || "user";
-    const role = currentUser.role || "user";
     const name = currentUser.name || "";
     const phone = currentUser.phone || "";
     const email = currentUser.email || "";
@@ -2480,7 +2479,7 @@ async function loadCafePosts(reset = true) {
 
 function applyLanguage(lang) {
     const config = translations[lang];
-    if (!config) return;
+    if (!config || !config.ui) return;
     currentLang = lang;
 
     const btnOpenAuth = document.getElementById("btnOpenAuth");
@@ -4537,7 +4536,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     );
                     return;
                 }
-                window.Kakao.init(KAKAO_JS_KEY);
+                try {
+                    window.Kakao.init(KAKAO_JS_KEY);
+                } catch (e) {
+                    console.error("Kakao init error", e);
+                    return;
+                }
             }
             window.Kakao.Auth.login({
                 scope: "profile_nickname,account_email",
@@ -5587,7 +5591,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
-    const btnCafeBook = document.getElementById("btnCafeBook");
     if (btnCafeBook) {
         btnCafeBook.addEventListener("click", () => {
             handleCafeBookClick("cafeBookingInfo");
