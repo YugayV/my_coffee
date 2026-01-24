@@ -2670,7 +2670,8 @@ async function loadOwnerCafes() {
         let totalSubscribers = 0;
         let totalPosts = 0;
 
-        cafes.forEach((cafe) => {
+        const promises = cafes.map(async (cafe) => {
+            // Render cafe item (sync part)
             const item = document.createElement("div");
             item.className = "owner-cafe-item";
 
@@ -2709,7 +2710,8 @@ async function loadOwnerCafes() {
                 uploadBtn.textContent = "사진 업로드";
             }
 
-            uploadBtn.addEventListener("click", async () => {
+            uploadBtn.addEventListener("click", async (e) => {
+                e.stopPropagation();
                 if (!fileInput.files || !fileInput.files[0]) {
                     return;
                 }
@@ -2865,40 +2867,46 @@ async function loadOwnerCafes() {
                 await loadCafePosts(true);
             });
 
-            (async () => {
-                try {
-                    const [subsRes, postsRes] = await Promise.all([
-                        fetch("/api/cafes/" + encodeURIComponent(cafe._id) + "/subscribers"),
-                        fetch(
-                            "/api/cafes/" +
-                                encodeURIComponent(cafe._id) +
-                                "/posts?limit=1&offset=0"
-                        )
-                    ]);
-                    if (subsRes.ok) {
-                        const subsData = await subsRes.json();
-                        if (typeof subsData.count === "number") {
-                            totalSubscribers += subsData.count;
-                        }
+            // Async stats fetching
+            try {
+                const [subsRes, postsRes] = await Promise.all([
+                    fetch("/api/cafes/" + encodeURIComponent(cafe._id) + "/subscribers"),
+                    fetch(
+                        "/api/cafes/" +
+                            encodeURIComponent(cafe._id) +
+                            "/posts?limit=1&offset=0"
+                    )
+                ]);
+                if (subsRes.ok) {
+                    const subsData = await subsRes.json();
+                    if (typeof subsData.count === "number") {
+                        totalSubscribers += subsData.count;
                     }
-                    if (postsRes.ok) {
-                        const postsData = await postsRes.json();
-                        if (typeof postsData.total === "number") {
-                            totalPosts += postsData.total;
-                        } else if (Array.isArray(postsData.posts)) {
-                            totalPosts += postsData.posts.length;
-                        }
-                    }
-                    if (statSubsEl) {
-                        statSubsEl.textContent = String(totalSubscribers);
-                    }
-                    if (statPostsEl) {
-                        statPostsEl.textContent = String(totalPosts);
-                    }
-                } catch (e) {
                 }
-            })();
+                if (postsRes.ok) {
+                    const postsData = await postsRes.json();
+                    if (typeof postsData.total === "number") {
+                        totalPosts += postsData.total;
+                    } else if (Array.isArray(postsData.posts)) {
+                        totalPosts += postsData.posts.length;
+                    }
+                }
+                // Update UI incrementally
+                if (statSubsEl) {
+                    statSubsEl.textContent = String(totalSubscribers);
+                }
+                if (statPostsEl) {
+                    statPostsEl.textContent = String(totalPosts);
+                }
+            } catch (e) {
+                console.error("Stats error for cafe " + cafe._id, e);
+            }
         });
+
+        // Wait for all to complete if needed, but we update incrementally
+        await Promise.all(promises);
+
+
     } catch (e) {
     }
 }
