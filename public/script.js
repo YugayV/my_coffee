@@ -5908,13 +5908,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnCafeDetailClose = document.getElementById("btnCafeDetailClose");
     if (btnCafeDetailClose) {
         btnCafeDetailClose.addEventListener("click", () => {
+            const isDirectLink = window.location.pathname.startsWith("/cafe/");
             toggleCafeMode(false);
             const panel = document.getElementById("cafeDetailPanel");
             if (panel) {
                 panel.classList.add("hidden");
-                if (window.location.pathname.startsWith("/cafe/")) {
+                if (isDirectLink) {
                     history.pushState(null, "", "/");
                     document.title = "Kafe Booking";
+                    // Reload home content to ensure consistent state
+                    window.location.reload();
                 }
             }
         });
