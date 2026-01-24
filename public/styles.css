@@ -261,24 +261,6 @@ input:focus, textarea:focus, select:focus {
     margin-bottom: 1.5rem;
 }
 
-/* Owner & Admin Panels */
-.owner-panel, .admin-panel {
-    background-color: var(--bg-surface);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    box-shadow: var(--shadow-sm);
-}
-
-.owner-cafe-item, .admin-list-item {
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    padding: 1rem;
-    margin-bottom: 0.75rem;
-    background-color: var(--bg-body);
-}
-
 /* Logo */
 .logo h1 {
     font-size: 1.5rem;
@@ -382,48 +364,6 @@ input:focus, textarea:focus, select:focus {
     gap: 1.5rem;
 }
 
-.admin-tabs {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 1rem;
-}
-
-.admin-tab-btn {
-    background: transparent;
-    border: none;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    color: var(--text-secondary);
-    border-radius: var(--radius-md);
-    font-weight: 500;
-    transition: all 0.2s;
-}
-
-.admin-tab-btn:hover {
-    background-color: var(--bg-surface-hover);
-    color: var(--text-main);
-}
-
-.admin-tab-btn.active {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-.danger-zone {
-    margin-top: 2.5rem;
-    border-top: 1px solid var(--border-color);
-    padding-top: 1.5rem;
-}
-
-.danger-zone h3 {
-    color: #ef4444; /* Red 500 */
-    font-size: 1.125rem;
-    margin-bottom: 0.5rem;
-}
-
 .btn-danger {
     background-color: #ef4444;
     color: white;
@@ -434,16 +374,6 @@ input:focus, textarea:focus, select:focus {
     background-color: #dc2626; /* Red 600 */
 }
 
-.admin-list-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    background-color: var(--bg-body);
-    border-radius: var(--radius-md);
-    margin-bottom: 0.5rem;
-}
-
 .admin-ad-form, .admin-news-form, .admin-config-form {
     display: flex;
     flex-direction: column;
@@ -451,7 +381,87 @@ input:focus, textarea:focus, select:focus {
     margin-top: 1rem;
 }
 
-/* Owner Stats */
+/* Owner & Admin Panels */
+.owner-panel, .admin-panel {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-lg);
+    transition: box-shadow 0.3s ease;
+}
+
+.owner-panel:hover, .admin-panel:hover {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.owner-panel h2, .admin-panel h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: var(--text-main);
+    border-bottom: 2px solid var(--bg-surface-hover);
+    padding-bottom: 1rem;
+}
+
+.owner-cafe-item, .admin-list-item {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    background-color: var(--bg-surface);
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.owner-cafe-item:hover, .admin-list-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-light);
+}
+
+/* Admin Tabs Styled as Pills */
+.admin-tabs {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    border-bottom: none;
+    padding-bottom: 0;
+    background: var(--bg-surface-hover);
+    padding: 0.5rem;
+    border-radius: var(--radius-lg);
+}
+
+.admin-tab-btn {
+    background: transparent;
+    border: none;
+    padding: 0.625rem 1.25rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    flex: 1;
+    text-align: center;
+}
+
+.admin-tab-btn:hover {
+    color: var(--text-main);
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.admin-tab-btn.active {
+    background-color: var(--bg-surface);
+    color: var(--primary-color);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Owner Stats Cards */
 .owner-stats {
     display: flex;
     gap: 1.5rem;
@@ -460,22 +470,70 @@ input:focus, textarea:focus, select:focus {
 .owner-stat-item {
     background-color: var(--bg-surface);
     border: 1px solid var(--border-color);
-    padding: 0.75rem 1rem;
-    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    border-radius: var(--radius-lg);
     text-align: center;
+    min-width: 120px;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s;
+}
+
+.owner-stat-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-light);
 }
 
 .owner-stat-label {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 600;
     color: var(--text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
 }
 
 .owner-stat-value {
-    font-size: 1.25rem;
-    font-weight: 700;
+    font-size: 1.75rem;
+    font-weight: 800;
     color: var(--primary-color);
+    line-height: 1;
+}
+
+/* Form Styling within Panels */
+.owner-cafe-form input, 
+.owner-cafe-form select, 
+.owner-cafe-form textarea,
+.admin-ad-form input,
+.admin-ad-form textarea,
+.admin-news-form input,
+.admin-news-form textarea {
+    background-color: var(--bg-body);
+    border: 1px solid var(--border-color);
+    margin-bottom: 1rem;
+}
+
+.owner-cafe-form input:focus, 
+.owner-cafe-form select:focus, 
+.owner-cafe-form textarea:focus {
+    background-color: var(--bg-surface);
+}
+
+/* Danger Zone */
+.danger-zone {
+    margin-top: 3rem;
+    border: 1px solid #fee2e2;
+    background-color: #fef2f2;
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+}
+
+.danger-zone h3 {
+    color: #ef4444;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    border-bottom: none;
+    padding-bottom: 0;
 }
 
 /* Cafe Detail View */
@@ -772,4 +830,51 @@ input:focus, textarea:focus, select:focus {
 
 .hidden {
     display: none !important;
+}
+
+/* Owner Map & Detail Specifics */
+.owner-map {
+    height: 300px;
+    background-color: var(--bg-surface);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-color);
+    margin-bottom: 2rem;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+
+.owner-cafe-detail {
+    background-color: var(--bg-surface);
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+}
+
+.owner-cafe-detail-header {
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+}
+
+.owner-cafe-detail-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr 1fr;
+    gap: 2rem;
+}
+
+.owner-cafe-main-photo-inner {
+    width: 100%;
+    height: 200px;
+    background-color: var(--bg-body);
+    border-radius: var(--radius-lg);
+    margin-bottom: 1rem;
+    background-size: cover;
+    background-position: center;
+}
+
+@media (max-width: 1200px) {
+    .owner-cafe-detail-layout {
+        grid-template-columns: 1fr;
+    }
 }
