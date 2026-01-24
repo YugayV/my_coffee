@@ -1822,6 +1822,25 @@ async function openCafePage(cafe) {
     metaEl.textContent = metaText;
     const descriptionText = cafe.description || "";
     descEl.textContent = descriptionText;
+    
+    if (photosEl) {
+        photosEl.innerHTML = "";
+        const photos = Array.isArray(cafe.photos) ? cafe.photos : [];
+        if (photos.length) {
+            const photoGrid = document.createElement("div");
+            photoGrid.className = "cafe-detail-photos-grid";
+            photos.forEach(photo => {
+                if (photo.url) {
+                    const img = document.createElement("img");
+                    img.src = photo.url;
+                    img.alt = cafeName;
+                    photoGrid.appendChild(img);
+                }
+            });
+            photosEl.appendChild(photoGrid);
+        }
+    }
+
     const baseTitle = "Kafe Booking";
     if (typeof document !== "undefined") {
         const titleParts = [cafeName];

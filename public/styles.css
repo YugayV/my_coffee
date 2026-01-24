@@ -2078,5 +2078,40 @@ body.cafe-mode #btnCafeDetailClose:active {
     transform: translateY(0);
 }
 
+/* Cafe Detail Photos */
+.cafe-detail-photos {
+    margin-bottom: 24px;
+}
+
+.cafe-detail-photos-grid {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    scroll-snap-type: x mandatory;
+}
+
+.cafe-detail-photos-grid img {
+    height: 200px;
+    width: auto;
+    border-radius: 12px;
+    object-fit: cover;
+    scroll-snap-align: center;
+    background-color: #f1f5f9;
+}
+
+/* Ensure main content takes full width in cafe mode */
+body.cafe-mode .main-content {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0;
+    border: none;
+}
+
+body.cafe-mode .container {
+    display: block; /* Override grid */
+}
+
 /* Re-label the close button as "Back" or "Home" if needed via JS or just keep the 'x' but styled well */
 
