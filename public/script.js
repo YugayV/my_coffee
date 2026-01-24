@@ -21,8 +21,8 @@ const translations = {
             registerUser: "손님 회원가입",
             registerOwner: "카페 오너 회원가입",
             login: "로그인",
-            quickTitle: "카페 소셜 피드",
-            quickText: "좋아하는 카페를 구독하고 소식을 빠르게 받아보세요.",
+            quickTitle: "빠른 예약",
+            quickText: "회원가입 후 바로 예약 가능!",
             citySelectTitle: "도시 선택",
             selectedCityPrefix: "선택된 도시: ",
             adTitle: "파트너 광고",
@@ -41,7 +41,25 @@ const translations = {
             verifyChannelKakaoHint: "Kakao 계정과 연결된 번호로 인증 코드를 받습니다.",
             verificationChannelFacebookHint: "Facebook 계정과 연결된 연락처로 인증 코드를 받습니다.",
             registerCityPlaceholder: "도시 (직접 입력)",
-            headerCitySearchPlaceholder: "도시 검색"
+            headerCitySearchPlaceholder: "도시 검색",
+            profileTitle: "프로필",
+            profileStatusGuest: "로그인하지 않았습니다.",
+            profileSubscriptionsTitle: "카페 구독:",
+            btnProfileSettings: "프로필 설정",
+            btnBecomeOwner: "카페 오너가 되기",
+            siteSearchTitle: "사이트 검색",
+            siteSearchText: "이름과 도시로 카페 및 이벤트를 찾아보세요",
+            searchInputPlaceholder: "도시 또는 카페 검색",
+            siteSearchButton: "검색",
+            searchResultsTitle: "검색 결과",
+            newsTitle: "새로운 소식",
+            feedHeaderTitle: "선택한 도시의 추천 카페",
+            cafeDetailNameDefault: "카페",
+            btnCafePageSubscribe: "구독하기",
+            btnCafePageBook: "예약하기",
+            footerRights: "© Kafe Booking, 모든 권리 보유.",
+            footerContact: "문의하기:",
+            btnBackToHome: "홈으로"
         },
         days: {
             mon: "월",
@@ -170,8 +188,8 @@ const translations = {
             registerUser: "Sign up (Guest)",
             registerOwner: "Sign up (Cafe owner)",
             login: "Login",
-            quickTitle: "Cafe social feed",
-            quickText: "Follow cafes, read updates and share your experience.",
+            quickTitle: "Quick booking",
+            quickText: "Book right after signing up!",
             citySelectTitle: "Choose city",
             selectedCityPrefix: "Selected city: ",
             adTitle: "Partner ads",
@@ -190,7 +208,25 @@ const translations = {
             verifyChannelKakaoHint: "Code will be sent via your Kakao account.",
             verifyChannelFacebookHint: "Code will be sent via your Facebook account.",
             registerCityPlaceholder: "City (you can type it yourself)",
-            headerCitySearchPlaceholder: "Search city"
+            headerCitySearchPlaceholder: "Search city",
+            profileTitle: "Profile",
+            profileStatusGuest: "Not logged in",
+            profileSubscriptionsTitle: "Cafe subscriptions:",
+            btnProfileSettings: "Profile settings",
+            btnBecomeOwner: "Become a cafe owner",
+            siteSearchTitle: "Site search",
+            siteSearchText: "Find cafes and promotions by name and city",
+            searchInputPlaceholder: "Search by city and cafe",
+            siteSearchButton: "Search",
+            searchResultsTitle: "Search results",
+            newsTitle: "New on site",
+            feedHeaderTitle: "Promotional offers in selected city",
+            cafeDetailNameDefault: "Cafe",
+            btnCafePageSubscribe: "Subscribe",
+            btnCafePageBook: "Book a table",
+            footerRights: "© Kafe Booking, all rights reserved.",
+            footerContact: "Contact:",
+            btnBackToHome: "Home"
         },
         days: {
             mon: "Mon",
@@ -319,8 +355,8 @@ const translations = {
             registerUser: "Регистрация гостя",
             registerOwner: "Регистрация владельца кафе",
             login: "Войти",
-            quickTitle: "Лента кафе и подписки",
-            quickText: "Подписывайтесь на любимые кафе, читайте новости и оставляйте отзывы.",
+            quickTitle: "Быстрое бронирование",
+            quickText: "Бронирование доступно сразу после регистрации!",
             citySelectTitle: "Выбор города",
             selectedCityPrefix: "Выбранный город: ",
             adTitle: "Реклама партнёров",
@@ -339,7 +375,25 @@ const translations = {
             verifyChannelKakaoHint: "Код будет отправлен через ваш профиль Kakao.",
             verifyChannelFacebookHint: "Код будет отправлен через ваш профиль Facebook.",
             registerCityPlaceholder: "Город (можно вводить вручную)",
-            headerCitySearchPlaceholder: "Поиск города"
+            headerCitySearchPlaceholder: "Поиск города",
+            profileTitle: "Профиль",
+            profileStatusGuest: "Вы не вошли в систему",
+            profileSubscriptionsTitle: "Подписки на кафе:",
+            btnProfileSettings: "Настройки профиля",
+            btnBecomeOwner: "Стать владельцем кафе",
+            siteSearchTitle: "Поиск по сайту",
+            siteSearchText: "Найдите кафе и акции по названию и городу",
+            searchInputPlaceholder: "Поиск по городу и кафе",
+            siteSearchButton: "Поиск",
+            searchResultsTitle: "Результаты поиска",
+            newsTitle: "Новое на сайте",
+            feedHeaderTitle: "Рекламные предложения в выбранном городе",
+            cafeDetailNameDefault: "Кафе",
+            btnCafePageSubscribe: "Подписаться",
+            btnCafePageBook: "Забронировать столик",
+            footerRights: "© Kafe Booking, все права защищены.",
+            footerContact: "Связаться:",
+            btnBackToHome: "На главную"
         },
         days: {
             mon: "Пн",
@@ -560,6 +614,7 @@ function initOwnerProfileSummary() {
         setOwnerControlsVisible(false);
         return;
     }
+    const role = currentUser.role || "user";
     const role = currentUser.role || "user";
     const name = currentUser.name || "";
     const phone = currentUser.phone || "";
@@ -1233,8 +1288,8 @@ function renderProfile() {
         return;
     }
     if (!currentUser) {
-        statusEl.textContent = currentLang === "ru" ? "Вы не авторизованы." :
-            currentLang === "en" ? "You are not logged in." : "로그인하지 않았습니다.";
+        const config = translations[currentLang] || translations.ko;
+        statusEl.textContent = config.ui.profileStatusGuest;
         if (btnBecomeOwner) btnBecomeOwner.classList.add("hidden");
         if (ownerPanel) ownerPanel.classList.add("hidden");
         if (adminPanel) adminPanel.classList.add("hidden");
@@ -1260,12 +1315,16 @@ function renderProfile() {
     }
     const role = currentUser.role || "user";
     const name = currentUser.name || "";
-    if (currentLang === "ru") {
-        statusEl.textContent = "Привет, " + name + ". Роль: " + role + ".";
-    } else if (currentLang === "en") {
-        statusEl.textContent = "Hello, " + name + ". Role: " + role + ".";
+    const welcome = {
+        ko: "님, 안녕하세요!",
+        en: "Hello, ",
+        ru: "Привет, "
+    };
+    const w = welcome[currentLang] || welcome.ko;
+    if (currentLang === "en" || currentLang === "ru") {
+        statusEl.textContent = w + name + "!";
     } else {
-        statusEl.textContent = "안녕하세요, " + name + "님. 역할: " + role + ".";
+        statusEl.textContent = name + w;
     }
     if (btnBecomeOwner) {
         if (role === "owner") {
@@ -1305,13 +1364,12 @@ function renderProfile() {
     if (profilePhoneEl) {
         const phone = currentUser.phone || currentUser.phoneNumber || "";
         if (phone) {
-            if (currentLang === "ru") {
-                profilePhoneEl.textContent = "Телефон: " + phone;
-            } else if (currentLang === "en") {
-                profilePhoneEl.textContent = "Phone: " + phone;
-            } else {
-                profilePhoneEl.textContent = "전화번호: " + phone;
-            }
+            const labels = {
+                ko: "전화번호: ",
+                en: "Phone: ",
+                ru: "Телефон: "
+            };
+            profilePhoneEl.textContent = (labels[currentLang] || labels.ko) + phone;
         } else {
             profilePhoneEl.textContent = "";
         }
@@ -1329,13 +1387,8 @@ function renderProfile() {
             }
         }
         if (!label) {
-            if (currentLang === "ru") {
-                label = "Профиль";
-            } else if (currentLang === "en") {
-                label = "Profile";
-            } else {
-                label = "프로필";
-            }
+            const cfg = translations[currentLang] || translations.ko;
+            label = cfg.ui.profileTitle;
         }
         headerAuthBtn.textContent = label;
     }
@@ -1752,7 +1805,7 @@ async function openCafePage(cafe) {
     metaEl.textContent = metaText;
     const descriptionText = cafe.description || "";
     descEl.textContent = descriptionText;
-    const baseTitle = "CoffeBooking";
+    const baseTitle = "Kafe Booking";
     if (typeof document !== "undefined") {
         const titleParts = [cafeName];
         if (metaText) {
@@ -1768,7 +1821,7 @@ async function openCafePage(cafe) {
             descriptionText ||
             (metaText
                 ? cafeName + " — " + metaText
-                : cafeName + " — кафе в Корее на платформе CoffeBooking");
+                : cafeName + " — кафе в Корее на платформе Kafe Booking");
         descMeta.setAttribute("content", descContent);
         if (!descMeta.parentNode && document.head) {
             document.head.appendChild(descMeta);
@@ -2428,6 +2481,24 @@ function applyLanguage(lang) {
     const verificationChannelLabelEl = document.getElementById("verificationChannelLabel");
     const verificationChannelHintEl = document.getElementById("verificationChannelHint");
 
+    const profileTitle = document.getElementById("profileTitle");
+    const profileSubscriptionsTitle = document.getElementById("profileSubscriptionsTitle");
+    const btnProfileSettings = document.getElementById("btnProfileSettings");
+    const btnBecomeOwner = document.getElementById("btnBecomeOwner");
+    const siteSearchTitle = document.getElementById("siteSearchTitle");
+    const siteSearchText = document.getElementById("siteSearchText");
+    const searchInput = document.getElementById("searchInput");
+    const siteSearchButton = document.getElementById("siteSearchButton");
+    const searchResultsTitle = document.getElementById("searchResultsTitle");
+    const newsTitle = document.getElementById("newsTitle");
+    const feedHeaderTitle = document.getElementById("feedHeaderTitle");
+    const cafeDetailName = document.getElementById("cafeDetailName");
+    const btnCafePageSubscribe = document.getElementById("btnCafePageSubscribe");
+    const btnCafePageBook = document.getElementById("btnCafePageBook");
+    const btnCafeDetailClose = document.getElementById("btnCafeDetailClose");
+    const footerRights = document.querySelector(".site-footer-rights");
+    const footerContact = document.getElementById("footerContactLabel");
+
     const registerCityInput = document.getElementById("registerCity");
     const citySuggestions = document.getElementById("registerCitySuggestions");
     const headerCitySearch = document.getElementById("headerCitySearch");
@@ -2440,6 +2511,35 @@ function applyLanguage(lang) {
     if (adText) adText.textContent = config.ui.adText;
     if (adButton) adButton.textContent = config.ui.adButton;
     if (recommendTitle) recommendTitle.textContent = config.ui.recommendTitle;
+
+    if (profileTitle) profileTitle.textContent = config.ui.profileTitle;
+    if (profileSubscriptionsTitle) profileSubscriptionsTitle.textContent = config.ui.profileSubscriptionsTitle;
+    if (btnProfileSettings) btnProfileSettings.textContent = config.ui.btnProfileSettings;
+    if (btnBecomeOwner) btnBecomeOwner.textContent = config.ui.btnBecomeOwner;
+    if (siteSearchTitle) siteSearchTitle.textContent = config.ui.siteSearchTitle;
+    if (siteSearchText) siteSearchText.textContent = config.ui.siteSearchText;
+    if (searchInput) searchInput.placeholder = config.ui.searchInputPlaceholder;
+    if (siteSearchButton) siteSearchButton.textContent = config.ui.siteSearchButton;
+    if (searchResultsTitle) searchResultsTitle.textContent = config.ui.searchResultsTitle;
+    if (newsTitle) newsTitle.textContent = config.ui.newsTitle;
+    if (feedHeaderTitle) feedHeaderTitle.textContent = config.ui.feedHeaderTitle;
+    if (cafeDetailName && (cafeDetailName.textContent === "Кафе" || cafeDetailName.textContent === "Cafe" || cafeDetailName.textContent === "카페")) {
+        cafeDetailName.textContent = config.ui.cafeDetailNameDefault;
+    }
+    if (btnCafePageSubscribe) btnCafePageSubscribe.textContent = config.ui.btnCafePageSubscribe;
+    if (btnCafePageBook) btnCafePageBook.textContent = config.ui.btnCafePageBook;
+    
+    if (btnCafeDetailClose) {
+        if (document.body.classList.contains("cafe-mode")) {
+            btnCafeDetailClose.textContent = config.ui.btnBackToHome;
+        } else {
+            btnCafeDetailClose.textContent = "×";
+        }
+    }
+
+    if (footerRights) footerRights.textContent = config.ui.footerRights;
+    if (footerContact) footerContact.textContent = config.ui.footerContact;
+
     if (verificationChannelLabelEl && config.ui.verifyChannelLabel) {
         verificationChannelLabelEl.textContent = config.ui.verifyChannelLabel;
     }
@@ -5696,7 +5796,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 panel.classList.add("hidden");
                 if (window.location.pathname.startsWith("/cafe/")) {
                     history.pushState(null, "", "/");
-                    document.title = "CoffeBooking";
+                    document.title = "Kafe Booking";
                 }
             }
         });
