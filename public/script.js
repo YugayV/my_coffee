@@ -2879,6 +2879,22 @@ async function loadOwnerCafes() {
                 uploadBtn.textContent = "사진 업로드";
             }
 
+            const editBtn = document.createElement("button");
+            editBtn.type = "button";
+            editBtn.className = "btn btn-outline btn-small";
+            editBtn.style.marginTop = "4px";
+            if (currentLang === "ru") {
+                editBtn.textContent = "Редактировать инфо";
+            } else if (currentLang === "en") {
+                editBtn.textContent = "Edit info";
+            } else {
+                editBtn.textContent = "정보 수정";
+            }
+            editBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                populateOwnerCafeForm(cafe);
+            });
+
             uploadBtn.addEventListener("click", async (e) => {
                 e.stopPropagation();
                 if (!fileInput.files || !fileInput.files[0]) {
@@ -4040,6 +4056,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const pathName = window.location.pathname;
     if (pathName.startsWith("/cafe/")) {
+        toggleCafeMode(true);
         const id = pathName.split("/").filter(Boolean)[1];
         if (id) {
             fetch("/api/cafes?id=" + encodeURIComponent(id))
@@ -4056,11 +4073,15 @@ document.addEventListener("DOMContentLoaded", () => {
                             setCurrentCity(cafe.cityCode);
                         }
                         openCafePage(cafe);
+                    } else {
+                        throw new Error("no cafe data");
                     }
                 })
                 .catch(() => {
-                    // ignore
+                    toggleCafeMode(false);
                 });
+        } else {
+            toggleCafeMode(false);
         }
     }
     if (pathName === "/payments/toss/success") {
@@ -5097,6 +5118,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     currentLang === "en" ? "Please login first" : "먼저 로그인하세요.");
                 return;
             }
+            
+            const isEditMode = ownerCafeForm.dataset.mode === "edit";
+            const cafeId = ownerCafeForm.dataset.cafeId;
+            
             const nameInput = document.getElementById("ownerCafeName");
             const citySelect = document.getElementById("ownerCafeCity");
             const addressInput = document.getElementById("ownerCafeAddress");
@@ -5148,39 +5173,70 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             }
             try {
-                const res = await fetch("/api/cafes", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: "Bearer " + authToken
-                    },
-                    body: JSON.stringify({
-                        name: nameInput.value,
-                        cityCode: citySelect.value,
-                        address: addressInput ? addressInput.value : "",
-                        phone: phoneInput ? phoneInput.value : "",
-                        openingHours: openingHoursValue,
-                        averageCheck: averageCheckValue,
-                        description: descInput ? descInput.value : "",
-                        bookingInfo: bookingInfoInput ? bookingInfoInput.value : "",
-                        menu: menuItems
-                    })
-                });
+                let res;
+                if (isEditMode && cafeId) {
+                    res = await fetch("/api/cafes/" + encodeURIComponent(cafeId), {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: "Bearer " + authToken
+                        },
+                        body: JSON.stringify({
+                            name: nameInput.value,
+                            cityCode: citySelect.value,
+                            address: addressInput ? addressInput.value : "",
+                            phone: phoneInput ? phoneInput.value : "",
+                            openingHours: openingHoursValue,
+                            averageCheck: averageCheckValue,
+                            description: descInput ? descInput.value : "",
+                            bookingInfo: bookingInfoInput ? bookingInfoInput.value : "",
+                            menu: menuItems
+                        })
+                    });
+                } else {
+                    res = await fetch("/api/cafes", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: "Bearer " + authToken
+                        },
+                        body: JSON.stringify({
+                            name: nameInput.value,
+                            cityCode: citySelect.value,
+                            address: addressInput ? addressInput.value : "",
+                            phone: phoneInput ? phoneInput.value : "",
+                            openingHours: openingHoursValue,
+                            averageCheck: averageCheckValue,
+                            description: descInput ? descInput.value : "",
+                            bookingInfo: bookingInfoInput ? bookingInfoInput.value : "",
+                            menu: menuItems
+                        })
+                    });
+                }
+
                 if (!res.ok) {
-                    alert(currentLang === "ru" ? "Не удалось создать кафе" :
-                        currentLang === "en" ? "Failed to create cafe" : "카페 생성 실패");
+                    const errorText = isEditMode 
+                        ? (currentLang === "ru" ? "Не удалось обновить кафе" : currentLang === "en" ? "Failed to update cafe" : "카페 수정 실패")
+                        : (currentLang === "ru" ? "Не удалось создать кафе" : currentLang === "en" ? "Failed to create cafe" : "카페 생성 실패");
+                    alert(errorText);
                     return;
                 }
-                nameInput.value = "";
-                if (addressInput) addressInput.value = "";
-                if (phoneInput) phoneInput.value = "";
-                if (openingHoursInput) openingHoursInput.value = "";
-                if (averageCheckInput) averageCheckInput.value = "";
-                if (descInput) descInput.value = "";
-                if (bookingInfoInput) bookingInfoInput.value = "";
-                if (menuContainer) {
-                    menuContainer.innerHTML = "";
-                    addOwnerMenuRow(menuContainer);
+                
+                if (isEditMode) {
+                    alert(currentLang === "ru" ? "Кафе обновлено" : currentLang === "en" ? "Cafe updated" : "카페가 수정되었습니다");
+                    resetOwnerCafeForm();
+                } else {
+                    nameInput.value = "";
+                    if (addressInput) addressInput.value = "";
+                    if (phoneInput) phoneInput.value = "";
+                    if (openingHoursInput) openingHoursInput.value = "";
+                    if (averageCheckInput) averageCheckInput.value = "";
+                    if (descInput) descInput.value = "";
+                    if (bookingInfoInput) bookingInfoInput.value = "";
+                    if (menuContainer) {
+                        menuContainer.innerHTML = "";
+                        addOwnerMenuRow(menuContainer);
+                    }
                 }
                 loadOwnerCafes();
             } catch (e) {
