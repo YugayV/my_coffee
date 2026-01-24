@@ -138,6 +138,8 @@ const cafeSchema = new mongoose.Schema(
     ],
     isActive: { type: Boolean, default: true },
     isPromoted: { type: Boolean, default: false },
+    visitsCount: { type: Number, default: 0 },
+    dailyVisits: { type: Map, of: Number },
   },
   { timestamps: true },
 );
@@ -2587,6 +2589,50 @@ app.put("/api/cafes/:id", authMiddleware, ownerOnly, async (req, res) => {
     res.json({ cafe });
   } catch (err) {
     console.error("update cafe error", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+app.get("/api/cafes/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: "invalid id" });
+    }
+    const cafe = await Cafe.findOne({ _id: id, isActive: true });
+    if (!cafe) {
+      return res.status(404).json({ error: "cafe not found" });
+    }
+
+    // Increment visits
+    cafe.visitsCount = (cafe.visitsCount || 0) + 1;
+
+    // Increment daily visits
+    const today = new Date().toISOString().split("T")[0];
+    if (!cafe.dailyVisits) {
+      cafe.dailyVisits = new Map();
+    }
+    const dailyCount = cafe.dailyVisits.get(today) || 0;
+    cafe.dailyVisits.set(today, dailyCount + 1);
+
+    // Optional: Cleanup old daily stats (keep last 30 days)
+    if (cafe.dailyVisits.size > 60) {
+      const keys = Array.from(cafe.dailyVisits.keys()).sort();
+      while (keys.length > 30) {
+        const k = keys.shift();
+        cafe.dailyVisits.delete(k);
+      }
+    }
+
+    await cafe.save();
+
+    // Convert to object for response
+    const cafeObj = cafe.toObject();
+    cafeObj.todayVisits = cafe.dailyVisits.get(today) || 0;
+
+    res.json({ cafe: cafeObj });
+  } catch (err) {
+    console.error("get cafe by id error", err);
     res.status(500).json({ error: "server error" });
   }
 });

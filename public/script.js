@@ -6015,14 +6015,22 @@ document.addEventListener("DOMContentLoaded", () => {
         // path is /cafe/ID -> ["", "cafe", "ID"]
         const cId = parts[2];
         if (cId) {
-            fetch("/api/cafes?id=" + encodeURIComponent(cId))
-                .then((res) => res.json())
+            fetch("/api/cafes/" + encodeURIComponent(cId))
+                .then((res) => {
+                    if (!res.ok) {
+                        throw new Error("Cafe fetch failed");
+                    }
+                    return res.json();
+                })
                 .then((data) => {
                     if (data && data.cafe) {
                         openCafePage(data.cafe);
+                    } else {
+                        toggleCafeMode(false);
                     }
                 })
                 .catch((e) => {
+                    console.error(e);
                     toggleCafeMode(false);
                 });
         }
@@ -6035,14 +6043,22 @@ document.addEventListener("DOMContentLoaded", () => {
             const parts = p.split("/");
             const cId = parts[2];
             if (cId) {
-                fetch("/api/cafes?id=" + encodeURIComponent(cId))
-                    .then((res) => res.json())
+                fetch("/api/cafes/" + encodeURIComponent(cId))
+                    .then((res) => {
+                        if (!res.ok) {
+                            throw new Error("Cafe fetch failed");
+                        }
+                        return res.json();
+                    })
                     .then((data) => {
                         if (data && data.cafe) {
                             openCafePage(data.cafe);
+                        } else {
+                            toggleCafeMode(false);
                         }
                     })
                     .catch((e) => {
+                        console.error(e);
                         toggleCafeMode(false);
                     });
             }
