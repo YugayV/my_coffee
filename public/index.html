@@ -87,47 +87,59 @@
             <div id="map" class="map-container"></div>
 
             <div id="cafeDetailPanel" class="cafe-detail hidden">
-                <div class="cafe-detail-header">
-                    <div>
-                        <h2 id="cafeDetailName"></h2>
-                        <div id="cafeDetailMeta" class="cafe-modal-meta"></div>
+                <div id="cafeDetailHero" class="cafe-hero">
+                    <div class="cafe-hero-content">
+                        <h1 id="cafeHeroTitle" class="cafe-hero-title"></h1>
+                        <div id="cafeHeroMeta" class="cafe-hero-meta"></div>
+                    </div>
                 </div>
-                <button id="btnCafeDetailClose" type="button" class="btn btn-outline btn-small"></button>
-            </div>
-            <div id="cafeDetailPhotos" class="cafe-detail-photos"></div>
-            <div class="cafe-detail-actions">
-                    <button id="btnCafePageSubscribe" type="button" class="btn btn-secondary btn-small"></button>
-                    <button id="btnCafePageBook" type="button" class="btn btn-primary btn-small cafe-book-button"></button>
-                    <div id="cafePageSubscribersCount" class="cafe-modal-subscribers"></div>
-                </div>
-                <div id="cafePageBookingInfo" class="cafe-booking-info"></div>
-                <div class="cafe-detail-body">
-                    <div class="cafe-detail-left">
-                        <div id="cafeDetailStats" class="cafe-stats-grid">
-                            <div class="cafe-stat-card">
-                                <div id="cafeStatTotal" class="cafe-stat-value">0</div>
-                                <div id="cafeStatTotalLabel" class="cafe-stat-label">Всего визитов</div>
+                <div class="cafe-content-wrapper">
+                    <div class="cafe-detail-header">
+                        <div>
+                            <h2 id="cafeDetailName"></h2>
+                            <div id="cafeDetailMeta" class="cafe-modal-meta"></div>
+                        </div>
+                        <button id="btnCafeDetailClose" type="button" class="btn btn-outline btn-small"></button>
+                    </div>
+                    <div style="display: flex; justify-content: flex-end; margin-bottom: 1rem;">
+                        <button id="btnCafeDetailCloseAbs" type="button" class="btn btn-outline btn-small" style="border:none; background:transparent; font-size:1.5rem; cursor:pointer; color:var(--text-secondary);">&times;</button>
+                    </div>
+                    
+                    <div id="cafeDetailPhotos" class="cafe-detail-photos"></div>
+                    <div class="cafe-detail-actions">
+                        <button id="btnCafePageSubscribe" type="button" class="btn btn-secondary btn-small"></button>
+                        <button id="btnCafePageBook" type="button" class="btn btn-primary btn-small cafe-book-button"></button>
+                        <div id="cafePageSubscribersCount" class="cafe-modal-subscribers"></div>
+                    </div>
+                    <div id="cafePageBookingInfo" class="cafe-booking-info"></div>
+                    <div class="cafe-detail-body">
+                        <div class="cafe-detail-left">
+                            <div id="cafeDetailStats" class="cafe-stats-grid">
+                                <div class="cafe-stat-card">
+                                    <div id="cafeStatTotal" class="cafe-stat-value">0</div>
+                                    <div id="cafeStatTotalLabel" class="cafe-stat-label">Всего визитов</div>
+                                </div>
+                                <div class="cafe-stat-card">
+                                    <div id="cafeStatToday" class="cafe-stat-value">0</div>
+                                    <div id="cafeStatTodayLabel" class="cafe-stat-label">Визитов сегодня</div>
+                                </div>
                             </div>
-                            <div class="cafe-stat-card">
-                                <div id="cafeStatToday" class="cafe-stat-value">0</div>
-                                <div id="cafeStatTodayLabel" class="cafe-stat-label">Визитов сегодня</div>
+                            <h3 id="cafeDetailAboutTitle">О кафе</h3>
+                            <div id="cafeDetailDescription" class="cafe-modal-description"></div>
+                            <div class="cafe-detail-extra">
+                                <span id="cafeDetailOpeningHours"></span>
+                                <span id="cafeDetailAverageCheck"></span>
                             </div>
                         </div>
-                        <h3 id="cafeDetailAboutTitle">О кафе</h3>
-                        <div id="cafeDetailDescription" class="cafe-modal-description"></div>
-                        <div class="cafe-detail-extra">
-                            <span id="cafeDetailOpeningHours"></span>
-                            <span id="cafeDetailAverageCheck"></span>
+                        <div class="cafe-detail-center">
+                            <h3 id="cafeDetailFeedTitle">Лента кафе</h3>
+                            <div id="cafePagePostsList" class="cafe-posts-list"></div>
+                            <button id="btnCafePagePostsLoadMore" type="button" class="btn btn-outline btn-small">Показать ещё</button>
                         </div>
-                    </div>
-                    <div class="cafe-detail-center">
-                        <h3 id="cafeDetailFeedTitle">Лента кафе</h3>
-                        <div id="cafePagePostsList" class="cafe-posts-list"></div>
-                        <button id="btnCafePagePostsLoadMore" type="button" class="btn btn-outline btn-small">Показать ещё</button>
-                    </div>
-                    <div class="cafe-detail-right">
-                        <h3 id="cafeDetailMenuTitle">Наше меню</h3>
-                        <div id="cafeDetailMenu" class="cafe-detail-menu"></div>
+                        <div class="cafe-detail-right">
+                            <h3 id="cafeDetailMenuTitle">Наше меню</h3>
+                            <div id="cafeDetailMenu" class="cafe-detail-menu"></div>
+                        </div>
                     </div>
                 </div>
             </div>

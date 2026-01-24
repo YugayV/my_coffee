@@ -1781,13 +1781,21 @@ async function openCafePage(cafe) {
     const panel = document.getElementById("cafeDetailPanel");
     const nameEl = document.getElementById("cafeDetailName");
     const metaEl = document.getElementById("cafeDetailMeta");
+    
+    // Hero Elements
+    const heroEl = document.getElementById("cafeDetailHero");
+    const heroTitle = document.getElementById("cafeHeroTitle");
+    const heroMeta = document.getElementById("cafeHeroMeta");
+
     const descEl = document.getElementById("cafeDetailDescription");
     const openingEl = document.getElementById("cafeDetailOpeningHours");
     const avgEl = document.getElementById("cafeDetailAverageCheck");
     const menuEl = document.getElementById("cafeDetailMenu");
-    if (!panel || !nameEl || !metaEl || !descEl || !openingEl || !avgEl) {
+    
+    if (!panel || !nameEl) {
         return;
     }
+    
     const cafeId = cafe && cafe._id ? cafe._id : null;
     if (!cafeId) {
         return;
@@ -1800,8 +1808,13 @@ async function openCafePage(cafe) {
     };
     currentCafePostsOffset = 0;
     currentCafePostsHasMore = false;
+    
     const cafeName = cafe.name || "Cafe";
     nameEl.textContent = cafeName;
+    
+    // Populate Hero
+    if (heroTitle) heroTitle.textContent = cafeName;
+    
     const config = translations[currentLang] || translations.ko;
     const parts = [];
     if (cafe.cityCode) {
@@ -1820,6 +1833,24 @@ async function openCafePage(cafe) {
     }
     const metaText = parts.join(" · ");
     metaEl.textContent = metaText;
+    if (heroMeta) heroMeta.textContent = metaText;
+
+    // Hero Background Image Logic
+    const photos = Array.isArray(cafe.photos) ? cafe.photos : [];
+    if (heroEl) {
+        if (photos.length > 0 && photos[0].url) {
+            heroEl.style.backgroundImage = `url('${photos[0].url}')`;
+            heroEl.classList.add("has-image");
+        } else {
+            heroEl.style.backgroundImage = "";
+            heroEl.classList.remove("has-image");
+        }
+        heroEl.classList.remove("hidden");
+    }
+
+    // Update Stats UI
+    updateCafeStatsUI(cafe.visitsCount || 0, cafe.todayVisits || 0);
+
     const descriptionText = cafe.description || "";
     descEl.textContent = descriptionText;
     
@@ -5931,6 +5962,24 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnCafeDetailClose = document.getElementById("btnCafeDetailClose");
     if (btnCafeDetailClose) {
         btnCafeDetailClose.addEventListener("click", () => {
+            const isDirectLink = window.location.pathname.startsWith("/cafe/");
+            toggleCafeMode(false);
+            const panel = document.getElementById("cafeDetailPanel");
+            if (panel) {
+                panel.classList.add("hidden");
+                if (isDirectLink) {
+                    history.pushState(null, "", "/");
+                    document.title = "Kafe Booking";
+                    // Reload home content to ensure consistent state
+                    window.location.reload();
+                }
+            }
+        });
+    }
+
+    const btnCafeDetailCloseAbs = document.getElementById("btnCafeDetailCloseAbs");
+    if (btnCafeDetailCloseAbs) {
+        btnCafeDetailCloseAbs.addEventListener("click", () => {
             const isDirectLink = window.location.pathname.startsWith("/cafe/");
             toggleCafeMode(false);
             const panel = document.getElementById("cafeDetailPanel");
