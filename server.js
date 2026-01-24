@@ -723,14 +723,14 @@ app.post("/api/auth/register-phone", authLimiter, async (req, res) => {
       preferredLang,
       marketingOptIn,
     } = req.body;
-    if (!email || !password || !name) {
+    if ((!email && !phone) || !password || !name) {
       return res
         .status(400)
-        .json({ error: "email, password and name required" });
+        .json({ error: "email or phone, password and name required" });
     }
     const trimmedEmail =
       typeof email === "string" ? email.trim().toLowerCase() : "";
-    if (!trimmedEmail || !trimmedEmail.includes("@")) {
+    if (trimmedEmail && !trimmedEmail.includes("@")) {
       return res.status(400).json({ error: "invalid email" });
     }
     let normalizedPhone = "";
@@ -746,14 +746,16 @@ app.post("/api/auth/register-phone", authLimiter, async (req, res) => {
         return res.status(409).json({ error: "user already exists" });
       }
     }
-    const existingByEmail = await User.findOne({ email: trimmedEmail });
-    if (existingByEmail) {
-      return res.status(409).json({ error: "user already exists" });
+    if (trimmedEmail) {
+      const existingByEmail = await User.findOne({ email: trimmedEmail });
+      if (existingByEmail) {
+        return res.status(409).json({ error: "user already exists" });
+      }
     }
     const hash = await bcrypt.hash(password, 10);
     const user = await User.create({
       phone: normalizedPhone || undefined,
-      email: trimmedEmail,
+      email: trimmedEmail || undefined,
       passwordHash: hash,
       name,
       role: role === "owner" ? "owner" : "user",

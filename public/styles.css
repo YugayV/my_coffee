@@ -1542,6 +1542,7 @@ body {
   padding: 8px;
   border-radius: 8px;
   background: #ffffff;
+  border: 1px solid rgba(203, 213, 225, 0.8);
 }
 
 .cafe-post-text {
@@ -1597,6 +1598,8 @@ body {
   margin-top: 18px;
   padding: 16px 18px;
   background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid rgba(203, 213, 225, 0.8);
 }
 
 .cafe-detail-header {
@@ -1976,4 +1979,27 @@ body {
   .owner-mobile-sticky {
     display: flex;
   }
+}
+
+/* Cafe Mode - Simple Interface */
+body.cafe-mode .left-sidebar,
+body.cafe-mode .right-sidebar {
+    display: none !important;
+}
+
+body.cafe-mode .site-search-block,
+body.cafe-mode .homepage-news-section,
+body.cafe-mode .main-feed-header,
+body.cafe-mode .main-feed,
+body.cafe-mode #map,
+body.cafe-mode .quick-info {
+    display: none !important;
+}
+
+/* Adjust grid for desktop when sidebars are hidden */
+@media (min-width: 961px) {
+    body.cafe-mode .container {
+        grid-template-columns: 1fr !important;
+        max-width: 800px !important; /* Limit width for readability */
+    }
 }

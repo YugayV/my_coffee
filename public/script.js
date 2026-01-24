@@ -1686,7 +1686,16 @@ async function openCafeModal(cafe) {
     modal.style.display = "block";
 }
 
+function toggleCafeMode(showCafe) {
+    if (showCafe) {
+        document.body.classList.add("cafe-mode");
+    } else {
+        document.body.classList.remove("cafe-mode");
+    }
+}
+
 async function openCafePage(cafe) {
+    toggleCafeMode(true);
     const panel = document.getElementById("cafeDetailPanel");
     const nameEl = document.getElementById("cafeDetailName");
     const metaEl = document.getElementById("cafeDetailMeta");
@@ -4547,6 +4556,11 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!nameInput || !emailInput || !passwordInput || !passwordConfirmInput || !userTypeInput) {
                 return;
             }
+            if (!emailInput.value && (!phoneInput || !phoneInput.value)) {
+                 alert(currentLang === "ru" ? "Введите Email или телефон" :
+                    currentLang === "en" ? "Enter Email or Phone" : "이메일 또는 전화번호를 입력하세요.");
+                 return;
+            }
             if (passwordInput.value !== passwordConfirmInput.value) {
                 alert(currentLang === "ru" ? "Пароли не совпадают" :
                     currentLang === "en" ? "Passwords do not match" : "비밀번호가 일치하지 않습니다.");
@@ -5664,6 +5678,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnCafeDetailClose = document.getElementById("btnCafeDetailClose");
     if (btnCafeDetailClose) {
         btnCafeDetailClose.addEventListener("click", () => {
+            toggleCafeMode(false);
             const panel = document.getElementById("cafeDetailPanel");
             if (panel) {
                 panel.classList.add("hidden");
@@ -5685,6 +5700,8 @@ document.addEventListener("DOMContentLoaded", () => {
     initStats();
     loadSiteConfig();
     loadNews();
+
+    setInterval(initStats, 10000);
 
     const path = window.location.pathname;
     if (path.startsWith("/cafe/")) {
@@ -5719,6 +5736,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     .catch((e) => {});
             }
         } else {
+            toggleCafeMode(false);
             const panel = document.getElementById("cafeDetailPanel");
             if (panel) {
                 panel.classList.add("hidden");
