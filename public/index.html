@@ -65,6 +65,7 @@
                 <div class="search-bar">
                     <input id="searchInput" type="text" placeholder="">
                     <button id="siteSearchButton" type="button" class="btn btn-secondary btn-small"></button>
+                    <button id="btnShowAllCafes" type="button" class="btn btn-outline btn-small" style="margin-left: 0.5rem;"></button>
                 </div>
                 <div id="searchResults" class="search-results hidden">
                     <div id="searchResultsTitle" class="search-results-title"></div>
@@ -129,6 +130,10 @@
                             <h3 id="cafeDetailAboutTitle">О кафе</h3>
                             <div id="cafeDetailDescription" class="cafe-modal-description"></div>
                             <div class="cafe-detail-extra">
+                                <div id="cafeDetailAddressRow" class="cafe-detail-row hidden" style="margin-bottom: 0.5rem;">
+                                    <i class="fas fa-map-marker-alt" style="margin-right: 0.5rem; color: var(--text-secondary);"></i>
+                                    <span id="cafeDetailAddress"></span>
+                                </div>
                                 <span id="cafeDetailOpeningHours"></span>
                                 <span id="cafeDetailAverageCheck"></span>
                             </div>
@@ -143,6 +148,16 @@
                             <div id="cafeDetailMenu" class="cafe-detail-menu"></div>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <div id="allCafesPanel" class="cafe-detail hidden">
+                <div class="cafe-content-wrapper" style="padding-top: 1rem;">
+                    <div class="cafe-detail-header">
+                        <h2 id="allCafesTitle">Все кафе</h2>
+                        <button id="btnAllCafesClose" type="button" class="btn btn-outline btn-small">&times;</button>
+                    </div>
+                    <div id="allCafesList" class="all-cafes-grid"></div>
                 </div>
             </div>
         </div>

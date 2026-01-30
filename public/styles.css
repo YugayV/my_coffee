@@ -946,7 +946,68 @@ input:focus, textarea:focus, select:focus {
 
 .owner-cafe-book-button {
     width: 100%;
-    margin-top: 1rem;
+}
+
+/* All Cafes Grid System */
+.all-cafes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    padding-bottom: 2rem;
+}
+
+.all-cafes-item {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.all-cafes-item:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-light);
+}
+
+.all-cafes-img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    background-color: var(--bg-body);
+}
+
+.all-cafes-content {
+    padding: 1rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.all-cafes-name {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text-main);
+}
+
+.all-cafes-addr {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.cafe-detail-row {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}    margin-top: 1rem;
 }
 
 /* Mobile Sticky Action Bar for Owner */

@@ -65,7 +65,9 @@ const translations = {
             cafeMenuTitle: "메뉴",
             loadMore: "더 보기",
             ownerDashboard: "사장님 페이지",
-            adminDashboard: "관리자 패널"
+            adminDashboard: "관리자 패널",
+            btnShowAllCafes: "모든 카페",
+            allCafesTitle: "모든 카페"
         },
         days: {
             mon: "월",
@@ -1815,6 +1817,20 @@ async function openCafePage(cafe) {
     // Populate Hero
     if (heroTitle) heroTitle.textContent = cafeName;
     
+    // Address Display
+    const addressRow = document.getElementById("cafeDetailAddressRow");
+    const addressEl = document.getElementById("cafeDetailAddress");
+    if (addressEl) {
+        addressEl.textContent = cafe.address || "";
+    }
+    if (addressRow) {
+        if (cafe.address) {
+            addressRow.classList.remove("hidden");
+        } else {
+            addressRow.classList.add("hidden");
+        }
+    }
+
     const config = translations[currentLang] || translations.ko;
     const parts = [];
     if (cafe.cityCode) {
@@ -2649,6 +2665,9 @@ function applyLanguage(lang) {
 
     if (footerRights) footerRights.textContent = config.ui.footerRights;
     if (footerContact) footerContact.textContent = config.ui.footerContact;
+    
+    if (btnShowAllCafes) btnShowAllCafes.textContent = config.ui.btnShowAllCafes;
+    if (allCafesTitle) allCafesTitle.textContent = config.ui.allCafesTitle;
 
     if (verificationChannelLabelEl && config.ui.verifyChannelLabel) {
         verificationChannelLabelEl.textContent = config.ui.verifyChannelLabel;
