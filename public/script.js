@@ -1440,17 +1440,34 @@ async function loadMySubscriptions() {
             const name = cafe.name || "";
             const cityCode = cafe.cityCode || "";
             const address = cafe.address || "";
+            
+            const nameSpan = document.createElement("span");
+            nameSpan.textContent = name;
+            nameSpan.style.fontWeight = "bold";
+            nameSpan.style.cursor = "pointer";
+            nameSpan.style.textDecoration = "underline";
+            nameSpan.style.marginRight = "5px";
+            nameSpan.addEventListener("click", () => {
+                if (cafe && cafe._id) {
+                    openCafePage(cafe);
+                }
+            });
+
+            div.appendChild(nameSpan);
+
             const parts = [];
-            if (name) {
-                parts.push(name);
-            }
             if (cityCode) {
                 parts.push("(" + cityCode + ")");
             }
             if (address) {
                 parts.push(address);
             }
-            div.textContent = parts.join(" ");
+            if (parts.length > 0) {
+                const infoSpan = document.createElement("span");
+                infoSpan.textContent = parts.join(" ");
+                div.appendChild(infoSpan);
+            }
+            
             listEl.appendChild(div);
         });
     } catch (e) {
@@ -4124,6 +4141,75 @@ async function adminLoginPrompt() {
     }
 }
 
+async function loadAllCafesList() {
+    const listEl = document.getElementById("allCafesList");
+    const modal = document.getElementById("allCafesPanel");
+    if (!listEl || !modal) return;
+    
+    modal.classList.remove("hidden");
+    listEl.innerHTML = '<div style="padding:2rem; text-align:center;">Loading...</div>';
+
+    try {
+        const res = await fetch("/api/cafes?limit=100"); 
+        if (!res.ok) throw new Error("Failed to load");
+        const data = await res.json();
+        const cafes = data.cafes || [];
+        
+        listEl.innerHTML = "";
+        if (cafes.length === 0) {
+             listEl.innerHTML = '<div style="padding:2rem; text-align:center;">No cafes found.</div>';
+             return;
+        }
+
+        cafes.forEach(cafe => {
+            const item = document.createElement("div");
+            item.className = "all-cafes-item";
+            
+            // Image
+            const photos = Array.isArray(cafe.photos) ? cafe.photos : [];
+            if (photos.length > 0) {
+                const lastPhoto = photos[photos.length - 1];
+                if (lastPhoto && lastPhoto.url) {
+                    const img = document.createElement("img");
+                    img.className = "all-cafes-img";
+                    img.src = lastPhoto.url;
+                    img.alt = cafe.name || "";
+                    item.appendChild(img);
+                }
+            }
+
+            const content = document.createElement("div");
+            content.className = "all-cafes-content";
+
+            const name = document.createElement("div");
+            name.className = "all-cafes-name";
+            name.textContent = cafe.name || "Cafe";
+            
+            const meta = document.createElement("div");
+            meta.className = "all-cafes-addr";
+            const parts = [];
+            if(cafe.cityCode) parts.push(cafe.cityCode);
+            if(cafe.address) parts.push(cafe.address);
+            meta.textContent = parts.join(" · ");
+
+            content.appendChild(name);
+            content.appendChild(meta);
+            item.appendChild(content);
+            
+            item.addEventListener("click", () => {
+                if (cafe && cafe._id) {
+                    openCafePage(cafe);
+                    modal.classList.add("hidden");
+                }
+            });
+            
+            listEl.appendChild(item);
+        });
+    } catch (e) {
+        listEl.innerHTML = '<div style="padding:2rem; text-align:center;">Error loading cafes.</div>';
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     showSlide(0);
     loadAuthFromStorage();
@@ -4365,6 +4451,21 @@ document.addEventListener("DOMContentLoaded", () => {
                 runSearch(true);
             });
         }
+    }
+
+    const btnShowAllCafes = document.getElementById("btnShowAllCafes");
+    if (btnShowAllCafes) {
+        btnShowAllCafes.addEventListener("click", () => {
+            loadAllCafesList();
+        });
+    }
+
+    const btnAllCafesClose = document.getElementById("btnAllCafesClose");
+    if (btnAllCafesClose) {
+        btnAllCafesClose.addEventListener("click", () => {
+            const modal = document.getElementById("allCafesPanel");
+            if (modal) modal.classList.add("hidden");
+        });
     }
 
     const headerCitySearch = document.getElementById("headerCitySearch");
