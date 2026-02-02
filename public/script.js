@@ -2985,6 +2985,22 @@ async function loadOwnerCafes() {
                 populateOwnerCafeForm(cafe);
             });
 
+            const previewBtn = document.createElement("button");
+            previewBtn.type = "button";
+            previewBtn.className = "btn btn-outline btn-small";
+            previewBtn.style.marginTop = "4px";
+            if (currentLang === "ru") {
+                previewBtn.textContent = "Открыть страницу";
+            } else if (currentLang === "en") {
+                previewBtn.textContent = "View Page";
+            } else {
+                previewBtn.textContent = "페이지 보기";
+            }
+            previewBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                openCafePage(cafe);
+            });
+
             uploadBtn.addEventListener("click", async (e) => {
                 e.stopPropagation();
                 if (!fileInput.files || !fileInput.files[0]) {
@@ -3014,6 +3030,7 @@ async function loadOwnerCafes() {
             controls.appendChild(fileInput);
             controls.appendChild(uploadBtn);
             controls.appendChild(editBtn);
+            controls.appendChild(previewBtn);
 
             item.appendChild(title);
             item.appendChild(photosWrap);
