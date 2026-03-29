@@ -1,58 +1,45 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kafe Booking - 한국 카페 예약 플랫폼</title>
-    <meta name="description" content="Платформа бронирования столиков и поиска кафе в Корее. Найдите лучшее кафе в своём городе.">
-    <meta property="og:title" content="Kafe Booking - 한국 카페 예약 플랫폼">
-    <meta property="og:description" content="Поиск корейских кафе, бронирование столиков, подписки на любимые заведения.">
+    <title>Обучалка по Корее — для русскоязычных</title>
+    <meta name="description" content="Короткая обучалка для русскоязычных в Корее: документы, связь, транспорт, банки, медицина, этикет и полезные фразы.">
+    <meta property="og:title" content="Обучалка по Корее — для русскоязычных">
+    <meta property="og:description" content="Документы, связь, транспорт, банки, медицина, этикет, приложения и полезные фразы в Корее.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="">
     <meta property="og:image" content="">
     <link rel="stylesheet" href="styles.css">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5238023878656507" crossorigin="anonymous"></script>
+
 </head>
 <body>
     <div class="container">
         <div class="left-sidebar">
-            <div class="logo">
-                <h1>Kafe Booking</h1>
+            <div class="logo tutorial-logo">
+                <h1>Обучалка по Корее</h1>
+                <div class="tutorial-subtitle">Для русскоязычных: быстро, по делу, без воды</div>
             </div>
-            <div class="lang-switcher">
-                <div class="lang-switcher-left">
-                    <button class="lang-btn active" data-lang="ko">한국어</button>
-                    <button class="lang-btn" data-lang="en">EN</button>
-                    <button class="lang-btn" data-lang="ru">RU</button>
-                </div>
-                <div class="header-auth-row">
-                    <button id="btnOwnerDashboard" class="btn btn-secondary btn-small hidden">Кабинет владельца</button>
-                    <button id="btnAdminDashboard" class="btn btn-secondary btn-small hidden">Админ панель</button>
-                    <button id="btnOpenAuth" class="btn btn-outline auth-inline-btn">Войти</button>
-                </div>
+            <div class="tutorial-search">
+                <input id="tutorialSearch" type="search" placeholder="Поиск: транспорт, симка, банк, больница...">
             </div>
-            <div id="profileSection" class="profile-section">
-                <h3 id="profileTitle"></h3>
-                <div id="profileContent" class="profile-content">
-                    <p id="profileStatus"></p>
-                    <div id="profilePhone" class="profile-phone"></div>
-                    <div id="profileSubscriptions" class="hidden">
-                        <div id="profileSubscriptionsTitle"></div>
-                        <div id="profileSubscriptionsList" class="profile-subscriptions-list"></div>
-                    </div>
-                </div>
-                <div class="profile-actions">
-                    <button id="btnProfileSettings" class="btn btn-secondary btn-small"></button>
-                    <button id="btnBecomeOwner" class="btn btn-secondary hidden"></button>
-                </div>
-            </div>
-            <div class="quick-info hidden">
-                <h3 id="quickTitle"></h3>
-                <p id="quickText"></p>
-            </div>
+            <div id="tutorialProgress" class="tutorial-progress"></div>
+            <div id="tutorialTopics" class="tutorial-topics"></div>
         </div>
 
         <div class="main-content">
+            <div id="tutorialApp" class="tutorial-app">
+                <div class="tutorial-header">
+                    <h2 id="tutorialTitle" class="tutorial-title"></h2>
+                    <div id="tutorialMeta" class="tutorial-meta"></div>
+                </div>
+                <div id="tutorialContent" class="tutorial-content"></div>
+                <div class="tutorial-actions">
+                    <button id="btnPrevLesson" type="button" class="btn btn-outline btn-small">← Назад</button>
+                    <button id="btnMarkDone" type="button" class="btn btn-secondary btn-small">Отметить как пройдено</button>
+                    <button id="btnNextLesson" type="button" class="btn btn-primary btn-small">Дальше →</button>
+                </div>
+            </div>
             <div class="site-search-block">
                 <div class="site-search-header">
                     <h3 id="siteSearchTitle"></h3>
@@ -407,10 +394,8 @@
     </footer>
 
     <script>
-        window.KAKAO_JS_KEY = "YOUR_KAKAO_JAVASCRIPT_KEY";
+        window.APP_MODE = "tutorial";
     </script>
-    <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_JAVASCRIPT_KEY&libraries=services"></script>
-    <script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

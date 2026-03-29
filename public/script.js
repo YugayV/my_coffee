@@ -4243,7 +4243,293 @@ async function loadAllCafesList() {
     }
 }
 
+function getTutorialLessons() {
+    return [
+        {
+            id: "arrival",
+            title: "Первые 72 часа в Корее",
+            tags: ["прилет", "аэропорт", "первые шаги"],
+            html:
+                "<h3>Что сделать сразу</h3>" +
+                "<ul>" +
+                "<li>Сделайте интернет: eSIM/SIM в аэропорту или рядом с домом.</li>" +
+                "<li>Сохраните адрес жилья на корейском (в заметки).</li>" +
+                "<li>Установите базовые приложения: карты, переводчик, такси.</li>" +
+                "</ul>" +
+                "<h3>Полезные фразы</h3>" +
+                "<ul>" +
+                "<li>안녕하세요 (аннёнха-сэё) — здравствуйте.</li>" +
+                "<li>감사합니다 (камса-хамнида) — спасибо.</li>" +
+                "</ul>",
+        },
+        {
+            id: "transport",
+            title: "Транспорт: метро, автобусы, такси",
+            tags: ["метро", "автобус", "такси", "T-money"],
+            html:
+                "<h3>Проездная карта</h3>" +
+                "<ul>" +
+                "<li>Купите T-money/캐시비 (Cashbee) в convenience store.</li>" +
+                "<li>Пополняйте наличными или картой (зависит от магазина).</li>" +
+                "</ul>" +
+                "<h3>Такси</h3>" +
+                "<ul>" +
+                "<li>Скачайте Kakao T или UT.</li>" +
+                "<li>Держите адрес на корейском.</li>" +
+                "</ul>",
+        },
+        {
+            id: "mobile",
+            title: "Связь и интернет: SIM/eSIM, верификации",
+            tags: ["сим", "esim", "телефон", "верификация"],
+            html:
+                "<h3>Что важно</h3>" +
+                "<ul>" +
+                "<li>Многие сервисы в Корее требуют верификацию по номеру.</li>" +
+                "<li>Если нет ARC, выбирайте тарифы для туристов/временных.</li>" +
+                "</ul>" +
+                "<h3>Мини-чеклист</h3>" +
+                "<ul>" +
+                "<li>Проверьте, что номер принимает SMS.</li>" +
+                "<li>Сохраните номер в формате +82.</li>" +
+                "</ul>",
+        },
+        {
+            id: "banking",
+            title: "Банки и деньги: карты, переводы, наличные",
+            tags: ["банк", "карта", "перевод", "банкомат"],
+            html:
+                "<h3>Карта и наличные</h3>" +
+                "<ul>" +
+                "<li>В банкоматах ищите режим Global/외국인.</li>" +
+                "<li>Не все банкоматы работают с иностранными картами ночью.</li>" +
+                "</ul>" +
+                "<h3>Переводы</h3>" +
+                "<ul>" +
+                "<li>В Корее часто переводят по номеру счета, а не по карте.</li>" +
+                "</ul>",
+        },
+        {
+            id: "medicine",
+            title: "Медицина: клиники, аптеки, страховка",
+            tags: ["врач", "клиника", "аптека", "страховка"],
+            html:
+                "<h3>Как обычно выглядит визит</h3>" +
+                "<ul>" +
+                "<li>Сначала регистратура, затем прием, потом аптека рядом.</li>" +
+                "<li>Если есть страховка (NHI), уточняйте покрытие заранее.</li>" +
+                "</ul>" +
+                "<h3>Фразы</h3>" +
+                "<ul>" +
+                "<li>아파요 (апаё) — мне больно.</li>" +
+                "<li>열이 있어요 (ёри иссоё) — у меня температура.</li>" +
+                "</ul>",
+        },
+        {
+            id: "documents",
+            title: "Документы: ARC, адрес, базовые термины",
+            tags: ["ARC", "документы", "адрес"],
+            html:
+                "<h3>Термины</h3>" +
+                "<ul>" +
+                "<li>ARC (외국인등록증) — карта регистрации иностранца.</li>" +
+                "<li>Адрес на корейском важнее, чем на английском.</li>" +
+                "</ul>" +
+                "<h3>Совет</h3>" +
+                "<ul>" +
+                "<li>Держите фото документов в защищенном хранилище.</li>" +
+                "</ul>",
+        },
+        {
+            id: "etiquette",
+            title: "Этикет: базовые правила общения",
+            tags: ["этикет", "культура", "общение"],
+            html:
+                "<h3>Минимум, который помогает</h3>" +
+                "<ul>" +
+                "<li>Говорите ‘안녕하세요’ и ‘감사합니다’ — это всегда уместно.</li>" +
+                "<li>В помещениях часто снимают обувь (смотрите на полки/тапочки).</li>" +
+                "</ul>",
+        },
+        {
+            id: "apps",
+            title: "Полезные приложения",
+            tags: ["приложения", "карты", "переводчик"],
+            html:
+                "<h3>Что поставить</h3>" +
+                "<ul>" +
+                "<li>Naver Map или KakaoMap — для навигации.</li>" +
+                "<li>Papago — перевод.</li>" +
+                "<li>Kakao T — такси.</li>" +
+                "</ul>",
+        },
+    ];
+}
+
+function initTutorial() {
+    document.body.classList.add("tutorial-mode");
+
+    const lessons = getTutorialLessons();
+    const topicsEl = document.getElementById("tutorialTopics");
+    const searchEl = document.getElementById("tutorialSearch");
+    const titleEl = document.getElementById("tutorialTitle");
+    const metaEl = document.getElementById("tutorialMeta");
+    const contentEl = document.getElementById("tutorialContent");
+    const progressEl = document.getElementById("tutorialProgress");
+
+    const btnPrev = document.getElementById("btnPrevLesson");
+    const btnNext = document.getElementById("btnNextLesson");
+    const btnDone = document.getElementById("btnMarkDone");
+
+    if (!topicsEl || !titleEl || !contentEl) {
+        return;
+    }
+
+    const storeKey = "korea_tutorial_done_v1";
+
+    function getDoneSet() {
+        try {
+            const raw = localStorage.getItem(storeKey);
+            const parsed = raw ? JSON.parse(raw) : [];
+            return new Set(Array.isArray(parsed) ? parsed : []);
+        } catch {
+            return new Set();
+        }
+    }
+
+    function setDoneSet(doneSet) {
+        localStorage.setItem(storeKey, JSON.stringify(Array.from(doneSet)));
+    }
+
+    function getLessonFromHash() {
+        const h = String(window.location.hash || "");
+        const m = h.match(/lesson=([a-z0-9_-]+)/i);
+        return m ? m[1] : "";
+    }
+
+    function setHashLesson(id) {
+        window.location.hash = `lesson=${id}`;
+    }
+
+    function renderTopics(filterText) {
+        const done = getDoneSet();
+        const q = (filterText || "").trim().toLowerCase();
+        topicsEl.innerHTML = "";
+
+        const filtered = !q
+            ? lessons
+            : lessons.filter((l) => {
+                  const hay = `${l.title} ${(l.tags || []).join(" ")}`.toLowerCase();
+                  return hay.includes(q);
+              });
+
+        filtered.forEach((l) => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "nav-link tutorial-topic-btn";
+            btn.dataset.lessonId = l.id;
+
+            const left = document.createElement("span");
+            left.textContent = l.title;
+
+            const badge = document.createElement("span");
+            badge.className = "tutorial-badge" + (done.has(l.id) ? " done" : "");
+            badge.textContent = done.has(l.id) ? "✓" : "";
+
+            btn.appendChild(left);
+            btn.appendChild(badge);
+            btn.addEventListener("click", () => setHashLesson(l.id));
+            topicsEl.appendChild(btn);
+        });
+
+        if (progressEl) {
+            progressEl.textContent = `Пройдено: ${done.size} / ${lessons.length}`;
+        }
+    }
+
+    function setActiveTopic(id) {
+        const buttons = topicsEl.querySelectorAll("button[data-lesson-id]");
+        buttons.forEach((b) => {
+            b.classList.toggle("active", b.dataset.lessonId === id);
+        });
+    }
+
+    function renderLesson(id) {
+        const lesson = lessons.find((l) => l.id === id) || lessons[0];
+        const done = getDoneSet();
+        const idx = lessons.findIndex((l) => l.id === lesson.id);
+
+        titleEl.textContent = lesson.title;
+        contentEl.innerHTML = lesson.html || "";
+        setActiveTopic(lesson.id);
+
+        if (metaEl) {
+            metaEl.textContent = `Тема ${idx + 1} из ${lessons.length}` + (done.has(lesson.id) ? " • Пройдено" : "");
+        }
+
+        if (btnPrev) btnPrev.disabled = idx <= 0;
+        if (btnNext) btnNext.disabled = idx >= lessons.length - 1;
+        if (btnDone) btnDone.textContent = done.has(lesson.id) ? "Снять отметку" : "Отметить как пройдено";
+    }
+
+    function currentLessonId() {
+        const fromHash = getLessonFromHash();
+        const exists = lessons.some((l) => l.id === fromHash);
+        return exists ? fromHash : lessons[0].id;
+    }
+
+    function gotoPrev() {
+        const id = currentLessonId();
+        const idx = lessons.findIndex((l) => l.id === id);
+        const nextId = idx > 0 ? lessons[idx - 1].id : lessons[0].id;
+        setHashLesson(nextId);
+    }
+
+    function gotoNext() {
+        const id = currentLessonId();
+        const idx = lessons.findIndex((l) => l.id === id);
+        const nextId = idx < lessons.length - 1 ? lessons[idx + 1].id : lessons[lessons.length - 1].id;
+        setHashLesson(nextId);
+    }
+
+    function toggleDone() {
+        const id = currentLessonId();
+        const done = getDoneSet();
+        if (done.has(id)) {
+            done.delete(id);
+        } else {
+            done.add(id);
+        }
+        setDoneSet(done);
+        renderTopics(searchEl ? searchEl.value : "");
+        renderLesson(id);
+    }
+
+    if (btnPrev) btnPrev.addEventListener("click", gotoPrev);
+    if (btnNext) btnNext.addEventListener("click", gotoNext);
+    if (btnDone) btnDone.addEventListener("click", toggleDone);
+
+    if (searchEl) {
+        searchEl.addEventListener("input", () => {
+            renderTopics(searchEl.value);
+            setActiveTopic(currentLessonId());
+        });
+    }
+
+    window.addEventListener("hashchange", () => {
+        renderLesson(currentLessonId());
+    });
+
+    renderTopics("");
+    renderLesson(currentLessonId());
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+    if (window.APP_MODE === "tutorial") {
+        initTutorial();
+        return;
+    }
+
     showSlide(0);
     loadAuthFromStorage();
 

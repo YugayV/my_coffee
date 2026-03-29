@@ -171,6 +171,98 @@ input:focus, textarea:focus, select:focus {
     padding: 1.5rem;
 }
 
+body.tutorial-mode .container {
+    grid-template-columns: 320px 1fr;
+}
+
+body.tutorial-mode .right-sidebar {
+    display: none;
+}
+
+body.tutorial-mode .main-content > :not(#tutorialApp) {
+    display: none;
+}
+
+.tutorial-logo h1 {
+    margin: 0;
+}
+
+.tutorial-subtitle {
+    margin-top: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.tutorial-search {
+    margin-top: 1rem;
+}
+
+.tutorial-progress {
+    margin-top: 1rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.tutorial-topics {
+    margin-top: 1rem;
+}
+
+.tutorial-title {
+    margin: 0;
+}
+
+.tutorial-meta {
+    margin-top: 0.25rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.tutorial-content {
+    margin-top: 1rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    padding: 1.25rem;
+    box-shadow: var(--shadow-md);
+}
+
+.tutorial-content h3 {
+    margin-top: 1.25rem;
+}
+
+.tutorial-content h3:first-child {
+    margin-top: 0;
+}
+
+.tutorial-content ul {
+    margin: 0.5rem 0 0;
+    padding-left: 1.25rem;
+}
+
+.tutorial-actions {
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: space-between;
+}
+
+.tutorial-actions .btn {
+    flex: 1;
+}
+
+.tutorial-topic-btn {
+    justify-content: space-between;
+}
+
+.tutorial-badge {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.tutorial-badge.done {
+    color: var(--primary-color);
+}
+
 /* Navigation & Lists */
 .nav-link, .city-btn, .province-btn {
     display: flex;
@@ -1007,7 +1099,7 @@ input:focus, textarea:focus, select:focus {
     align-items: center;
     font-size: 0.9rem;
     color: var(--text-secondary);
-}    margin-top: 1rem;
+    margin-top: 1rem;
 }
 
 /* Mobile Sticky Action Bar for Owner */
@@ -1100,6 +1192,8 @@ input:focus, textarea:focus, select:focus {
     color: var(--text-main);
     font-size: 1.1rem;
 }
+
+#ownerCafeMenuAdd {
     padding: 0.75rem;
     font-size: 1rem;
     font-weight: 600;
