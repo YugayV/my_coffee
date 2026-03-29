@@ -2717,6 +2717,34 @@ app.get("/api/cafes", async (req, res) => {
 });
 
 app.post(
+  "/api/cafes/:id/user-photos",
+  authMiddleware,
+  upload.single("photo"),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      if (!req.file) {
+        return res.status(400).json({ error: "photo file required" });
+      }
+      const cafe = await Cafe.findById(id);
+      if (!cafe) {
+        return res.status(404).json({ error: "cafe not found" });
+      }
+      const publicUrl = `/uploads/${req.file.filename}`;
+      cafe.photos.push({
+        url: publicUrl,
+        originalName: req.file.originalname,
+      });
+      await cafe.save();
+      res.status(201).json({ photos: cafe.photos });
+    } catch (err) {
+      console.error("user upload cafe photo error", err);
+      res.status(500).json({ error: "server error" });
+    }
+  },
+);
+
+app.post(
   "/api/cafes/:id/photos",
   authMiddleware,
   ownerOnly,

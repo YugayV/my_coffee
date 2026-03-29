@@ -36,7 +36,7 @@
                 <div id="profileContent" class="profile-content">
                     <p id="profileStatus"></p>
                     <div id="profilePhone" class="profile-phone"></div>
-                    <div id="profileSubscriptions">
+                    <div id="profileSubscriptions" class="hidden">
                         <div id="profileSubscriptionsTitle"></div>
                         <div id="profileSubscriptionsList" class="profile-subscriptions-list"></div>
                     </div>
@@ -46,7 +46,7 @@
                     <button id="btnBecomeOwner" class="btn btn-secondary hidden"></button>
                 </div>
             </div>
-            <div class="quick-info">
+            <div class="quick-info hidden">
                 <h3 id="quickTitle"></h3>
                 <p id="quickText"></p>
             </div>
@@ -72,7 +72,7 @@
                     <div id="searchResultsList" class="search-results-list"></div>
                 </div>
             </div>
-            <div class="homepage-news-section">
+            <div class="homepage-news-section hidden">
                 <h3 id="newsTitle"></h3>
                 <ul id="newsList" class="homepage-news-list"></ul>
             </div>
@@ -80,8 +80,8 @@
                 <h3 id="feedHeaderTitle"></h3>
             </div>
             <div class="main-feed">
-                <div id="mainIntegrationAd" class="integration-ad-block"></div>
-                <div id="feedAdsContainer" class="feed-ads-container"></div>
+                <div id="mainIntegrationAd" class="integration-ad-block hidden"></div>
+                <div id="feedAdsContainer" class="feed-ads-container hidden"></div>
                 <div id="promoPostsBlock" class="promo-posts-block"></div>
             </div>
 
@@ -107,10 +107,14 @@
                     </div>
                     
                     <div id="cafeDetailPhotos" class="cafe-detail-photos"></div>
+                    <div id="cafePhotoUploadBlock" class="cafe-photo-upload-block hidden">
+                        <input type="file" id="cafePhotoInput" accept="image/*" style="display: none;">
+                        <button id="btnUploadPhoto" class="btn btn-secondary btn-small">Загрузить фото</button>
+                    </div>
                     <div class="cafe-detail-actions">
-                        <button id="btnCafePageSubscribe" type="button" class="btn btn-secondary btn-small"></button>
-                        <button id="btnCafePageBook" type="button" class="btn btn-primary btn-small cafe-book-button"></button>
-                        <div id="cafePageSubscribersCount" class="cafe-modal-subscribers"></div>
+                        <button id="btnCafePageSubscribe" type="button" class="btn btn-secondary btn-small hidden"></button>
+                        <button id="btnCafePageBook" type="button" class="btn btn-primary btn-small cafe-book-button hidden"></button>
+                        <div id="cafePageSubscribersCount" class="cafe-modal-subscribers hidden"></div>
                     </div>
                     <div id="cafePageBookingInfo" class="cafe-booking-info"></div>
                     <div class="cafe-detail-body">
@@ -285,7 +289,7 @@
                 <div id="ownerCafesList" class="owner-cafes-list"></div>
             </div>
 
-            <div class="stats-panel">
+            <div class="stats-panel hidden">
                 <h4>Статистика платформы</h4>
                 <div class="stats-row">
                     <span>Всего визитов:</span>
@@ -297,7 +301,7 @@
                 </div>
             </div>
 
-            <div class="ad-banner">
+            <div class="ad-banner hidden">
                 <div class="ad-content">
                     <h3 id="adTitle">Реклама партнёров</h3>
                     <p id="adText">Динамический блок рекламы (AdSense / локальные объявления).</p>
@@ -361,11 +365,11 @@
             <div id="cafeModalMeta" class="cafe-modal-meta"></div>
             <div id="cafeModalDescription" class="cafe-modal-description"></div>
             <div class="cafe-modal-actions">
-                <button id="btnCafeSubscribe" type="button" class="btn btn-secondary btn-small">Подписаться</button>
-                <button id="btnCafeBook" type="button" class="btn btn-primary btn-small cafe-book-button">Забронировать столик</button>
+                <button id="btnCafeSubscribe" type="button" class="btn btn-secondary btn-small hidden">Подписаться</button>
+                <button id="btnCafeBook" type="button" class="btn btn-primary btn-small cafe-book-button hidden">Забронировать столик</button>
             </div>
-            <div id="cafeSubscribersCount" class="cafe-modal-subscribers"></div>
-            <div id="cafeBookingInfo" class="cafe-booking-info"></div>
+            <div id="cafeSubscribersCount" class="cafe-modal-subscribers hidden"></div>
+            <div id="cafeBookingInfo" class="cafe-booking-info hidden"></div>
                 <div class="cafe-modal-section">
                     <h3 id="cafeModalPostsTitle">Посты кафе</h3>
                     <div id="cafePostsList" class="cafe-posts-list"></div>

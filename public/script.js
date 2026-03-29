@@ -64,6 +64,7 @@ const translations = {
             cafeFeedTitle: "카페 소식",
             cafeMenuTitle: "메뉴",
             loadMore: "더 보기",
+            uploadPhoto: "사진 올리기",
             ownerDashboard: "사장님 페이지",
             adminDashboard: "관리자 패널",
             btnShowAllCafes: "모든 카페",
@@ -239,6 +240,7 @@ const translations = {
             cafeFeedTitle: "Cafe Feed",
             cafeMenuTitle: "Our Menu",
             loadMore: "Show more",
+            uploadPhoto: "Upload photo",
             ownerDashboard: "Owner Dashboard",
             adminDashboard: "Admin Dashboard"
         },
@@ -412,6 +414,7 @@ const translations = {
             cafeFeedTitle: "Лента кафе",
             cafeMenuTitle: "Наше меню",
             loadMore: "Показать ещё",
+            uploadPhoto: "Загрузить фото",
             ownerDashboard: "Кабинет владельца",
             adminDashboard: "Админ панель"
         },
@@ -1848,7 +1851,18 @@ async function openCafePage(cafe) {
         }
     }
 
+    if (authToken) {
+        document.getElementById("cafePhotoUploadBlock")?.classList.remove("hidden");
+    } else {
+        document.getElementById("cafePhotoUploadBlock")?.classList.add("hidden");
+    }
+
     const config = translations[currentLang] || translations.ko;
+    const btnUploadPhoto = document.getElementById("btnUploadPhoto");
+    if (btnUploadPhoto && config.ui.uploadPhoto) {
+        btnUploadPhoto.textContent = config.ui.uploadPhoto;
+    }
+
     const parts = [];
     if (cafe.cityCode) {
         const cityCode = cafe.cityCode;
@@ -2623,6 +2637,7 @@ function applyLanguage(lang) {
     const cafeDetailFeedTitle = document.getElementById("cafeDetailFeedTitle");
     const cafeDetailMenuTitle = document.getElementById("cafeDetailMenuTitle");
     const btnCafePagePostsLoadMore = document.getElementById("btnCafePagePostsLoadMore");
+    const btnUploadPhoto = document.getElementById("btnUploadPhoto");
     const btnCafePostsLoadMore = document.getElementById("btnCafePostsLoadMore");
     const btnOwnerDashboard = document.getElementById("btnOwnerDashboard");
     const btnAdminDashboard = document.getElementById("btnAdminDashboard");
@@ -2643,6 +2658,7 @@ function applyLanguage(lang) {
     if (cafeDetailFeedTitle) cafeDetailFeedTitle.textContent = config.ui.cafeFeedTitle;
     if (cafeDetailMenuTitle) cafeDetailMenuTitle.textContent = config.ui.cafeMenuTitle;
     if (btnCafePagePostsLoadMore) btnCafePagePostsLoadMore.textContent = config.ui.loadMore;
+    if (btnUploadPhoto) btnUploadPhoto.textContent = config.ui.uploadPhoto;
     if (btnCafePostsLoadMore) btnCafePostsLoadMore.textContent = config.ui.loadMore;
     if (btnCafeSubscribe) btnCafeSubscribe.textContent = config.ui.btnCafePageSubscribe;
     if (btnCafeBook) btnCafeBook.textContent = config.ui.btnCafePageBook;
@@ -6208,4 +6224,54 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
     });
+
+    const btnUploadPhoto = document.getElementById("btnUploadPhoto");
+    const cafePhotoInput = document.getElementById("cafePhotoInput");
+
+    if (btnUploadPhoto && cafePhotoInput) {
+        btnUploadPhoto.addEventListener("click", () => {
+            cafePhotoInput.click();
+        });
+
+        cafePhotoInput.addEventListener("change", async () => {
+            if (!cafePhotoInput.files || !cafePhotoInput.files[0]) return;
+            if (!authToken) {
+                alert(currentLang === "ru" ? "Пожалуйста, войдите в систему" : "Please log in");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("photo", cafePhotoInput.files[0]);
+
+            try {
+                const res = await fetch(`/api/cafes/${currentCafeId}/user-photos`, {
+                    method: "POST",
+                    headers: {
+                        Authorization: "Bearer " + authToken
+                    },
+                    body: formData
+                });
+
+                if (res.ok) {
+                    alert(currentLang === "ru" ? "Фото успешно загружено" : "Photo uploaded successfully");
+                    // Refresh cafe page to show new photo
+                    const cafeRes = await fetch(`/api/cafes/${currentCafeId}`);
+                    if (cafeRes.ok) {
+                        const cafeData = await cafeRes.json();
+                        if (cafeData && cafeData.cafe) {
+                            openCafePage(cafeData.cafe);
+                        }
+                    }
+                } else {
+                    const errorData = await res.json();
+                    alert(errorData.error || (currentLang === "ru" ? "Ошибка при загрузке" : "Upload error"));
+                }
+            } catch (err) {
+                console.error("Upload error:", err);
+                alert(currentLang === "ru" ? "Ошибка сети" : "Network error");
+            } finally {
+                cafePhotoInput.value = "";
+            }
+        });
+    }
 });
