@@ -314,7 +314,10 @@
     <div id="loginModal" class="modal">
         <div class="modal-content">
             <span class="close" data-modal-id="loginModal">&times;</span>
-            <h2>Вход / регистрация</h2>
+            <div class="auth-tabs">
+                <button id="authTabLogin" type="button" class="auth-tab active">Вход</button>
+                <button id="authTabRegister" type="button" class="auth-tab">Регистрация</button>
+            </div>
 
             <div class="auth-block">
                 <div class="auth-block-title">По телефону (SMS-код)</div>
@@ -322,7 +325,7 @@
                     <input id="loginPhoneNumber" type="tel" placeholder="Телефон (+82...)" autocomplete="tel">
                     <button id="btnRequestLoginCode" type="button" class="btn btn-secondary btn-small">Получить код</button>
                 </div>
-                <input id="loginName" type="text" placeholder="Имя (для новой регистрации)" autocomplete="name">
+                <input id="loginName" type="text" class="hidden" placeholder="Имя (для новой регистрации)" autocomplete="name">
                 <div class="auth-row">
                     <input id="loginPhoneCode" type="text" placeholder="Код из SMS" autocomplete="one-time-code">
                     <button id="btnLoginWithCode" type="button" class="btn btn-primary btn-small">Войти</button>

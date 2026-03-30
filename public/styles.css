@@ -267,6 +267,29 @@ body.tutorial-mode .main-content > :not(#tutorialApp) {
     margin-top: 0.75rem;
 }
 
+.auth-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.auth-tab {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.auth-tab.active {
+    border-color: rgba(var(--primary-rgb), 0.35);
+    background: rgba(var(--primary-rgb), 0.08);
+    color: var(--text-main);
+}
+
 .auth-block {
     margin-top: 0.5rem;
 }

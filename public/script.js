@@ -4467,6 +4467,64 @@ function getTutorialLessons() {
                 "</ul>" +
                 "<div class=\"tutorial-meta\">Внимание: структура/требования TOPIK могут меняться. Для точной информации сверяйтесь с официальными источниками TOPIK.</div>",
         },
+        {
+            id: "immigration-appointment",
+            title: "Иммиграция: запись на приём (방문예약) — пошагово",
+            tags: ["иммиграция", "запись", "hikorea", "방문예약", "ARC"],
+            html:
+                "<h3>Коротко: что это</h3>" +
+                "<ul>" +
+                "<li>Во многие иммиграционные офисы в Корее нужно записываться заранее на визит (방문예약).</li>" +
+                "<li>Чаще всего запись делают через официальный портал HiKorea (или по телефону поддержки 1345 внутри Кореи).</li>" +
+                "</ul>" +
+                "<h3>Что подготовить заранее</h3>" +
+                "<ul>" +
+                "<li>Паспорт: номер как в паспорте (латиница), дата рождения.</li>" +
+                "<li>ARC/외국인등록증 (если уже есть): номер карты.</li>" +
+                "<li>Корейский номер телефона (если есть) и email для подтверждений.</li>" +
+                "<li>Понимание цели визита: продление/изменение статуса/выдача ARC/смена адреса и т.д.</li>" +
+                "</ul>" +
+                "<h3>Шаг 1 — зайти на HiKorea</h3>" +
+                "<ol>" +
+                "<li>Откройте сайт HiKorea (обычно hikorea.go.kr) и переключите язык на English, если так проще.</li>" +
+                "<li>Создайте аккаунт (회원가입) или войдите (로그인). Иногда нужен email/телефон для подтверждения.</li>" +
+                "</ol>" +
+                "<h3>Шаг 2 — найти меню записи</h3>" +
+                "<ul>" +
+                "<li>Ищите раздел с записью на визит: ‘방문예약’ (visit reservation / appointment).</li>" +
+                "<li>Если система просит выбрать офис — выбирайте тот, который обслуживает ваш адрес проживания (관할).</li>" +
+                "</ul>" +
+                "<h3>Шаг 3 — выбрать услугу и время</h3>" +
+                "<ol>" +
+                "<li>Выберите категорию услуги (например: изменение адреса, продление, выдача документов).</li>" +
+                "<li>Выберите дату/время. Свободных слотов может быть мало — проверьте разные дни и ближайшие офисы.</li>" +
+                "<li>Заполните данные заявителя (как в паспорте). Проверьте написание имени/номера документа.</li>" +
+                "</ol>" +
+                "<h3>Шаг 4 — подтверждение</h3>" +
+                "<ul>" +
+                "<li>После записи сделайте скриншот/сохраните номер брони (예약번호).</li>" +
+                "<li>Проверьте, где смотреть список записей: ‘예약확인/예약조회’ (проверка брони).</li>" +
+                "</ul>" +
+                "<h3>Если нет свободных слотов</h3>" +
+                "<ul>" +
+                "<li>Проверяйте утром/вечером: слоты иногда появляются после отмен.</li>" +
+                "<li>Пробуйте соседние даты и офисы (если допустимо по вашему адресу).</li>" +
+                "<li>Позвоните 1345 (Immigration Contact Center, внутри Кореи) и уточните вариант записи/консультации.</li>" +
+                "</ul>" +
+                "<h3>В день визита</h3>" +
+                "<ul>" +
+                "<li>Приезжайте заранее (обычно 15–30 минут).</li>" +
+                "<li>Возьмите документы + подтверждение записи.</li>" +
+                "<li>На месте часто нужно взять талон/номер очереди и ждать вызова.</li>" +
+                "</ul>" +
+                "<h3>Полезные фразы</h3>" +
+                "<ul>" +
+                "<li>예약했어요. (йеяк-хэссоё) — Я записался/записалась.</li>" +
+                "<li>예약 확인 부탁드려요. — Проверьте, пожалуйста, мою запись.</li>" +
+                "<li>어디로 가야 해요? — Куда мне идти?</li>" +
+                "</ul>" +
+                "<div class=\"tutorial-meta\">Важно: требования и порядок могут отличаться по офисам и типу визы. Всегда сверяйтесь с HiKorea/официальной информацией и вашими сроками.</div>",
+        },
     ];
 }
 
@@ -4503,6 +4561,23 @@ function initTutorial() {
     const btnRequest = document.getElementById("btnRequestLoginCode");
     const btnLogin = document.getElementById("btnLoginWithCode");
     const phoneHint = document.getElementById("loginPhoneHint");
+
+    const tabLogin = document.getElementById("authTabLogin");
+    const tabRegister = document.getElementById("authTabRegister");
+    let authMode = "login";
+
+    function applyAuthMode(mode) {
+        authMode = mode === "register" ? "register" : "login";
+        if (tabLogin) tabLogin.classList.toggle("active", authMode === "login");
+        if (tabRegister) tabRegister.classList.toggle("active", authMode === "register");
+        if (nameInput) nameInput.classList.toggle("hidden", authMode === "login");
+        if (btnLogin) btnLogin.textContent = authMode === "register" ? "Зарегистрироваться" : "Войти";
+        if (phoneHint) phoneHint.textContent = "";
+    }
+
+    applyAuthMode("login");
+    if (tabLogin) tabLogin.addEventListener("click", () => applyAuthMode("login"));
+    if (tabRegister) tabRegister.addEventListener("click", () => applyAuthMode("register"));
 
     async function requestSmsCode() {
         const phone = phoneInput ? String(phoneInput.value || "").trim() : "";
