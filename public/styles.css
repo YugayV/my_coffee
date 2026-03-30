@@ -263,6 +263,39 @@ body.tutorial-mode .main-content > :not(#tutorialApp) {
     color: var(--primary-color);
 }
 
+.tutorial-auth {
+    margin-top: 0.75rem;
+}
+
+.auth-block {
+    margin-top: 0.5rem;
+}
+
+.auth-block-title {
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.auth-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.5rem;
+    align-items: start;
+    margin-bottom: 0.5rem;
+}
+
+.auth-hint {
+    margin-top: 0.25rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.auth-divider {
+    margin: 1rem 0;
+    height: 1px;
+    background: var(--border-color);
+}
+
 .tutorial-chat {
     margin-top: 1rem;
     background: var(--bg-surface);

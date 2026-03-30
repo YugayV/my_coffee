@@ -41,6 +41,7 @@ const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 const DEEPSEEK_API_BASE =
   process.env.DEEPSEEK_API_BASE || "https://api.deepseek.com";
 const DEEPSEEK_MODEL = process.env.DEEPSEEK_MODEL || "deepseek-chat";
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 
 if (!JWT_SECRET) {
   throw new Error("JWT_SECRET is required");
@@ -65,6 +66,7 @@ const userSchema = new mongoose.Schema(
   {
     phone: { type: String, unique: true, sparse: true },
     kakaoId: { type: String, unique: true, sparse: true },
+    googleSub: { type: String, unique: true, sparse: true },
     email: { type: String, unique: true, sparse: true },
     name: { type: String, required: true },
     role: { type: String, enum: ["user", "owner"], default: "user" },
@@ -384,6 +386,46 @@ function callDeepseekChatCompletions(body) {
   });
 }
 
+function callGoogleTokenInfo(idToken) {
+  if (!idToken) {
+    return Promise.reject(new Error("missing idToken"));
+  }
+  const options = {
+    hostname: "oauth2.googleapis.com",
+    port: 443,
+    path: `/tokeninfo?id_token=${encodeURIComponent(idToken)}`,
+    method: "GET",
+  };
+
+  return new Promise((resolve, reject) => {
+    const req = https.request(options, (res) => {
+      let raw = "";
+      res.on("data", (chunk) => {
+        raw += chunk;
+      });
+      res.on("end", () => {
+        try {
+          const parsed = raw ? JSON.parse(raw) : {};
+          if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
+            resolve(parsed);
+          } else {
+            const err = new Error("google tokeninfo error");
+            err.statusCode = res.statusCode;
+            err.body = parsed;
+            reject(err);
+          }
+        } catch (e) {
+          reject(e);
+        }
+      });
+    });
+    req.on("error", (err) => {
+      reject(err);
+    });
+    req.end();
+  });
+}
+
 function normalizePhone(raw) {
   if (!raw) return "";
   let p = String(raw).trim();
@@ -672,10 +714,12 @@ function sendHtmlWithKakao(fileName, res) {
       res.status(500).send("server error");
       return;
     }
-    const replaced = content.replace(
-      /YOUR_KAKAO_JAVASCRIPT_KEY/g,
-      KAKAO_JS_KEY,
-    );
+    const replaced = content
+      .replace(/YOUR_KAKAO_JAVASCRIPT_KEY/g, KAKAO_JS_KEY)
+      .replace(
+        /YOUR_GOOGLE_CLIENT_ID/g,
+        GOOGLE_CLIENT_ID || "YOUR_GOOGLE_CLIENT_ID",
+      );
     res.send(replaced);
   });
 }
@@ -766,6 +810,171 @@ app.post("/api/auth/request-phone-code", authLimiter, async (req, res) => {
     res.json(payload);
   } catch (err) {
     console.error("request-phone-code error", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+app.post("/api/auth/login-phone-code", authLimiter, async (req, res) => {
+  try {
+    const { phone, code, name, preferredLang } = req.body || {};
+    if (!phone || !code) {
+      return res.status(400).json({ error: "phone and code required" });
+    }
+    const normalizedPhone = normalizePhone(phone);
+    if (!normalizedPhone) {
+      return res.status(400).json({ error: "invalid phone" });
+    }
+    const codeStr = String(code).trim();
+    if (!codeStr) {
+      return res.status(400).json({ error: "invalid code" });
+    }
+
+    const doc = await PhoneVerification.findOne({
+      phone: normalizedPhone,
+      channel: "sms",
+    });
+    if (!doc || !doc.expiresAt || doc.expiresAt.getTime() < Date.now()) {
+      return res.status(400).json({ error: "code expired" });
+    }
+    if (typeof doc.attempts === "number" && doc.attempts >= 5) {
+      return res.status(429).json({ error: "too many attempts" });
+    }
+    if (doc.code !== codeStr) {
+      doc.attempts = (doc.attempts || 0) + 1;
+      await doc.save();
+      return res.status(401).json({ error: "invalid code" });
+    }
+
+    await PhoneVerification.deleteMany({ phone: normalizedPhone, channel: "sms" });
+
+    let user = await User.findOne({ phone: normalizedPhone });
+    if (!user) {
+      const safeName =
+        typeof name === "string" && name.trim() ? name.trim() : "User";
+      user = await User.create({
+        phone: normalizedPhone,
+        name: safeName,
+        role: "user",
+        preferredLang: preferredLang || "ru",
+      });
+    } else if (!user.name && typeof name === "string" && name.trim()) {
+      user.name = name.trim();
+      await user.save();
+    }
+
+    const tokenPayload = {
+      id: user._id,
+      role: user.role,
+      isAdmin: user.isAdmin,
+      subscriptionPlan: user.subscriptionPlan,
+    };
+    const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: "7d" });
+
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        phone: user.phone,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        cityCode: user.cityCode,
+        preferredLang: user.preferredLang,
+        isAdmin: user.isAdmin,
+        subscriptionPlan: user.subscriptionPlan,
+        subscriptionExpiresAt: user.subscriptionExpiresAt,
+      },
+    });
+  } catch (err) {
+    console.error("login-phone-code error", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+app.post("/api/auth/login-google", authLimiter, async (req, res) => {
+  try {
+    if (!GOOGLE_CLIENT_ID) {
+      return res.status(501).json({ error: "google not configured" });
+    }
+    const { idToken } = req.body || {};
+    const tokenStr = typeof idToken === "string" ? idToken.trim() : "";
+    if (!tokenStr) {
+      return res.status(400).json({ error: "idToken required" });
+    }
+
+    const info = await callGoogleTokenInfo(tokenStr);
+    const aud = info && typeof info.aud === "string" ? info.aud : "";
+    if (aud !== GOOGLE_CLIENT_ID) {
+      return res.status(401).json({ error: "invalid google token" });
+    }
+
+    const sub = info && typeof info.sub === "string" ? info.sub : "";
+    const email =
+      info && typeof info.email === "string" ? info.email.toLowerCase() : "";
+    const nameFromGoogle =
+      info && typeof info.name === "string" ? info.name : "Google user";
+
+    if (!sub) {
+      return res.status(401).json({ error: "invalid google token" });
+    }
+
+    let user = await User.findOne({ googleSub: sub });
+    if (!user && email) {
+      user = await User.findOne({ email });
+    }
+
+    if (!user) {
+      user = await User.create({
+        googleSub: sub,
+        email: email || undefined,
+        name: nameFromGoogle || "Google user",
+        role: "user",
+        preferredLang: "ru",
+      });
+    } else {
+      let changed = false;
+      if (!user.googleSub) {
+        user.googleSub = sub;
+        changed = true;
+      }
+      if (email && !user.email) {
+        user.email = email;
+        changed = true;
+      }
+      if (!user.name && nameFromGoogle) {
+        user.name = nameFromGoogle;
+        changed = true;
+      }
+      if (changed) {
+        await user.save();
+      }
+    }
+
+    const tokenPayload = {
+      id: user._id,
+      role: user.role,
+      isAdmin: user.isAdmin,
+      subscriptionPlan: user.subscriptionPlan,
+    };
+    const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: "7d" });
+
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        phone: user.phone,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        cityCode: user.cityCode,
+        preferredLang: user.preferredLang,
+        isAdmin: user.isAdmin,
+        subscriptionPlan: user.subscriptionPlan,
+        subscriptionExpiresAt: user.subscriptionExpiresAt,
+      },
+    });
+  } catch (err) {
+    console.error("login-google error", err);
     res.status(500).json({ error: "server error" });
   }
 });

@@ -4359,11 +4359,270 @@ function getTutorialLessons() {
                 "<li>Сохраняйте пункты назначения по-корейски — так точнее строится маршрут.</li>" +
                 "</ul>",
         },
+        {
+            id: "news",
+            title: "Новое",
+            tags: ["обновления", "новости"],
+            html:
+                "<h3>Что нового</h3>" +
+                "<ul>" +
+                "<li>Добавлен помощник (чат) и обучение по вождению в Корее.</li>" +
+                "<li>Добавлен вход/регистрация по телефону (SMS-код) и через Google.</li>" +
+                "</ul>",
+        },
+        {
+            id: "library",
+            title: "Библиотека",
+            tags: ["библиотека", "словарь", "язык", "полезное"],
+            html:
+                "<h3>Полезные ресурсы</h3>" +
+                "<ul>" +
+                "<li>Papago — перевод (лучше для корейского).</li>" +
+                "<li>Naver Dictionary — словарь и примеры.</li>" +
+                "<li>Naver Map / KakaoMap — навигация (адреса на корейском).</li>" +
+                "<li>Kakao T — такси.</li>" +
+                "</ul>" +
+                "<h3>Мини-набор фраз</h3>" +
+                "<ul>" +
+                "<li>여기요 (ёгиё) — сюда/извините, привлекать внимание.</li>" +
+                "<li>얼마예요? (ольмаеё?) — сколько стоит?</li>" +
+                "<li>이거 주세요 (иго джусэё) — дайте, пожалуйста, это.</li>" +
+                "</ul>",
+        },
+        {
+            id: "gib1",
+            title: "GIB1: корейский с нуля (기초 1)",
+            tags: ["корейский", "алфавит", "ханыль", "грамматика", "разговор"],
+            html:
+                "<h3>Цель урока</h3>" +
+                "<ul>" +
+                "<li>Научиться читать базовые слоги 한글 и говорить простые фразы вежливо.</li>" +
+                "<li>Понять 5 ключевых частиц и 3 базовые грамматические конструкции.</li>" +
+                "</ul>" +
+                "<h3>База 한글 (очень кратко)</h3>" +
+                "<ul>" +
+                "<li>Слог = согласная + гласная (+ согласная в конце). Пример: 가, 간, 강.</li>" +
+                "<li>Полезно тренировать пары: 가/카, 다/타, 바/파, 자/차 (придыхание меняет смысл).</li>" +
+                "</ul>" +
+                "<h3>Вежливые окончания (разговорные)</h3>" +
+                "<ul>" +
+                "<li>…이에요/예요 — «это …»: 학생이에요 / 커피예요</li>" +
+                "<li>…주세요 — «дайте, пожалуйста»: 이거 주세요</li>" +
+                "<li>…있어요/없어요 — «есть/нет»: 시간 있어요 / 시간 없어요</li>" +
+                "</ul>" +
+                "<h3>5 частиц, которые встречаются везде</h3>" +
+                "<ul>" +
+                "<li>은/는 — тема: 저는 러시아 사람이에요.</li>" +
+                "<li>이/가 — подлежащее: 비가 와요. (идёт дождь)</li>" +
+                "<li>을/를 — объект: 커피를 마셔요.</li>" +
+                "<li>에 — направление/время: 집에 가요. / 3시에 와요.</li>" +
+                "<li>에서 — место действия: 카페에서 공부해요.</li>" +
+                "</ul>" +
+                "<h3>Мини-диалог (кафе)</h3>" +
+                "<ul>" +
+                "<li>A: 안녕하세요. 아메리카노 하나 주세요. (Здравствуйте. Американо один, пожалуйста.)</li>" +
+                "<li>B: 네. 여기요. (Да. Вот, пожалуйста.)</li>" +
+                "<li>A: 감사합니다. (Спасибо.)</li>" +
+                "</ul>" +
+                "<h3>Практика (самопроверка)</h3>" +
+                "<ol>" +
+                "<li>Соберите 10 слогов: 가 나 다 라 마 바 사 아 자 차.</li>" +
+                "<li>Скажите 5 фраз: ‘주세요’, ‘있어요/없어요’, ‘어디예요?’ (где?).</li>" +
+                "<li>Составьте 3 предложения с 에/에서 (куда? где?).</li>" +
+                "</ol>" +
+                "<div class=\"tutorial-meta\">Подсказка: сначала говорите медленно и чётко — корейцам важнее ясность, чем скорость.</div>",
+        },
+        {
+            id: "topik1",
+            title: "TOPIK I (1급): подготовка для русскоязычных",
+            tags: ["TOPIK", "экзамен", "лексика", "чтение", "аудирование"],
+            html:
+                "<h3>Что такое TOPIK I</h3>" +
+                "<ul>" +
+                "<li>Это начальный уровень TOPIK (обычно 1–2 уровни). Цель TOPIK I/1급 — уверенная база: бытовая лексика + простая грамматика.</li>" +
+                "</ul>" +
+                "<h3>Что учить в первую очередь</h3>" +
+                "<ul>" +
+                "<li>Числа и время: 하나/둘…, 일/이/삼…, …시 …분.</li>" +
+                "<li>Еда/магазин/транспорт: 식당, 편의점, 버스, 지하철, 표(билет).</li>" +
+                "<li>Грамматика: 이에요/예요, 있어요/없어요, 주세요, -고 싶어요 (хочу), -(으)세요 (пожалуйста/повелит.).</li>" +
+                "</ul>" +
+                "<h3>Стратегия (очень простая)</h3>" +
+                "<ol>" +
+                "<li>Сначала чтение 한글 без запинок (это даст +30% результата).</li>" +
+                "<li>Каждый день 20 слов + 5 коротких предложений вслух.</li>" +
+                "<li>Аудирование: короткие диалоги, ловите ключи: время, место, цена, намерение.</li>" +
+                "</ol>" +
+                "<h3>Тренировка формата (примеры, не из реального экзамена)</h3>" +
+                "<ul>" +
+                "<li><b>Чтение:</b> ‘지금 몇 시예요?’ → Вопрос о времени. Ответ: ‘세 시예요.’</li>" +
+                "<li><b>Лексика:</b> выберите слово ‘аптека’: 약국</li>" +
+                "<li><b>Грамматика:</b> ‘커피__ 마셔요’ (пью кофе) → 를</li>" +
+                "</ul>" +
+                "<h3>Типовые ошибки русскоязычных</h3>" +
+                "<ul>" +
+                "<li>Путают 에 (куда/время) и 에서 (где действие).</li>" +
+                "<li>Проглатывают финальные согласные: 집(чип) vs 지(чи).</li>" +
+                "<li>Слишком длинные ответы — лучше коротко и правильно.</li>" +
+                "</ul>" +
+                "<div class=\"tutorial-meta\">Внимание: структура/требования TOPIK могут меняться. Для точной информации сверяйтесь с официальными источниками TOPIK.</div>",
+        },
     ];
 }
 
 function initTutorial() {
     document.body.classList.add("tutorial-mode");
+    loadAuthFromStorage();
+
+    const authBtn = document.getElementById("btnOpenAuth");
+    function updateAuthBtn() {
+        if (!authBtn) return;
+        if (!currentUser) {
+            authBtn.textContent = "Войти / Регистрация";
+            return;
+        }
+        const label =
+            (currentUser.name && String(currentUser.name).trim()) ||
+            (currentUser.email && String(currentUser.email).trim()) ||
+            (currentUser.phone && String(currentUser.phone).trim()) ||
+            "Профиль";
+        authBtn.textContent = label;
+    }
+    updateAuthBtn();
+    if (authBtn) {
+        authBtn.addEventListener("click", () => {
+            if (!currentUser) {
+                showLoginModal();
+            }
+        });
+    }
+
+    const phoneInput = document.getElementById("loginPhoneNumber");
+    const nameInput = document.getElementById("loginName");
+    const codeInput = document.getElementById("loginPhoneCode");
+    const btnRequest = document.getElementById("btnRequestLoginCode");
+    const btnLogin = document.getElementById("btnLoginWithCode");
+    const phoneHint = document.getElementById("loginPhoneHint");
+
+    async function requestSmsCode() {
+        const phone = phoneInput ? String(phoneInput.value || "").trim() : "";
+        if (!phone) {
+            if (phoneHint) phoneHint.textContent = "Введите номер телефона";
+            return;
+        }
+        if (phoneHint) phoneHint.textContent = "Отправляем код...";
+        if (btnRequest) btnRequest.disabled = true;
+        try {
+            const res = await fetch("/api/auth/request-phone-code", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ phone, channel: "sms" }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                if (phoneHint) phoneHint.textContent = data.error || "Не удалось отправить код";
+                return;
+            }
+            if (phoneHint) {
+                phoneHint.textContent = data && data.devCode ? `Код (dev): ${data.devCode}` : "Код отправлен. Введите его ниже.";
+            }
+        } catch {
+            if (phoneHint) phoneHint.textContent = "Ошибка сети";
+        } finally {
+            if (btnRequest) btnRequest.disabled = false;
+        }
+    }
+
+    async function loginWithCode() {
+        const phone = phoneInput ? String(phoneInput.value || "").trim() : "";
+        const code = codeInput ? String(codeInput.value || "").trim() : "";
+        const name = nameInput ? String(nameInput.value || "").trim() : "";
+        if (!phone || !code) {
+            if (phoneHint) phoneHint.textContent = "Введите телефон и код";
+            return;
+        }
+        if (phoneHint) phoneHint.textContent = "Проверяем код...";
+        if (btnLogin) btnLogin.disabled = true;
+        try {
+            const res = await fetch("/api/auth/login-phone-code", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ phone, code, name, preferredLang: "ru" }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                if (phoneHint) phoneHint.textContent = data.error || "Не удалось войти";
+                return;
+            }
+            if (data && data.token && data.user) {
+                setAuth(data.token, data.user);
+                updateAuthBtn();
+                closeModal("loginModal");
+                if (phoneHint) phoneHint.textContent = "";
+                if (codeInput) codeInput.value = "";
+            }
+        } catch {
+            if (phoneHint) phoneHint.textContent = "Ошибка сети";
+        } finally {
+            if (btnLogin) btnLogin.disabled = false;
+        }
+    }
+
+    if (btnRequest) btnRequest.addEventListener("click", requestSmsCode);
+    if (btnLogin) btnLogin.addEventListener("click", loginWithCode);
+
+    const googleHint = document.getElementById("googleLoginHint");
+    function initGoogleButton() {
+        const container = document.getElementById("googleSignInBtn");
+        const clientId = window.GOOGLE_CLIENT_ID;
+        if (!container) return;
+        if (!clientId || clientId === "YOUR_GOOGLE_CLIENT_ID") {
+            if (googleHint) googleHint.textContent = "Google вход не настроен";
+            return;
+        }
+        if (!window.google || !google.accounts || !google.accounts.id) {
+            if (googleHint) googleHint.textContent = "Google SDK недоступен";
+            return;
+        }
+        try {
+            google.accounts.id.initialize({
+                client_id: clientId,
+                callback: async (resp) => {
+                    const credential = resp && resp.credential ? String(resp.credential) : "";
+                    if (!credential) return;
+                    if (googleHint) googleHint.textContent = "Входим...";
+                    try {
+                        const res = await fetch("/api/auth/login-google", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ idToken: credential }),
+                        });
+                        const data = await res.json().catch(() => ({}));
+                        if (!res.ok) {
+                            if (googleHint) googleHint.textContent = data.error || "Ошибка Google входа";
+                            return;
+                        }
+                        if (data && data.token && data.user) {
+                            setAuth(data.token, data.user);
+                            updateAuthBtn();
+                            closeModal("loginModal");
+                            if (googleHint) googleHint.textContent = "";
+                        }
+                    } catch {
+                        if (googleHint) googleHint.textContent = "Ошибка сети";
+                    }
+                },
+            });
+            google.accounts.id.renderButton(container, {
+                theme: "outline",
+                size: "large",
+                text: "signin_with",
+            });
+        } catch {
+            if (googleHint) googleHint.textContent = "Google вход недоступен";
+        }
+    }
+    setTimeout(initGoogleButton, 0);
 
     const lessons = getTutorialLessons();
     const topicsEl = document.getElementById("tutorialTopics");
