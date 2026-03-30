@@ -291,6 +291,20 @@ const newsSchema = new mongoose.Schema(
 
 const News = mongoose.model("News", newsSchema);
 
+const materialSchema = new mongoose.Schema(
+  {
+    originalName: { type: String, required: true },
+    storedName: { type: String, required: true },
+    mimeType: { type: String },
+    size: { type: Number },
+    title: { type: String },
+    uploaderIp: { type: String },
+  },
+  { timestamps: true },
+);
+
+const Material = mongoose.model("Material", materialSchema);
+
 function callTossPayments(pathname, body) {
   if (!TOSS_SECRET_KEY) {
     return Promise.reject(new Error("toss not configured"));
@@ -643,6 +657,30 @@ const upload = multer({
   },
 });
 
+const materialsDir = path.join(uploadsDir, "materials");
+if (!fs.existsSync(materialsDir)) {
+  fs.mkdirSync(materialsDir, { recursive: true });
+}
+
+const materialsStorage = multer.diskStorage({
+  destination(req, file, cb) {
+    cb(null, materialsDir);
+  },
+  filename(req, file, cb) {
+    const ext = path.extname(file.originalname);
+    const base = path.basename(file.originalname, ext);
+    const safeBase = base.replace(/[^a-zA-Z0-9-_]/g, "_");
+    cb(null, `${safeBase}_${Date.now()}${ext}`);
+  },
+});
+
+const materialsUpload = multer({
+  storage: materialsStorage,
+  limits: {
+    fileSize: 20 * 1024 * 1024,
+  },
+});
+
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 20,
@@ -651,6 +689,11 @@ const authLimiter = rateLimit({
 const aiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 30,
+});
+
+const materialsLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
 });
 
 app.set("trust proxy", 1);
@@ -3039,6 +3082,105 @@ app.post("/api/ai/chat", aiLimiter, async (req, res) => {
     res.json({ reply });
   } catch (err) {
     console.error("ai chat error", err && err.message ? err.message : err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+app.post(
+  "/api/materials/upload",
+  materialsLimiter,
+  materialsUpload.single("file"),
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "file required" });
+      }
+      const title =
+        req.body && typeof req.body.title === "string" ? req.body.title.trim() : "";
+
+      const doc = await Material.create({
+        originalName: req.file.originalname,
+        storedName: req.file.filename,
+        mimeType: req.file.mimetype,
+        size: req.file.size,
+        title: title || undefined,
+        uploaderIp: req.ip,
+      });
+
+      res.status(201).json({
+        material: {
+          id: doc._id,
+          title: doc.title,
+          originalName: doc.originalName,
+          mimeType: doc.mimeType,
+          size: doc.size,
+          createdAt: doc.createdAt,
+          downloadUrl: `/api/materials/${doc._id}/download`,
+        },
+      });
+    } catch (err) {
+      console.error("materials upload error", err);
+      res.status(500).json({ error: "server error" });
+    }
+  },
+);
+
+app.get("/api/materials", async (req, res) => {
+  try {
+    const limitRaw = req.query.limit;
+    const offsetRaw = req.query.offset;
+    let limit = Number(limitRaw);
+    let offset = Number(offsetRaw);
+    if (!Number.isFinite(limit) || limit <= 0) {
+      limit = 20;
+    }
+    if (limit > 50) {
+      limit = 50;
+    }
+    if (!Number.isFinite(offset) || offset < 0) {
+      offset = 0;
+    }
+
+    const raw = await Material.find({})
+      .sort({ createdAt: -1 })
+      .skip(offset)
+      .limit(limit + 1)
+      .lean();
+
+    const hasMore = raw.length > limit;
+    const slice = hasMore ? raw.slice(0, limit) : raw;
+    const materials = slice.map((m) => ({
+      id: m._id,
+      title: m.title || "",
+      originalName: m.originalName,
+      mimeType: m.mimeType || "",
+      size: typeof m.size === "number" ? m.size : 0,
+      createdAt: m.createdAt,
+      downloadUrl: `/api/materials/${m._id}/download`,
+    }));
+
+    res.json({ materials, hasMore });
+  } catch (err) {
+    console.error("list materials error", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+app.get("/api/materials/:id/download", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const doc = await Material.findById(id).lean();
+    if (!doc) {
+      return res.status(404).json({ error: "not found" });
+    }
+    const filePath = path.join(materialsDir, doc.storedName);
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: "file not found" });
+    }
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.download(filePath, doc.originalName || "file");
+  } catch (err) {
+    console.error("download material error", err);
     res.status(500).json({ error: "server error" });
   }
 });

@@ -4525,6 +4525,23 @@ function getTutorialLessons() {
                 "</ul>" +
                 "<div class=\"tutorial-meta\">Важно: требования и порядок могут отличаться по офисам и типу визы. Всегда сверяйтесь с HiKorea/официальной информацией и вашими сроками.</div>",
         },
+        {
+            id: "materials",
+            title: "Материалы",
+            tags: ["файлы", "материалы", "pdf", "документы"],
+            html:
+                "<h3>Загрузка материалов</h3>" +
+                "<div class=\"tutorial-meta\">Загрузите файл, чтобы его можно было открыть через сайт (скачать по ссылке).</div>" +
+                "<div style=\"margin-top:0.75rem\">" +
+                "<input id=\"materialsTitle\" type=\"text\" placeholder=\"Название (необязательно)\" style=\"margin-bottom:0.5rem\">" +
+                "<input id=\"materialsFile\" type=\"file\" style=\"margin-bottom:0.5rem\">" +
+                "<button id=\"btnMaterialsUpload\" type=\"button\" class=\"btn btn-primary btn-small\">Загрузить</button>" +
+                "<div id=\"materialsHint\" class=\"auth-hint\"></div>" +
+                "</div>" +
+                "<h3 style=\"margin-top:1.25rem\">Последние материалы</h3>" +
+                "<div id=\"materialsList\" style=\"display:flex; flex-direction:column; gap:0.5rem;\"></div>" +
+                "<button id=\"btnMaterialsMore\" type=\"button\" class=\"btn btn-outline btn-small\" style=\"margin-top:0.75rem\">Показать ещё</button>",
+        },
     ];
 }
 
@@ -4793,6 +4810,14 @@ function initTutorial() {
         contentEl.innerHTML = lesson.html || "";
         setActiveTopic(lesson.id);
 
+        if (lesson.id === "materials") {
+            initMaterialsLesson();
+        }
+
+        if (lesson.id === "materials") {
+            initMaterialsLesson();
+        }
+
         if (metaEl) {
             metaEl.textContent = `Тема ${idx + 1} из ${lessons.length}` + (done.has(lesson.id) ? " • Пройдено" : "");
         }
@@ -4800,6 +4825,307 @@ function initTutorial() {
         if (btnPrev) btnPrev.disabled = idx <= 0;
         if (btnNext) btnNext.disabled = idx >= lessons.length - 1;
         if (btnDone) btnDone.textContent = done.has(lesson.id) ? "Снять отметку" : "Отметить как пройдено";
+    }
+
+    let materialsOffset = 0;
+    let materialsHasMore = true;
+
+    function formatBytes(n) {
+        const num = typeof n === "number" ? n : 0;
+        if (num <= 0) return "0 B";
+        const kb = 1024;
+        const mb = kb * 1024;
+        if (num >= mb) return (num / mb).toFixed(2) + " MB";
+        if (num >= kb) return (num / kb).toFixed(1) + " KB";
+        return String(num) + " B";
+    }
+
+    async function loadMaterials(reset = false) {
+        const listEl = document.getElementById("materialsList");
+        const moreBtn = document.getElementById("btnMaterialsMore");
+        if (!listEl) return;
+
+        if (reset) {
+            materialsOffset = 0;
+            materialsHasMore = true;
+            listEl.innerHTML = "";
+        }
+
+        if (!materialsHasMore) {
+            if (moreBtn) moreBtn.classList.add("hidden");
+            return;
+        }
+
+        if (moreBtn) {
+            moreBtn.disabled = true;
+        }
+
+        try {
+            const res = await fetch(`/api/materials?limit=20&offset=${encodeURIComponent(materialsOffset)}`);
+            if (!res.ok) {
+                return;
+            }
+            const data = await res.json();
+            const items = data && Array.isArray(data.materials) ? data.materials : [];
+            materialsHasMore = !!(data && data.hasMore);
+
+            items.forEach((m) => {
+                const row = document.createElement("div");
+                row.style.display = "flex";
+                row.style.justifyContent = "space-between";
+                row.style.alignItems = "center";
+                row.style.gap = "0.75rem";
+                row.style.padding = "0.6rem 0.75rem";
+                row.style.border = "1px solid var(--border-color)";
+                row.style.borderRadius = "var(--radius-lg)";
+                row.style.background = "var(--bg-surface)";
+
+                const left = document.createElement("div");
+                left.style.display = "flex";
+                left.style.flexDirection = "column";
+
+                const title = document.createElement("div");
+                title.style.fontWeight = "700";
+                title.textContent = (m.title && String(m.title).trim()) ? String(m.title) : String(m.originalName || "Файл");
+
+                const meta = document.createElement("div");
+                meta.style.color = "var(--text-secondary)";
+                meta.style.fontSize = "0.875rem";
+                const sizeStr = formatBytes(m.size);
+                meta.textContent = sizeStr;
+
+                left.appendChild(title);
+                left.appendChild(meta);
+
+                const link = document.createElement("a");
+                link.className = "btn btn-outline btn-small";
+                link.href = m.downloadUrl || (m.id ? `/api/materials/${m.id}/download` : "#");
+                link.target = "_blank";
+                link.rel = "noopener noreferrer";
+                link.textContent = "Открыть";
+
+                row.appendChild(left);
+                row.appendChild(link);
+
+                listEl.appendChild(row);
+            });
+
+            materialsOffset += items.length;
+            if (moreBtn) {
+                moreBtn.classList.toggle("hidden", !materialsHasMore);
+            }
+        } catch {
+        } finally {
+            if (moreBtn) {
+                moreBtn.disabled = false;
+            }
+        }
+    }
+
+    function initMaterialsLesson() {
+        const uploadBtn = document.getElementById("btnMaterialsUpload");
+        const titleEl = document.getElementById("materialsTitle");
+        const fileEl = document.getElementById("materialsFile");
+        const hintEl = document.getElementById("materialsHint");
+        const moreBtn = document.getElementById("btnMaterialsMore");
+
+        if (moreBtn && !moreBtn.dataset.bound) {
+            moreBtn.dataset.bound = "1";
+            moreBtn.addEventListener("click", () => loadMaterials(false));
+        }
+
+        if (uploadBtn && !uploadBtn.dataset.bound) {
+            uploadBtn.dataset.bound = "1";
+            uploadBtn.addEventListener("click", async () => {
+                if (!fileEl || !fileEl.files || !fileEl.files[0]) {
+                    if (hintEl) hintEl.textContent = "Выберите файл";
+                    return;
+                }
+                const file = fileEl.files[0];
+                const title = titleEl ? String(titleEl.value || "").trim() : "";
+
+                const form = new FormData();
+                form.append("file", file);
+                if (title) {
+                    form.append("title", title);
+                }
+
+                if (hintEl) hintEl.textContent = "Загружаем...";
+                uploadBtn.disabled = true;
+
+                try {
+                    const res = await fetch("/api/materials/upload", {
+                        method: "POST",
+                        body: form,
+                    });
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok) {
+                        if (hintEl) hintEl.textContent = (data && data.error) ? String(data.error) : "Ошибка загрузки";
+                        return;
+                    }
+                    if (hintEl) hintEl.textContent = "Загружено";
+                    if (fileEl) fileEl.value = "";
+                    if (titleEl) titleEl.value = "";
+                    await loadMaterials(true);
+                } catch {
+                    if (hintEl) hintEl.textContent = "Ошибка сети";
+                } finally {
+                    uploadBtn.disabled = false;
+                }
+            });
+        }
+
+        loadMaterials(true);
+    }
+
+    let materialsOffset = 0;
+    let materialsHasMore = true;
+
+    function formatBytes(n) {
+        const num = typeof n === "number" ? n : 0;
+        if (num <= 0) return "0 B";
+        const kb = 1024;
+        const mb = kb * 1024;
+        if (num >= mb) return (num / mb).toFixed(2) + " MB";
+        if (num >= kb) return (num / kb).toFixed(1) + " KB";
+        return String(num) + " B";
+    }
+
+    async function loadMaterials(reset = false) {
+        const listEl = document.getElementById("materialsList");
+        const moreBtn = document.getElementById("btnMaterialsMore");
+        if (!listEl) return;
+
+        if (reset) {
+            materialsOffset = 0;
+            materialsHasMore = true;
+            listEl.innerHTML = "";
+        }
+
+        if (!materialsHasMore) {
+            if (moreBtn) moreBtn.classList.add("hidden");
+            return;
+        }
+
+        if (moreBtn) {
+            moreBtn.disabled = true;
+        }
+
+        try {
+            const res = await fetch(`/api/materials?limit=20&offset=${encodeURIComponent(materialsOffset)}`);
+            if (!res.ok) {
+                return;
+            }
+            const data = await res.json();
+            const items = data && Array.isArray(data.materials) ? data.materials : [];
+            materialsHasMore = !!(data && data.hasMore);
+
+            items.forEach((m) => {
+                const row = document.createElement("div");
+                row.style.display = "flex";
+                row.style.justifyContent = "space-between";
+                row.style.alignItems = "center";
+                row.style.gap = "0.75rem";
+                row.style.padding = "0.6rem 0.75rem";
+                row.style.border = "1px solid var(--border-color)";
+                row.style.borderRadius = "var(--radius-lg)";
+                row.style.background = "var(--bg-surface)";
+
+                const left = document.createElement("div");
+                left.style.display = "flex";
+                left.style.flexDirection = "column";
+
+                const title = document.createElement("div");
+                title.style.fontWeight = "700";
+                title.textContent = (m.title && String(m.title).trim()) ? String(m.title) : String(m.originalName || "Файл");
+
+                const meta = document.createElement("div");
+                meta.style.color = "var(--text-secondary)";
+                meta.style.fontSize = "0.875rem";
+                meta.textContent = formatBytes(m.size);
+
+                left.appendChild(title);
+                left.appendChild(meta);
+
+                const link = document.createElement("a");
+                link.className = "btn btn-outline btn-small";
+                link.href = m.downloadUrl || (m.id ? `/api/materials/${m.id}/download` : "#");
+                link.target = "_blank";
+                link.rel = "noopener noreferrer";
+                link.textContent = "Открыть";
+
+                row.appendChild(left);
+                row.appendChild(link);
+
+                listEl.appendChild(row);
+            });
+
+            materialsOffset += items.length;
+            if (moreBtn) {
+                moreBtn.classList.toggle("hidden", !materialsHasMore);
+            }
+        } catch {
+        } finally {
+            if (moreBtn) {
+                moreBtn.disabled = false;
+            }
+        }
+    }
+
+    function initMaterialsLesson() {
+        const uploadBtn = document.getElementById("btnMaterialsUpload");
+        const titleEl = document.getElementById("materialsTitle");
+        const fileEl = document.getElementById("materialsFile");
+        const hintEl = document.getElementById("materialsHint");
+        const moreBtn = document.getElementById("btnMaterialsMore");
+
+        if (moreBtn && !moreBtn.dataset.bound) {
+            moreBtn.dataset.bound = "1";
+            moreBtn.addEventListener("click", () => loadMaterials(false));
+        }
+
+        if (uploadBtn && !uploadBtn.dataset.bound) {
+            uploadBtn.dataset.bound = "1";
+            uploadBtn.addEventListener("click", async () => {
+                if (!fileEl || !fileEl.files || !fileEl.files[0]) {
+                    if (hintEl) hintEl.textContent = "Выберите файл";
+                    return;
+                }
+                const file = fileEl.files[0];
+                const title = titleEl ? String(titleEl.value || "").trim() : "";
+
+                const form = new FormData();
+                form.append("file", file);
+                if (title) {
+                    form.append("title", title);
+                }
+
+                if (hintEl) hintEl.textContent = "Загружаем...";
+                uploadBtn.disabled = true;
+
+                try {
+                    const res = await fetch("/api/materials/upload", {
+                        method: "POST",
+                        body: form,
+                    });
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok) {
+                        if (hintEl) hintEl.textContent = (data && data.error) ? String(data.error) : "Ошибка загрузки";
+                        return;
+                    }
+                    if (hintEl) hintEl.textContent = "Загружено";
+                    if (fileEl) fileEl.value = "";
+                    if (titleEl) titleEl.value = "";
+                    await loadMaterials(true);
+                } catch {
+                    if (hintEl) hintEl.textContent = "Ошибка сети";
+                } finally {
+                    uploadBtn.disabled = false;
+                }
+            });
+        }
+
+        loadMaterials(true);
     }
 
     function currentLessonId() {
@@ -4965,6 +5291,12 @@ function initTutorial() {
 
     initTutorialChat();
     renderTopics("");
+
+    if (!getLessonFromHash() && lessons.some((l) => l.id === "materials")) {
+        setHashLesson("materials");
+        return;
+    }
+
     renderLesson(currentLessonId());
 }
 
