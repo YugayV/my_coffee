@@ -4526,11 +4526,14 @@ function getTutorialLessons() {
                 "<div class=\"tutorial-meta\">Важно: требования и порядок могут отличаться по офисам и типу визы. Всегда сверяйтесь с HiKorea/официальной информацией и вашими сроками.</div>",
         },
         {
-            id: "materials",
-            title: "Материалы",
-            tags: ["файлы", "материалы", "pdf", "документы"],
+            id: "info",
+            title: "Информация",
+            tags: ["информация", "материалы", "публикации"],
             html:
-                "<h3>Загрузка материалов</h3>" +
+                "<h3>Публикации</h3>" +
+                "<div class=\"tutorial-meta\">Все текущие и будущие публикации будут появляться здесь списком.</div>" +
+                "<div id=\"infoPublicationsList\" style=\"display:flex; flex-direction:column; gap:0.5rem; margin-top:0.75rem;\"></div>" +
+                "<h3 style=\"margin-top:1.25rem\">Материалы</h3>" +
                 "<div class=\"tutorial-meta\">Загрузите файл, чтобы его можно было открыть через сайт (скачать по ссылке).</div>" +
                 "<div style=\"margin-top:0.75rem\">" +
                 "<input id=\"materialsTitle\" type=\"text\" placeholder=\"Название (необязательно)\" style=\"margin-bottom:0.5rem\">" +
@@ -4810,11 +4813,8 @@ function initTutorial() {
         contentEl.innerHTML = lesson.html || "";
         setActiveTopic(lesson.id);
 
-        if (lesson.id === "materials") {
-            initMaterialsLesson();
-        }
-
-        if (lesson.id === "materials") {
+        if (lesson.id === "info") {
+            initInfoLesson();
             initMaterialsLesson();
         }
 
@@ -4827,8 +4827,8 @@ function initTutorial() {
         if (btnDone) btnDone.textContent = done.has(lesson.id) ? "Снять отметку" : "Отметить как пройдено";
     }
 
-    let materialsOffset = 0;
-    let materialsHasMore = true;
+    materialsOffset = 0;
+    materialsHasMore = true;
 
     function formatBytes(n) {
         const num = typeof n === "number" ? n : 0;
@@ -4922,6 +4922,31 @@ function initTutorial() {
         }
     }
 
+    function initInfoLesson() {
+        const listEl = document.getElementById("infoPublicationsList");
+        if (!listEl) return;
+        listEl.innerHTML = "";
+
+        const items = lessons.filter((l) => l && l.id && l.id !== "info");
+        items.forEach((l) => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "nav-link";
+            btn.textContent = l.title || l.id;
+            btn.addEventListener("click", () => {
+                setHashLesson(l.id);
+            });
+            listEl.appendChild(btn);
+        });
+
+        if (!items.length) {
+            const empty = document.createElement("div");
+            empty.className = "tutorial-meta";
+            empty.textContent = "Пока нет публикаций";
+            listEl.appendChild(empty);
+        }
+    }
+
     function initMaterialsLesson() {
         const uploadBtn = document.getElementById("btnMaterialsUpload");
         const titleEl = document.getElementById("materialsTitle");
@@ -4978,8 +5003,8 @@ function initTutorial() {
         loadMaterials(true);
     }
 
-    let materialsOffset = 0;
-    let materialsHasMore = true;
+    materialsOffset = 0;
+    materialsHasMore = true;
 
     function formatBytes(n) {
         const num = typeof n === "number" ? n : 0;
@@ -5292,8 +5317,8 @@ function initTutorial() {
     initTutorialChat();
     renderTopics("");
 
-    if (!getLessonFromHash() && lessons.some((l) => l.id === "materials")) {
-        setHashLesson("materials");
+    if (!getLessonFromHash() && lessons.some((l) => l.id === "info")) {
+        setHashLesson("info");
         return;
     }
 
