@@ -37,6 +37,10 @@ const SMTP_USER = process.env.SMTP_USER;
 const SMTP_PASS = process.env.SMTP_PASS;
 const SMTP_FROM_EMAIL = process.env.SMTP_FROM_EMAIL || ADMIN_EMAIL || "";
 const KAKAO_JS_KEY = process.env.KAKAO_JS_KEY || "YOUR_KAKAO_JAVASCRIPT_KEY";
+const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
+const DEEPSEEK_API_BASE =
+  process.env.DEEPSEEK_API_BASE || "https://api.deepseek.com";
+const DEEPSEEK_MODEL = process.env.DEEPSEEK_MODEL || "deepseek-chat";
 
 if (!JWT_SECRET) {
   throw new Error("JWT_SECRET is required");
@@ -332,6 +336,54 @@ function callTossPayments(pathname, body) {
   });
 }
 
+function callDeepseekChatCompletions(body) {
+  if (!DEEPSEEK_API_KEY) {
+    return Promise.reject(new Error("deepseek not configured"));
+  }
+  const url = new URL("/v1/chat/completions", DEEPSEEK_API_BASE);
+  const data = JSON.stringify(body);
+  const options = {
+    hostname: url.hostname,
+    port: url.port ? Number(url.port) : 443,
+    path: url.pathname + (url.search || ""),
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
+      "Content-Length": Buffer.byteLength(data),
+    },
+  };
+
+  return new Promise((resolve, reject) => {
+    const req = https.request(options, (res) => {
+      let raw = "";
+      res.on("data", (chunk) => {
+        raw += chunk;
+      });
+      res.on("end", () => {
+        try {
+          const parsed = raw ? JSON.parse(raw) : {};
+          if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
+            resolve(parsed);
+          } else {
+            const err = new Error("deepseek error");
+            err.statusCode = res.statusCode;
+            err.body = parsed;
+            reject(err);
+          }
+        } catch (e) {
+          reject(e);
+        }
+      });
+    });
+    req.on("error", (err) => {
+      reject(err);
+    });
+    req.write(data);
+    req.end();
+  });
+}
+
 function normalizePhone(raw) {
   if (!raw) return "";
   let p = String(raw).trim();
@@ -552,6 +604,11 @@ const upload = multer({
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 20,
+});
+
+const aiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
 });
 
 app.set("trust proxy", 1);
@@ -2712,6 +2769,67 @@ app.get("/api/cafes", async (req, res) => {
     res.json({ cafes: cafesWithCounts });
   } catch (err) {
     console.error("list cafes error", err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+app.post("/api/ai/chat", aiLimiter, async (req, res) => {
+  try {
+    if (!DEEPSEEK_API_KEY) {
+      return res.status(501).json({ error: "ai not configured" });
+    }
+    const { message, lessonId, lessonTitle } = req.body || {};
+    const text = typeof message === "string" ? message.trim() : "";
+    if (!text) {
+      return res.status(400).json({ error: "message required" });
+    }
+    if (text.length > 2000) {
+      return res.status(400).json({ error: "message too long" });
+    }
+
+    const lid = typeof lessonId === "string" ? lessonId.trim() : "";
+    const ltitle = typeof lessonTitle === "string" ? lessonTitle.trim() : "";
+
+    const system =
+      "Вы — помощник и инструктор для русскоязычных в Корее. " +
+      "Отвечайте по-русски, коротко и структурировано. " +
+      "Если уместно, добавляйте корейские фразы (한글) и транскрипцию. " +
+      "Объясняйте правила/этикет/дорожные правила безопасно. " +
+      "Если вопрос про юридические/медицинские нюансы — дайте общий ориентир и предложите проверить официальные источники.";
+
+    const contextLine =
+      lid || ltitle
+        ? `Контекст урока: ${ltitle || lid}.\n\n`
+        : "";
+
+    const payload = {
+      model: DEEPSEEK_MODEL,
+      messages: [
+        { role: "system", content: system },
+        { role: "user", content: contextLine + text },
+      ],
+      temperature: 0.4,
+      max_tokens: 500,
+    };
+
+    const data = await callDeepseekChatCompletions(payload);
+    const reply =
+      data &&
+      data.choices &&
+      Array.isArray(data.choices) &&
+      data.choices[0] &&
+      data.choices[0].message &&
+      typeof data.choices[0].message.content === "string"
+        ? data.choices[0].message.content.trim()
+        : "";
+
+    if (!reply) {
+      return res.status(502).json({ error: "ai empty response" });
+    }
+
+    res.json({ reply });
+  } catch (err) {
+    console.error("ai chat error", err && err.message ? err.message : err);
     res.status(500).json({ error: "server error" });
   }
 });

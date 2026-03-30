@@ -263,6 +263,72 @@ body.tutorial-mode .main-content > :not(#tutorialApp) {
     color: var(--primary-color);
 }
 
+.tutorial-chat {
+    margin-top: 1rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+}
+
+.tutorial-chat-header {
+    padding: 0.75rem 1rem;
+    font-weight: 700;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-surface-hover);
+}
+
+.tutorial-chat-log {
+    padding: 0.75rem 1rem;
+    max-height: 320px;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.tutorial-chat-msg {
+    display: flex;
+}
+
+.tutorial-chat-bubble {
+    max-width: 85%;
+    padding: 0.6rem 0.75rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    background: var(--bg-body);
+    color: var(--text-main);
+    white-space: pre-wrap;
+}
+
+.tutorial-chat-msg.user {
+    justify-content: flex-end;
+}
+
+.tutorial-chat-msg.user .tutorial-chat-bubble {
+    background: rgba(var(--primary-rgb), 0.08);
+    border-color: rgba(var(--primary-rgb), 0.2);
+}
+
+.tutorial-chat-msg.assistant {
+    justify-content: flex-start;
+}
+
+.tutorial-chat-form {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--border-color);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.5rem;
+    align-items: start;
+}
+
+#tutorialChatInput {
+    resize: vertical;
+    min-height: 44px;
+}
+
 /* Navigation & Lists */
 .nav-link, .city-btn, .province-btn {
     display: flex;

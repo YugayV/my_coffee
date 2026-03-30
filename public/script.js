@@ -4512,10 +4512,124 @@ function initTutorial() {
         });
     }
 
+    const chatLogEl = document.getElementById("tutorialChatLog");
+    const chatInputEl = document.getElementById("tutorialChatInput");
+    const chatSendBtn = document.getElementById("btnTutorialChatSend");
+
+    function initTutorialChat() {
+        if (!chatLogEl || !chatInputEl || !chatSendBtn) {
+            return;
+        }
+
+        const chatKey = "korea_tutorial_chat_v1";
+
+        function loadChat() {
+            try {
+                const raw = localStorage.getItem(chatKey);
+                const parsed = raw ? JSON.parse(raw) : [];
+                return Array.isArray(parsed) ? parsed : [];
+            } catch {
+                return [];
+            }
+        }
+
+        function saveChat(items) {
+            const slice = Array.isArray(items) ? items.slice(-30) : [];
+            localStorage.setItem(chatKey, JSON.stringify(slice));
+        }
+
+        function appendMessage(role, text) {
+            const msg = {
+                role: role === "user" ? "user" : "assistant",
+                content: String(text || ""),
+                ts: Date.now(),
+            };
+            const items = loadChat();
+            items.push(msg);
+            saveChat(items);
+            renderChat();
+        }
+
+        function renderChat() {
+            const items = loadChat();
+            chatLogEl.innerHTML = "";
+            items.forEach((m) => {
+                const row = document.createElement("div");
+                row.className = "tutorial-chat-msg " + (m.role === "user" ? "user" : "assistant");
+
+                const bubble = document.createElement("div");
+                bubble.className = "tutorial-chat-bubble";
+                bubble.textContent = m.content || "";
+
+                row.appendChild(bubble);
+                chatLogEl.appendChild(row);
+            });
+            chatLogEl.scrollTop = chatLogEl.scrollHeight;
+        }
+
+        async function sendChat() {
+            const text = String(chatInputEl.value || "").trim();
+            if (!text) return;
+
+            chatInputEl.value = "";
+            appendMessage("user", text);
+
+            const id = currentLessonId();
+            const lesson = lessons.find((l) => l.id === id);
+
+            chatSendBtn.disabled = true;
+            try {
+                const res = await fetch("/api/ai/chat", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        message: text,
+                        lessonId: id,
+                        lessonTitle: lesson ? lesson.title : "",
+                    }),
+                });
+
+                if (!res.ok) {
+                    let errText = "Не удалось получить ответ";
+                    try {
+                        const data = await res.json();
+                        if (data && data.error) {
+                            errText = String(data.error);
+                        }
+                    } catch {
+                    }
+                    appendMessage("assistant", errText);
+                    return;
+                }
+
+                const data = await res.json();
+                const reply = data && typeof data.reply === "string" ? data.reply : "";
+                appendMessage("assistant", reply || "(пустой ответ)");
+            } catch {
+                appendMessage("assistant", "Ошибка сети");
+            } finally {
+                chatSendBtn.disabled = false;
+            }
+        }
+
+        chatSendBtn.addEventListener("click", sendChat);
+        chatInputEl.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendChat();
+            }
+        });
+
+        renderChat();
+    }
+
     window.addEventListener("hashchange", () => {
         renderLesson(currentLessonId());
     });
 
+    initTutorialChat();
     renderTopics("");
     renderLesson(currentLessonId());
 }
