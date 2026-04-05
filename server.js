@@ -769,19 +769,19 @@ function sendHtmlWithKakao(fileName, res) {
 
 app.get("/", async (req, res) => {
   await registerVisit();
-  sendHtmlWithKakao("index.html", res);
+  sendHtmlWithKakao("tutorial.html", res);
 });
 
 app.get("/cafe/:id", (req, res) => {
-  sendHtmlWithKakao("index.html", res);
+  sendHtmlWithKakao("tutorial.html", res);
 });
 
 app.get("/payments/toss/success", (req, res) => {
-  sendHtmlWithKakao("index.html", res);
+  sendHtmlWithKakao("tutorial.html", res);
 });
 
 app.get("/payments/toss/fail", (req, res) => {
-  sendHtmlWithKakao("index.html", res);
+  sendHtmlWithKakao("tutorial.html", res);
 });
 
 app.get("/owner", (req, res) => {
@@ -3244,7 +3244,7 @@ app.post(
 
 // SPA fallback
 app.get("*", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "public", "index.html"));
+  res.sendFile(path.resolve(__dirname, "public", "tutorial.html"));
 });
 
 app.listen(PORT, () => {
